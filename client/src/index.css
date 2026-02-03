@@ -5,24 +5,26 @@
 @tailwind utilities;
 
 :root {
-  /* GUI Mode Colors (Light Theme) */
+  /* GUI Mode Colors (Enhanced Contrast) */
   --bg-gui: 0 0% 100%;
-  --fg-gui: 240 10% 3.9%;
-  --primary-gui: 240 5.9% 10%;
-  --primary-fg-gui: 0 0% 98%;
-  --muted-gui: 240 4.8% 95.9%;
-  --muted-fg-gui: 240 3.8% 46.1%;
-  --accent-gui: 240 4.8% 95.9%;
-  --border-gui: 240 5.9% 90%;
+  --fg-gui: 224 71% 4%;
+  --primary-gui: 222.2 47.4% 11.2%;
+  --primary-fg-gui: 210 40% 98%;
+  --muted-gui: 210 40% 96.1%;
+  --muted-fg-gui: 215.4 16.3% 46.9%;
+  --accent-gui: 210 40% 96.1%;
+  --border-gui: 214.3 31.8% 91.4%;
+  --card-gui: 0 0% 100%;
+  --card-fg-gui: 224 71% 4%;
 
-  /* Terminal Mode Colors (Tokyo Night inspired) */
-  --bg-term: 237 20% 13%;     /* #1a1b26 */
-  --fg-term: 237 28% 85%;     /* #c0caf5 */
-  --term-green: 95 38% 62%;   /* #9ece6a */
-  --term-cyan: 196 100% 75%;  /* #7dcfff */
-  --term-blue: 226 70% 66%;   /* #7aa2f7 */
-  --term-red: 350 71% 70%;    /* #f7768e */
-  --term-purple: 265 67% 76%; /* #bb9af7 */
+  /* Terminal Mode Colors (Vibrant Tokyo Night) */
+  --bg-term: 235 24% 9%;      /* Deeper black #0f111a */
+  --fg-term: 230 20% 90%;     /* Crisp white #e6e6e6 */
+  --term-green: 150 60% 60%;  /* Brighter green */
+  --term-cyan: 190 80% 65%;   /* Brighter cyan */
+  --term-blue: 220 70% 70%;   /* Brighter blue */
+  --term-red: 0 70% 65%;      /* Brighter red */
+  --term-purple: 270 60% 75%; /* Brighter purple */
   
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'Fira Code', monospace;

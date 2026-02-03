@@ -269,7 +269,9 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
   };
 
   const onSubmit = (data: { command: string }) => {
-    executeCommand(data.command);
+    if (data && data.command) {
+      executeCommand(data.command);
+    }
     reset();
   };
 
