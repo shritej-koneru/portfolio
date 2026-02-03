@@ -8,12 +8,41 @@ import { useToast } from "@/hooks/use-toast";
 
 // --- Components ---
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+function SectionHeader({ title, subtitle, id }: { title: string; subtitle: string; id?: string }) {
   return (
-    <div className="mb-12">
+    <div className="mb-12" id={id}>
       <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{title}</h2>
       <div className="h-1 w-20 bg-primary rounded-full mb-4"></div>
       <p className="text-muted-foreground text-lg max-w-2xl">{subtitle}</p>
+    </div>
+  );
+}
+
+function PhotoGallery() {
+  const photos = [
+    { url: "/images/hero-bg.jpg", alt: "Tech Setup" },
+    { url: "/images/project-1.jpg", alt: "Project Alpha" },
+    { url: "/images/project-2.jpg", alt: "Project Beta" },
+    { url: "/images/avatar.jpg", alt: "Profile" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {photos.map((photo, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ delay: i * 0.1 }}
+          className="aspect-square rounded-2xl overflow-hidden border bg-muted"
+        >
+          <img 
+            src={photo.url} 
+            alt={photo.alt} 
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+          />
+        </motion.div>
+      ))}
     </div>
   );
 }
@@ -253,6 +282,14 @@ export function GuiView() {
               ))
             )}
           </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-24 bg-background" id="gallery">
+        <div className="container max-w-6xl mx-auto px-6">
+          <SectionHeader title="Photo Gallery" subtitle="A visual look at my workspace and creative projects." />
+          <PhotoGallery />
         </div>
       </section>
 

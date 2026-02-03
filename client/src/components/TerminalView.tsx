@@ -272,7 +272,7 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
     if (data && data.command) {
       executeCommand(data.command);
     }
-    reset();
+    reset({ command: "" });
   };
 
   return (
