@@ -245,6 +245,10 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      // Form submission will handle this
+      return;
+    }
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (history.length > 0) {
