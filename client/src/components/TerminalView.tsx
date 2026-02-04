@@ -246,7 +246,7 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      // Form submission will handle this
+      // Allow default behavior for form submission
       return;
     }
     if (e.key === "ArrowUp") {
@@ -266,18 +266,20 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         setHistoryIndex(-1);
         setValue("command", "");
       }
-    } else if (e.key === "Tab") {
-        e.preventDefault();
-        // Simple tab completion could go here
     }
   };
 
   const onSubmit = (data: { command: string }) => {
-    if (data && data.command) {
-      executeCommand(data.command);
+    const cmd = data.command?.trim();
+    if (cmd) {
+      executeCommand(cmd);
     }
     reset({ command: "" });
+    // Force focus back after reset
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
+
+  const { ref: registerRef, ...commandRegister } = register("command");
 
   return (
     <div className="fixed inset-0 bg-[var(--term-bg)] text-[var(--term-fg)] font-mono p-4 sm:p-8 overflow-hidden z-40 crt flex flex-col">
@@ -302,11 +304,20 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
             </div>
           ))}
           
-          <form onSubmit={handleSubmit(onSubmit)} className="flex items-center mt-2">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(onSubmit)(e);
+            }} 
+            className="flex items-center mt-2"
+          >
             <Prompt />
             <input
-              {...register("command")}
-              ref={inputRef}
+              {...commandRegister}
+              ref={(e) => {
+                registerRef(e);
+                (inputRef as any).current = e;
+              }}
               autoComplete="off"
               onKeyDown={onKeyDown}
               className="flex-grow bg-transparent border-none outline-none text-[var(--term-fg)] caret-[var(--term-cyan)]"
