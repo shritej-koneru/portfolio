@@ -173,18 +173,28 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
           response = "Loading projects data...";
         } else {
           response = (
-            <div className="flex flex-col gap-6 mt-2">
+            <div className="flex flex-col gap-8 mt-2">
               {projects.map((p: any) => (
-                <div key={p.id}>
-                  <div className="flex items-center gap-2">
+                <div key={p.id} className="border-l-2 border-[var(--term-blue)] pl-4 py-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <span className="text-[var(--term-green)] font-bold text-lg">➜ {p.title}</span>
                     <div className="flex gap-2 text-xs">
                       {p.repoUrl && <a href={p.repoUrl} target="_blank" className="text-[var(--term-blue)] hover:underline">[repo]</a>}
                       {p.demoUrl && <a href={p.demoUrl} target="_blank" className="text-[var(--term-cyan)] hover:underline">[demo]</a>}
                     </div>
                   </div>
-                  <p className="text-[var(--term-fg)] opacity-90 pl-5 mb-1">{p.description}</p>
-                  <p className="pl-5 text-xs text-[var(--term-purple)]">Stack: {p.techStack.join(", ")}</p>
+                  {p.demoUrl && p.demoUrl.startsWith('/images/') && (
+                    <div className="mb-3 rounded-lg overflow-hidden border border-[var(--term-fg)]/20 w-full max-w-md bg-black">
+                      <img 
+                        src={p.demoUrl} 
+                        alt={p.title} 
+                        className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                      />
+                    </div>
+                  )}
+                  <p className="text-[var(--term-fg)] opacity-90 mb-2">{p.description}</p>
+                  <p className="text-xs text-[var(--term-purple)] font-semibold">Stack: {p.techStack.join(", ")}</p>
                 </div>
               ))}
             </div>
