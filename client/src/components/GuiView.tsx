@@ -431,18 +431,45 @@ function CurrentStatus({ gradientBorder }: { gradientBorder?: string }) {
 
 function ContactForm() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    // Simulate sending
-    console.log("Contact form submission:", formData);
-    setTimeout(() => {
-      setStatus("sent");
-      setFormData({ name: "", email: "", message: "" });
+
+    try {
+      // Using Web3Forms - a free form submission service
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "YOUR_WEB3FORMS_ACCESS_KEY", // Get free key from https://web3forms.com
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          from_name: "Portfolio Contact Form",
+          subject: `New message from ${formData.name}`,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus("sent");
+        setFormData({ name: "", email: "", message: "" });
+        setTimeout(() => setStatus("idle"), 3000);
+      } else {
+        setStatus("error");
+        setTimeout(() => setStatus("idle"), 3000);
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setStatus("error");
       setTimeout(() => setStatus("idle"), 3000);
-    }, 1000);
+    }
   };
 
   return (
@@ -486,10 +513,13 @@ function ContactForm() {
         disabled={status === "sending"}
         className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
       >
-        {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : (
+        {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : status === "error" ? "Failed ✗" : (
           <>Send Message <Send size={18} /></>
         )}
       </button>
+      {status === "error" && (
+        <p className="text-sm text-red-500">Failed to send message. Please try again or email directly.</p>
+      )}
     </form>
   );
 }
