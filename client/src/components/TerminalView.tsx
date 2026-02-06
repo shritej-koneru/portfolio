@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useProjects, useSkills, useTimeline, PERSONAL_INFO, CURRENT_STATUS } from "@/hooks/use-portfolio";
+import { useProjects, useSkills, useTimeline, useCertifications, PERSONAL_INFO, CURRENT_STATUS } from "@/hooks/use-portfolio";
 import { useForm } from "react-hook-form";
 
 // --- Types ---
@@ -46,9 +46,15 @@ function HelpTable() {
     { cmd: "projects", desc: "List featured projects (with repo links)" },
     { cmd: "skills", desc: "Show technical skills by category" },
     { cmd: "timeline", desc: "View education & work timeline" },
+    { cmd: "certifications", desc: "Display professional certifications" },
     { cmd: "status", desc: "Show current status and roles" },
     { cmd: "exploring", desc: "Areas I'm actively learning" },
     { cmd: "contact", desc: "Display contact information" },
+    { cmd: "socials", desc: "Show social media links" },
+    { cmd: "resume", desc: "Open resume/CV" },
+    { cmd: "ls", desc: "List available sections" },
+    { cmd: "echo <text>", desc: "Echo back the text" },
+    { cmd: "date", desc: "Show current date and time" },
     { cmd: "clear", desc: "Clear terminal output" },
     { cmd: "gui", desc: "Switch to GUI mode" },
     { cmd: "help", desc: "Show this help message (try 'help <command>')" },
@@ -95,6 +101,7 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
   const { data: projects } = useProjects();
   const { data: skills } = useSkills();
   const { data: timeline } = useTimeline();
+  const { data: certifications } = useCertifications();
 
   const { register, handleSubmit, reset, setValue, watch } = useForm<{ command: string }>();
 
@@ -166,6 +173,31 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
       contact: {
         desc: "Display contact information including email, GitHub, and LinkedIn profiles.",
         usage: "contact",
+      },
+      certifications: {
+        desc: "Display all professional certifications and achievements with credential links.",
+        usage: "certifications",
+      },
+      socials: {
+        desc: "Show all social media and professional networking links.",
+        usage: "socials",
+      },
+      resume: {
+        desc: "Open resume/CV in a new tab.",
+        usage: "resume",
+      },
+      ls: {
+        desc: "List all available portfolio sections.",
+        usage: "ls",
+      },
+      echo: {
+        desc: "Echo back the provided text.",
+        usage: "echo <text>",
+        examples: ["echo Hello World", "echo Testing 123"],
+      },
+      date: {
+        desc: "Display current date and time.",
+        usage: "date",
       },
       clear: {
         desc: "Clear all terminal output and start fresh.",
@@ -414,6 +446,121 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
             </p>
           </div>
         );
+        break;
+
+      case "certifications":
+      case "certs":
+      case "certificates":
+        if (!certifications) {
+          response = "Loading certifications data...";
+        } else {
+          response = (
+            <div className="flex flex-col gap-6 mt-2">
+              {certifications.map((cert: any) => (
+                <div key={cert.id} className="border-l-2 border-[var(--term-purple)] pl-4 py-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[var(--term-cyan)] font-bold">🏆 {cert.name}</span>
+                  </div>
+                  <p className="text-[var(--term-green)] text-sm mb-1">{cert.issuer}</p>
+                  <p className="text-xs opacity-60 mb-2">{cert.issueDate}</p>
+                  {cert.credentialId && (
+                    <p className="text-xs text-[var(--term-blue)] opacity-80 mb-1">ID: {cert.credentialId}</p>
+                  )}
+                  {cert.credentialUrl && (
+                    <p className="text-xs text-[var(--term-cyan)]">
+                      Credential: <a href={cert.credentialUrl} target="_blank" className="hover:underline">{cert.credentialUrl}</a>
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        }
+        break;
+
+      case "socials":
+      case "social":
+        response = (
+          <div className="mt-2">
+            <p className="text-[var(--term-cyan)] mb-3">Connect with me:</p>
+            <div className="pl-4 space-y-2">
+              <div>
+                <span className="text-[var(--term-green)]">🐙 GitHub:</span>
+                <a href={PERSONAL_INFO.github} target="_blank" className="ml-2 hover:underline">{PERSONAL_INFO.github}</a>
+              </div>
+              <div>
+                <span className="text-[var(--term-blue)]">💼 LinkedIn:</span>
+                <a href={PERSONAL_INFO.linkedin} target="_blank" className="ml-2 hover:underline">{PERSONAL_INFO.linkedin}</a>
+              </div>
+              <div>
+                <span className="text-[var(--term-red)]">📧 Email:</span>
+                <a href={`mailto:${PERSONAL_INFO.email}`} className="ml-2 hover:underline">{PERSONAL_INFO.email}</a>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case "resume":
+      case "cv":
+        window.open('/assets/resume.pdf', '_blank');
+        response = (
+          <div className="mt-2">
+            <p className="text-[var(--term-green)]">✓ Opening resume in new tab...</p>
+            <p className="text-xs opacity-60 mt-1">If your browser blocked the popup, enable popups or check /assets/resume.pdf</p>
+          </div>
+        );
+        break;
+
+      case "ls":
+      case "list":
+        response = (
+          <div className="mt-2">
+            <p className="text-[var(--term-cyan)] mb-2">Available sections:</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-4">
+              <span className="text-[var(--term-blue)]">📋 about</span>
+              <span className="text-[var(--term-blue)]">💼 projects</span>
+              <span className="text-[var(--term-blue)]">🛠️ skills</span>
+              <span className="text-[var(--term-blue)]">📅 timeline</span>
+              <span className="text-[var(--term-blue)]">🏆 certifications</span>
+              <span className="text-[var(--term-blue)]">💡 exploring</span>
+              <span className="text-[var(--term-blue)]">📊 status</span>
+              <span className="text-[var(--term-blue)]">📧 contact</span>
+              <span className="text-[var(--term-blue)]">🔗 socials</span>
+              <span className="text-[var(--term-blue)]">📄 resume</span>
+            </div>
+            <p className="text-xs opacity-60 mt-3">Type any command name to view that section</p>
+          </div>
+        );
+        break;
+
+      case "echo":
+        if (args.length === 0) {
+          response = "";
+        } else {
+          response = args.join(' ');
+        }
+        break;
+
+      case "date":
+        const now = new Date();
+        response = (
+          <div className="mt-2">
+            <p className="text-[var(--term-green)]">{now.toLocaleString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })}</p>
+          </div>
+        );
+        break;
+
+      case "pwd":
+        response = "/home/guest/portfolio";
         break;
 
       default:
