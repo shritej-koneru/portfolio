@@ -1,0 +1,12 @@
+{
+  "name": "linkedin-scraper",
+  "version": "1.0.0",
+  "description": "LinkedIn post content scraper",
+  "type": "module",
+  "scripts": {
+    "scrape": "node scrape-posts.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}

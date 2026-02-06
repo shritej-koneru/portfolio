@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Quantum Fundamentals – Certificate of Completion",
+    "issuer": "WISER (Women in Science, Engineering & Research)",
+    "issueDate": "February 2026",
+    "credentialId": "2E69CB79",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Quantum-Wiser.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Full-Stack Development (2-Day Technical Workshop)",
+    "issuer": "Skilligence Edtech Pvt. Ltd.",
+    "issueDate": "January 2026",
+    "credentialId": "SKG-BPHC-FSD-36",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Copy%20of%20SKG-BPHC-FSD-36.png"
+  },
+  {
+    "id": 3,
+    "name": "Certificate of Participation – Game Development Unlocked for Beginners",
+    "issuer": "Siddhartha Academy of Higher Education (Deemed to be University)",
+    "issueDate": "January 2026",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/24EU04159(AR%26VR).pdf"
+  },
+  {
+    "id": 4,
+    "name": "GDG on Campus Solution Challenge Certificate of Participation",
+    "issuer": "Google Developer Groups On Campus (powered by Hack2Skill)",
+    "issueDate": "January 2025",
+    "credentialId": "2025H2S01GSC-P05289",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Hack2skill-Certificate.png"
+  },
+  {
+    "id": 5,
+    "name": "Google Android Developer",
+    "issuer": "EduSkills",
+    "issueDate": "June 2025",
+    "credentialId": "1AK53V41Z6QV",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Edu%20Skills%20Virtual%20Internship%20Completion%20Certificate.pdf"
+  },
+  {
+    "id": 6,
+    "name": "Android Developer Virtual Internship",
+    "issuer": "AICTE EduSkills",
+    "issueDate": "December 2025",
+    "credentialId": "cf0623a6a4157360bf2616e55130eea8",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Edu%20Skills%20Virtual%20Internship.pdf"
+  },
+  {
+    "id": 7,
+    "name": "Build with AI: Intro to Gemini 2.0 Flash – India Edu Program",
+    "issuer": "L4G Solutions Private Limited",
+    "issueDate": "September 2025",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/shritejkoneru.ai%40gmail.com.pdf"
+  },
+  {
+    "id": 8,
+    "name": "Programming in Java",
+    "issuer": "NPTEL",
+    "issueDate": "October 2025",
+    "credentialId": "NPTEL25CS110S272101019",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/Programming%20In%20Java.pdf"
+  },
+  {
+    "id": 9,
+    "name": "Digital Awareness",
+    "issuer": "Cisco Networking Academy",
+    "issueDate": "October 2024",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/DigitalAwarenessUpdate20251019-33-qlfswt.pdf"
+  },
+  {
+    "id": 10,
+    "name": "Python Essentials 2",
+    "issuer": "Cisco Networking Academy",
+    "issueDate": "November 2024",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/PythonEssentials2Update20251019-34-vsr3q2.pdf"
+  },
+  {
+    "id": 11,
+    "name": "Python Essentials 1",
+    "issuer": "Cisco Networking Academy",
+    "issueDate": "October 2024",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/PythonEssentials1Update20251019-32-rit9el.pdf"
+  },
+  {
+    "id": 12,
+    "name": "Linux Essentials",
+    "issuer": "Cisco Networking Academy",
+    "issueDate": "October 2025",
+    "credentialUrl": "https://github.com/shritej-koneru/shritej-koneru/blob/main/Certifications/LinuxEssentialsUpdate20251017-32-28hppv.pdf"
+  }
+]

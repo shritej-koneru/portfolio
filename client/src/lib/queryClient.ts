@@ -44,7 +44,16 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
+      // Only use default queryFn for internal API calls (those starting with /api)
+      // External APIs like GitHub will provide their own queryFn
+      queryFn: async ({ queryKey }) => {
+        const url = queryKey.join("/") as string;
+        // Skip default queryFn for external URLs
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          throw new Error('External URLs should provide their own queryFn');
+        }
+        return getQueryFn({ on401: "throw" })({ queryKey, meta: undefined, signal: undefined });
+      },
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,

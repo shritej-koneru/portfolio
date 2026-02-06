@@ -5,11 +5,45 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { db } from "./db";
 import { projects, skills, experience } from "@shared/schema";
+import fs from 'fs/promises';
+import path from 'path';
+
+// LinkedIn posts cache
+let linkedInPostsCache: any[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+async function getLinkedInPosts() {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (linkedInPostsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+    return linkedInPostsCache;
+  }
+  
+  // Read from JSON file (acts as persistent cache)
+  try {
+    const filePath = path.join(process.cwd(), 'client/src/data/linkedin-posts.json');
+    const data = await fs.readFile(filePath, 'utf-8');
+    linkedInPostsCache = JSON.parse(data);
+    cacheTimestamp = now;
+    return linkedInPostsCache;
+  } catch (error) {
+    console.error('Error reading LinkedIn posts:', error);
+    return [];
+  }
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+
+  // === LinkedIn Posts ===
+  app.get('/api/linkedin/posts', async (req, res) => {
+    const posts = await getLinkedInPosts();
+    res.json(posts);
+  });
 
   // === Projects ===
   app.get(api.projects.list.path, async (req, res) => {

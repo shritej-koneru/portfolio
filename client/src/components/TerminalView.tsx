@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useProjects, useSkills, useExperience } from "@/hooks/use-portfolio";
+import { useProjects, useSkills, useTimeline, PERSONAL_INFO, CURRENT_STATUS } from "@/hooks/use-portfolio";
 import { useForm } from "react-hook-form";
 
 // --- Types ---
@@ -42,23 +42,30 @@ function Prompt() {
 function HelpTable() {
   const commands = [
     { cmd: "about", desc: "Display biographical information" },
-    { cmd: "projects", desc: "List featured projects" },
-    { cmd: "skills", desc: "Show technical skills" },
-    { cmd: "experience", desc: "View work history" },
+    { cmd: "whoami", desc: "Quick identity summary" },
+    { cmd: "projects", desc: "List featured projects (with repo links)" },
+    { cmd: "skills", desc: "Show technical skills by category" },
+    { cmd: "timeline", desc: "View education & work timeline" },
+    { cmd: "status", desc: "Show current status and roles" },
+    { cmd: "exploring", desc: "Areas I'm actively learning" },
     { cmd: "contact", desc: "Display contact information" },
     { cmd: "clear", desc: "Clear terminal output" },
     { cmd: "gui", desc: "Switch to GUI mode" },
-    { cmd: "help", desc: "Show this help message" },
+    { cmd: "help", desc: "Show this help message (try 'help <command>')" },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-x-4 gap-y-1 mt-2">
+    <div>
+      <p className="text-[var(--term-cyan)] mb-3">Available commands:</p>
+      <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-x-4 gap-y-1.5 mt-2 pl-2">
       {commands.map((c) => (
         <div key={c.cmd} className="contents">
           <span className="text-[var(--term-cyan)]">{c.cmd}</span>
           <span className="text-[var(--term-fg)] opacity-80">{c.desc}</span>
         </div>
       ))}
+      </div>
+      <p className="text-xs opacity-60 mt-4">Tip: Use arrow keys to navigate command history</p>
     </div>
   );
 }
@@ -87,7 +94,7 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
   // Data hooks (pre-fetched or cached)
   const { data: projects } = useProjects();
   const { data: skills } = useSkills();
-  const { data: experience } = useExperience();
+  const { data: timeline } = useTimeline();
 
   const { register, handleSubmit, reset, setValue, watch } = useForm<{ command: string }>();
 
@@ -118,13 +125,93 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
     setHistory((prev) => [trimmed, ...prev]);
     setHistoryIndex(-1);
 
+    // Parse command and arguments
+    const [mainCmd, ...args] = trimmed.split(' ');
+
     // Process command
     let response: ReactNode = null;
     let isError = false;
 
-    switch (trimmed) {
+    // Detailed help for specific commands
+    const commandHelp: Record<string, { desc: string; usage?: string; examples?: string[] }> = {
+      about: {
+        desc: "Display biographical information including background, interests, and location.",
+        usage: "about",
+      },
+      whoami: {
+        desc: "Show a quick identity summary - name and current focus.",
+        usage: "whoami",
+      },
+      projects: {
+        desc: "List all featured projects with descriptions, tech stack, and repository links.",
+        usage: "projects",
+        examples: ["projects"],
+      },
+      skills: {
+        desc: "Display technical skills organized by category (Languages & Frameworks, Tools).",
+        usage: "skills",
+      },
+      timeline: {
+        desc: "View chronological timeline of education, work experience, and key milestones.",
+        usage: "timeline",
+      },
+      status: {
+        desc: "Show current status including active roles, education, and core skills.",
+        usage: "status",
+      },
+      exploring: {
+        desc: "View areas of active learning and exploration, including platform choices and reasoning.",
+        usage: "exploring",
+      },
+      contact: {
+        desc: "Display contact information including email, GitHub, and LinkedIn profiles.",
+        usage: "contact",
+      },
+      clear: {
+        desc: "Clear all terminal output and start fresh.",
+        usage: "clear",
+      },
+      gui: {
+        desc: "Exit terminal mode and switch to the graphical user interface.",
+        usage: "gui",
+      },
+      help: {
+        desc: "Show list of available commands or detailed help for a specific command.",
+        usage: "help [command]",
+        examples: ["help", "help projects", "help skills"],
+      },
+    };
+
+    switch (mainCmd) {
       case "help":
-        response = <HelpTable />;
+        if (args.length > 0) {
+          const cmdName = args[0];
+          const helpInfo = commandHelp[cmdName];
+          if (helpInfo) {
+            response = (
+              <div className="mt-2">
+                <p className="text-[var(--term-cyan)] font-bold mb-2">{cmdName}</p>
+                <p className="mb-2">{helpInfo.desc}</p>
+                <div className="pl-4 space-y-1">
+                  <p><span className="text-[var(--term-green)]">Usage:</span> {helpInfo.usage}</p>
+                  {helpInfo.examples && (
+                    <div>
+                      <span className="text-[var(--term-green)]">Examples:</span>
+                      {helpInfo.examples.map((ex, i) => (
+                        <div key={i} className="pl-4 text-[var(--term-cyan)]">{ex}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          } else {
+            response = `Unknown command: ${cmdName}. Type 'help' to see all commands.`;
+            isError = true;
+          }
+        } else {
+          response = <HelpTable />;
+        }
         break;
       
       case "clear":
@@ -140,12 +227,23 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         response = (
           <div className="max-w-2xl mt-2 leading-relaxed">
             <p>
-              I am a <span className="text-[var(--term-green)]">Full Stack Engineer</span> passionate about building accessible, performant web applications. 
-              I specialize in React, Node.js, and modern frontend architecture.
+              I am <span className="text-[var(--term-green)]">{PERSONAL_INFO.name}</span>, a {PERSONAL_INFO.title} pursuing my degree in Computer Science Engineering.
             </p>
             <p className="mt-2">
-              Based in the cloud, working worldwide.
+              Currently exploring software development through practical projects, including web applications, APIs, and system-oriented tools.
             </p>
+            <p className="mt-2">
+              Based in <span className="text-[var(--term-cyan)]">{PERSONAL_INFO.location}</span>.
+            </p>
+          </div>
+        );
+        break;
+
+      case "whoami":
+        response = (
+          <div className="mt-2">
+            <p className="text-[var(--term-green)] font-bold">{PERSONAL_INFO.name}</p>
+            <p className="opacity-80">CSE Student | Exploring Software Development</p>
           </div>
         );
         break;
@@ -156,10 +254,13 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
             <p>You can reach me at:</p>
             <div className="grid grid-cols-[100px_1fr] gap-2 mt-2">
               <span className="text-[var(--term-blue)]">Email:</span>
-              <a href="mailto:hello@example.com" className="hover:underline">hello@example.com</a>
+              <a href={`mailto:${PERSONAL_INFO.email}`} className="hover:underline">{PERSONAL_INFO.email}</a>
               
               <span className="text-[var(--term-blue)]">GitHub:</span>
-              <a href="https://github.com" target="_blank" className="hover:underline">github.com/developer</a>
+              <a href={PERSONAL_INFO.github} target="_blank" className="hover:underline">{PERSONAL_INFO.github.replace('https://', '')}</a>
+              
+              <span className="text-[var(--term-blue)]">LinkedIn:</span>
+              <a href={PERSONAL_INFO.linkedin} target="_blank" className="hover:underline">LinkedIn Profile</a>
             </div>
             <p className="mt-4 text-[var(--term-fg)] opacity-60">
               (Or use the Contact form in <span className="text-[var(--term-cyan)]" onClick={onExit} role="button">GUI mode</span>)
@@ -178,23 +279,19 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
                 <div key={p.id} className="border-l-2 border-[var(--term-blue)] pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-[var(--term-green)] font-bold text-lg">➜ {p.title}</span>
-                    <div className="flex gap-2 text-xs">
-                      {p.repoUrl && <a href={p.repoUrl} target="_blank" className="text-[var(--term-blue)] hover:underline">[repo]</a>}
-                      {p.demoUrl && <a href={p.demoUrl} target="_blank" className="text-[var(--term-cyan)] hover:underline">[demo]</a>}
-                    </div>
                   </div>
-                  {p.demoUrl && p.demoUrl.startsWith('/images/') && (
-                    <div className="mb-3 rounded-lg overflow-hidden border border-[var(--term-fg)]/20 w-full max-w-md bg-black">
-                      <img 
-                        src={p.demoUrl} 
-                        alt={p.title} 
-                        className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
-                      />
-                    </div>
-                  )}
                   <p className="text-[var(--term-fg)] opacity-90 mb-2">{p.description}</p>
-                  <p className="text-xs text-[var(--term-purple)] font-semibold">Stack: {p.techStack.join(", ")}</p>
+                  <p className="text-xs text-[var(--term-purple)] font-semibold mb-1">Stack: {p.techStack.join(", ")}</p>
+                  {p.githubUrl && (
+                    <p className="text-xs text-[var(--term-blue)] opacity-80">
+                      Repo: <a href={p.githubUrl} target="_blank" className="hover:underline">{p.githubUrl.replace('https://github.com/', '')}</a>
+                    </p>
+                  )}
+                  {p.liveUrl && (
+                    <p className="text-xs text-[var(--term-cyan)] opacity-80">
+                      Live: <a href={p.liveUrl} target="_blank" className="hover:underline">{p.liveUrl}</a>
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -206,14 +303,28 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         if (!skills) {
           response = "Loading skills data...";
         } else {
-          const categories = Array.from(new Set(skills.map((s: any) => s.category)));
+          const categoryMap: Record<string, string> = {
+            'Frontend': 'LANGUAGES & FRAMEWORKS',
+            'Backend': 'LANGUAGES & FRAMEWORKS',
+            'Tools': 'TOOLS'
+          };
+          
+          const remappedSkills = skills.reduce((acc: any, s: any) => {
+            const newCat = categoryMap[s.category] || s.category;
+            if (!acc[newCat]) acc[newCat] = [];
+            acc[newCat].push(s);
+            return acc;
+          }, {});
+          
+          const orderedCategories = ['LANGUAGES & FRAMEWORKS', 'TOOLS'];
+          
           response = (
             <div className="mt-2 space-y-4">
-              {categories.map((cat: any) => (
+              {orderedCategories.map((cat: any) => remappedSkills[cat] && (
                 <div key={cat}>
                   <h3 className="text-[var(--term-red)] font-bold uppercase mb-1">{cat}</h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 pl-4">
-                    {skills.filter((s: any) => s.category === cat).map((s: any) => (
+                    {remappedSkills[cat].map((s: any) => (
                       <span key={s.id}>• {s.name}</span>
                     ))}
                   </div>
@@ -224,23 +335,85 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         }
         break;
       
+      case "timeline":
       case "experience":
-        if (!experience) {
-          response = "Loading experience data...";
+        if (!timeline) {
+          response = "Loading timeline data...";
         } else {
           response = (
             <div className="mt-2 border-l border-[var(--term-fg)]/20 pl-4 space-y-6">
-              {experience.sort((a: any, b: any) => a.order - b.order).map((job: any) => (
-                <div key={job.id} className="relative">
+              {timeline.map((item: any) => (
+                <div key={item.id} className="relative">
                   <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[var(--term-blue)]"></div>
-                  <div className="text-[var(--term-cyan)] text-sm">{job.duration}</div>
-                  <div className="text-[var(--term-green)] font-bold">{job.role} @ {job.company}</div>
-                  <div className="opacity-80 mt-1 max-w-xl">{job.description}</div>
+                  <div className="text-[var(--term-cyan)] text-sm">{item.duration}</div>
+                  <div className="text-[var(--term-green)] font-bold">{item.position} @ {item.company}</div>
+                  <div className="opacity-80 mt-1 max-w-xl">{item.description}</div>
                 </div>
               ))}
             </div>
           );
         }
+        break;
+
+      case "status":
+        response = (
+          <div className="mt-2 space-y-4">
+            <div>
+              <h3 className="text-[var(--term-green)] font-bold mb-2">💼 CURRENT ROLES</h3>
+              <div className="pl-4 space-y-2">
+                {CURRENT_STATUS.work.map((work, idx) => (
+                  <div key={idx}>
+                    <div className="text-[var(--term-cyan)]">{work.title}</div>
+                    <div className="opacity-80">{work.organization} · {work.type}</div>
+                    <div className="text-sm text-[var(--term-green)]">[{work.status}]</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-[var(--term-green)] font-bold mb-2">🎓 EDUCATION</h3>
+              <div className="pl-4">
+                <div className="text-[var(--term-cyan)]">{CURRENT_STATUS.education.degree}</div>
+                <div className="opacity-80">{CURRENT_STATUS.education.institution}</div>
+                <div className="text-sm opacity-60">{CURRENT_STATUS.education.year} · {CURRENT_STATUS.education.location}</div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[var(--term-green)] font-bold mb-2">🛠️ CORE SKILLS</h3>
+              <div className="pl-4">
+                <div className="opacity-80">{CURRENT_STATUS.skills.join(" · ")}</div>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case "exploring":
+        response = (
+          <div className="mt-2 space-y-3">
+            <p className="text-[var(--term-cyan)]">Areas I'm actively exploring:</p>
+            <div className="pl-4 space-y-2">
+              <div>
+                <span className="text-[var(--term-green)]">• Mobile Application Fundamentals</span>
+                <p className="pl-4 text-sm opacity-80">Understanding mobile development patterns and platform-specific considerations</p>
+              </div>
+              <div>
+                <span className="text-[var(--term-green)]">• Backend Systems & APIs</span>
+                <p className="pl-4 text-sm opacity-80">Building scalable server-side architectures and designing effective API interfaces</p>
+              </div>
+              <div>
+                <span className="text-[var(--term-green)]">• Platform Selection Strategy</span>
+                <p className="pl-4 text-sm opacity-80">Choosing appropriate technologies based on problem constraints and iteration needs</p>
+              </div>
+            </div>
+            <p className="text-xs opacity-60 mt-4">
+              I often choose web platforms for faster iteration and simpler deployment.
+              My interest is in problem-solving and systems, not a single platform.
+            </p>
+          </div>
+        );
         break;
 
       default:

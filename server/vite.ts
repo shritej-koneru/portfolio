@@ -5,6 +5,7 @@ import viteConfig from "../vite.config";
 import fs from "fs";
 import path from "path";
 import { nanoid } from "nanoid";
+import express from "express";
 
 const viteLogger = createLogger();
 
@@ -28,6 +29,10 @@ export async function setupVite(server: Server, app: Express) {
     server: serverOptions,
     appType: "custom",
   });
+
+  // Serve static files from the public directory in development mode
+  const publicPath = path.resolve(import.meta.dirname, "..", "client", "public");
+  app.use(express.static(publicPath));
 
   app.use(vite.middlewares);
 
