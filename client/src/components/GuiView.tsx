@@ -432,44 +432,74 @@ function CurrentStatus({ gradientBorder }: { gradientBorder?: string }) {
 function ContactForm() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
+    setErrorMessage("");
+
+    console.log("📧 Contact Form: Starting submission...");
+    console.log("Form data:", { name: formData.name, email: formData.email, messageLength: formData.message.length });
+
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    console.log("Access key present:", accessKey ? "✓ Yes" : "✗ No");
+
+    if (!accessKey || accessKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
+      console.error("❌ Web3Forms access key not configured!");
+      setStatus("error");
+      setErrorMessage("Contact form not configured. Please email directly.");
+      return;
+    }
 
     try {
-      // Using Web3Forms - a free form submission service
+      const payload = {
+        access_key: accessKey,
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        from_name: "Portfolio Contact Form",
+        subject: `New message from ${formData.name}`,
+      };
+
+      console.log("📤 Sending to Web3Forms...");
+      
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "YOUR_WEB3FORMS_ACCESS_KEY", // Get free key from https://web3forms.com
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          from_name: "Portfolio Contact Form",
-          subject: `New message from ${formData.name}`,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log("Response status:", response.status);
       const result = await response.json();
+      console.log("Response data:", result);
 
       if (result.success) {
+        console.log("✅ Message sent successfully!");
         setStatus("sent");
         setFormData({ name: "", email: "", message: "" });
         setTimeout(() => setStatus("idle"), 3000);
       } else {
+        console.error("❌ Web3Forms returned error:", result.message || result);
         setStatus("error");
-        setTimeout(() => setStatus("idle"), 3000);
+        setErrorMessage(result.message || "Failed to send message");
+        setTimeout(() => setStatus("idle"), 5000);
       }
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("❌ Network error:", error);
       setStatus("error");
-      setTimeout(() => setStatus("idle"), 3000);
+      setErrorMessage("Network error. Please check your connection.");
+      setTimeout(() => setStatus("idle"), 5000);
     }
+  };
+
+  const handleEmailDirectly = () => {
+    const subject = encodeURIComponent(`Message from ${formData.name}`);
+    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+    window.location.href = `mailto:${PERSONAL_INFO.email}?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -508,17 +538,40 @@ function ContactForm() {
           required
         />
       </div>
-      <button 
-        type="submit"
-        disabled={status === "sending"}
-        className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
-      >
-        {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : status === "error" ? "Failed ✗" : (
-          <>Send Message <Send size={18} /></>
-        )}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button 
+          type="submit"
+          disabled={status === "sending"}
+          className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : status === "error" ? "Failed ✗" : (
+            <>Send Message <Send size={18} /></>
+          )}
+        </button>
+        <button 
+          type="button"
+          onClick={handleEmailDirectly}
+          className="px-8 py-3 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/90 transition-all flex items-center justify-center gap-2"
+        >
+          <Mail size={18} /> Email Directly
+        </button>
+      </div>
       {status === "error" && (
-        <p className="text-sm text-red-500">Failed to send message. Please try again or email directly.</p>
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+            {errorMessage || "Failed to send message. Please try again or email directly."}
+          </p>
+          <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">
+            Direct email: <a href={`mailto:${PERSONAL_INFO.email}`} className="underline">{PERSONAL_INFO.email}</a>
+          </p>
+        </div>
+      )}
+      {status === "sent" && (
+        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+          <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+            ✓ Message sent successfully! I'll get back to you soon.
+          </p>
+        </div>
       )}
     </form>
   );
