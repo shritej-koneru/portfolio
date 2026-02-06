@@ -442,15 +442,9 @@ function ContactForm() {
     console.log("📧 Contact Form: Starting submission...");
     console.log("Form data:", { name: formData.name, email: formData.email, messageLength: formData.message.length });
 
-    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    // Hardcoded key for development (will use env variable in production)
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "a19e8818-b2d2-4db8-9f83-1b4f3cd9e374";
     console.log("Access key present:", accessKey ? "✓ Yes" : "✗ No");
-
-    if (!accessKey || accessKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
-      console.error("❌ Web3Forms access key not configured!");
-      setStatus("error");
-      setErrorMessage("Contact form not configured. Please email directly.");
-      return;
-    }
 
     try {
       const payload = {
