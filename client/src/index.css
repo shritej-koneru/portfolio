@@ -8,6 +8,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -18,7 +19,7 @@
   /* GUI Mode Colors (Enhanced Contrast) */
   --bg-gui: #ffffff;
   --fg-gui: #18181b;
-  
+
   /* Terminal Mode Colors (Tokyo Night) */
   --bg-term: #1a1b26;
   --term-fg: #c0caf5;
@@ -30,7 +31,7 @@
   --term-purple: #bb9af7;
   --term-yellow: #e0af68;
   --term-orange: #ff9e64;
-  
+
   /* Tailwind CSS Variables */
   --background: 0 0% 100%;
   --foreground: 224 71.4% 4.1%;
@@ -57,7 +58,7 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
   --radius: 0.5rem;
-  
+
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'Fira Code', monospace;
 }
@@ -93,14 +94,16 @@
   body {
     @apply antialiased transition-colors duration-500;
   }
-  
+
   /* Custom Scrollbar for Terminal */
   .terminal-scroll::-webkit-scrollbar {
     width: 8px;
   }
+
   .terminal-scroll::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+
   .terminal-scroll::-webkit-scrollbar-thumb {
     @apply bg-slate-700 rounded-full;
   }
@@ -129,4 +132,234 @@
   z-index: 2;
   background-size: 100% 2px, 3px 100%;
   pointer-events: none;
+}
+
+/* ========================================
+   LIQUID GLASS EFFECTS & GLASSMORPHISM
+   ======================================== */
+
+/* Glass Effect Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Vibrant Gradient Backgrounds */
+.gradient-liquid-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-liquid-pink {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-liquid-blue {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-liquid-orange {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-liquid-multi {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+}
+
+.gradient-mesh {
+  background:
+    radial-gradient(at 40% 20%, hsla(280, 100%, 70%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(200, 100%, 70%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(340, 100%, 70%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(30, 100%, 70%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(260, 100%, 70%, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsla(180, 100%, 70%, 0.3) 0px, transparent 50%);
+}
+
+/* Glass Shadows and Highlights */
+.glass-shadow {
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass-glow {
+  box-shadow:
+    0 0 20px rgba(167, 139, 250, 0.3),
+    0 0 40px rgba(167, 139, 250, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-glow-pink {
+  box-shadow:
+    0 0 20px rgba(244, 114, 182, 0.3),
+    0 0 40px rgba(244, 114, 182, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-glow-blue {
+  box-shadow:
+    0 0 20px rgba(96, 165, 250, 0.3),
+    0 0 40px rgba(96, 165, 250, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Liquid Glass Animations */
+@keyframes liquid-float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(10px, -10px) rotate(5deg);
+  }
+
+  50% {
+    transform: translate(-5px, 10px) rotate(-5deg);
+  }
+
+  75% {
+    transform: translate(-10px, -5px) rotate(3deg);
+  }
+}
+
+@keyframes liquid-pulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.liquid-float {
+  animation: liquid-float 20s ease-in-out infinite;
+}
+
+.liquid-pulse {
+  animation: liquid-pulse 4s ease-in-out infinite;
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Glass Icon Styles - Glassmorphic Design */
+.glass-icon {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px 0 rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Frosted Glass Card */
+.frosted-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .frosted-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Liquid Glass Blobs */
+.liquid-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+}
+
+.dark .liquid-blob {
+  mix-blend-mode: screen;
+  opacity: 0.4;
+}
+
+/* CRITICAL: Ensure gradient backgrounds on glass icons are fully visible */
+.glass-icon.gradient-liquid-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.glass-icon.gradient-liquid-pink {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.glass-icon.gradient-liquid-blue {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.glass-icon.gradient-liquid-orange {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }

@@ -431,69 +431,18 @@ function CurrentStatus({ gradientBorder }: { gradientBorder?: string }) {
 
 function ContactForm() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    setErrorMessage("");
-
-    console.log("📧 Contact Form: Starting submission...");
-    console.log("Form data:", { name: formData.name, email: formData.email, messageLength: formData.message.length });
-
-    // Hardcoded key for development (will use env variable in production)
-    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "a19e8818-b2d2-4db8-9f83-1b4f3cd9e374";
-    console.log("Access key present:", accessKey ? "✓ Yes" : "✗ No");
-
-    try {
-      const payload = {
-        access_key: accessKey,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        from_name: "Portfolio Contact Form",
-        subject: `New message from ${formData.name}`,
-      };
-
-      console.log("📤 Sending to Web3Forms...");
-      
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      console.log("Response status:", response.status);
-      const result = await response.json();
-      console.log("Response data:", result);
-
-      if (result.success) {
-        console.log("✅ Message sent successfully!");
-        setStatus("sent");
-        setFormData({ name: "", email: "", message: "" });
-        setTimeout(() => setStatus("idle"), 3000);
-      } else {
-        console.error("❌ Web3Forms returned error:", result.message || result);
-        setStatus("error");
-        setErrorMessage(result.message || "Failed to send message");
-        setTimeout(() => setStatus("idle"), 5000);
-      }
-    } catch (error) {
-      console.error("❌ Network error:", error);
-      setStatus("error");
-      setErrorMessage("Network error. Please check your connection.");
-      setTimeout(() => setStatus("idle"), 5000);
-    }
-  };
-
-  const handleEmailDirectly = () => {
-    const subject = encodeURIComponent(`Message from ${formData.name}`);
-    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-    window.location.href = `mailto:${PERSONAL_INFO.email}?subject=${subject}&body=${body}`;
+    // Simulate sending
+    console.log("Contact form submission:", formData);
+    setTimeout(() => {
+      setStatus("sent");
+      setFormData({ name: "", email: "", message: "" });
+      setTimeout(() => setStatus("idle"), 3000);
+    }, 1000);
   };
 
   return (
@@ -532,41 +481,15 @@ function ContactForm() {
           required
         />
       </div>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button 
-          type="submit"
-          disabled={status === "sending"}
-          className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : status === "error" ? "Failed ✗" : (
-            <>Send Message <Send size={18} /></>
-          )}
-        </button>
-        <button 
-          type="button"
-          onClick={handleEmailDirectly}
-          className="px-8 py-3 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/90 transition-all flex items-center justify-center gap-2"
-        >
-          <Mail size={18} /> Email Directly
-        </button>
-      </div>
-      {status === "error" && (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-            {errorMessage || "Failed to send message. Please try again or email directly."}
-          </p>
-          <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">
-            Direct email: <a href={`mailto:${PERSONAL_INFO.email}`} className="underline">{PERSONAL_INFO.email}</a>
-          </p>
-        </div>
-      )}
-      {status === "sent" && (
-        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-          <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-            ✓ Message sent successfully! I'll get back to you soon.
-          </p>
-        </div>
-      )}
+      <button 
+        type="submit"
+        disabled={status === "sending"}
+        className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50"
+      >
+        {status === "sending" ? "Sending..." : status === "sent" ? "Sent! ✓" : (
+          <>Send Message <Send size={18} /></>
+        )}
+      </button>
     </form>
   );
 }
@@ -806,8 +729,8 @@ export function GuiView() {
                 <h3 className="font-bold text-xl">Education</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Currently pursuing my Bachelor's in Computer Science Engineering at VR Siddhartha Engineering College. 
-                Focused on building strong foundations in programming, data structures, and modern web technologies. This phase marked my transition from curiosity-driven exploration to disciplined software engineering.
+                Pursuing my B.Tech in Computer Science at VR Siddhartha Engineering College with a CGPA of 8.64. 
+                Strong foundation in programming, data structures, and modern web technologies, now building toward software engineering, AI-enabled products, and mobile application development.
               </p>
             </motion.div>
 
@@ -825,8 +748,7 @@ export function GuiView() {
                 <h3 className="font-bold text-xl">Development</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Hands-on experience building frontend interfaces, REST APIs, and analytics-focused applications using JavaScript, Python, and Node.js. 
-                I focus on writing clean, understandable code and improving systems iteratively. My interest in technology began at a young age through exploration and experimentation, but my structured learning in programming and software design formally began during my CSE program. While many recent projects are web-based for faster iteration and deployment, my interests extend beyond a single platform.
+                Hands-on experience designing, developing, and deploying end-to-end projects — full-stack web applications, AI-powered tools, and Android mobile apps — using TypeScript, React, Node.js, Python, Kotlin, and cloud tools. I focus on writing clean, understandable code and improving systems iteratively.
               </p>
             </motion.div>
 
@@ -844,8 +766,7 @@ export function GuiView() {
                 <h3 className="font-bold text-xl">Innovation & Leadership</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Serving as Campus Innovator at SPARC Foundation, working on ideation and execution of student-focused technical initiatives, collaborating across teams. 
-                Also Ideate Station Executive at TechnoVate-SAHE, facilitating brainstorming sessions and refining concepts into actionable proposals.
+                Web Designer at AWS Student Builder Group, designing responsive experiences for the student cloud community. Also serving as Campus Innovator at SPARC Foundation and Ideate Station Executive at TechnoVate-SAHE, refining ideas into actionable proposals and fostering innovation.
               </p>
             </motion.div>
           </div>
@@ -860,12 +781,12 @@ export function GuiView() {
           >
             <p className="text-sm font-semibold text-muted-foreground mb-6 text-center">Technologies I Work With</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
               {/* Frontend */}
               <div className="text-center">
                 <p className="text-xs font-semibold text-muted-foreground mb-3">Frontend</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  {["HTML", "CSS", "JavaScript", "React"].map((skill, idx) => (
+                  {["React.js", "HTML5", "CSS3", "JavaScript", "TypeScript"].map((skill, idx) => (
                     <span key={idx} className="px-4 py-2 bg-background border rounded-full text-sm font-medium hover:bg-primary/5 transition-colors">
                       {skill}
                     </span>
@@ -877,7 +798,19 @@ export function GuiView() {
               <div className="text-center">
                 <p className="text-xs font-semibold text-muted-foreground mb-3">Backend</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  {["Node.js", "Python", "C"].map((skill, idx) => (
+                  {["Node.js", "Python", "FastAPI", "REST APIs"].map((skill, idx) => (
+                    <span key={idx} className="px-4 py-2 bg-background border rounded-full text-sm font-medium hover:bg-primary/5 transition-colors">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile & AI */}
+              <div className="text-center">
+                <p className="text-xs font-semibold text-muted-foreground mb-3">Mobile & AI</p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {["Kotlin", "Android Studio", "SQLite", "NL Interfaces", "Cloud AI"].map((skill, idx) => (
                     <span key={idx} className="px-4 py-2 bg-background border rounded-full text-sm font-medium hover:bg-primary/5 transition-colors">
                       {skill}
                     </span>
@@ -889,7 +822,7 @@ export function GuiView() {
               <div className="text-center">
                 <p className="text-xs font-semibold text-muted-foreground mb-3">Tools</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  {["Git", "GitHub", "VS Code"].map((skill, idx) => (
+                  {["Git", "GitHub", "Google Cloud Console", "VS Code", "Docker", "Postman", "Figma", "Linux"].map((skill, idx) => (
                     <span key={idx} className="px-4 py-2 bg-background border rounded-full text-sm font-medium hover:bg-primary/5 transition-colors">
                       {skill}
                     </span>
@@ -994,9 +927,9 @@ export function GuiView() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Code className="text-primary" size={24} />
               </div>
-              <h4 className="font-semibold mb-2">Mobile Application Fundamentals</h4>
+              <h4 className="font-semibold mb-2">AI-Enabled Products</h4>
               <p className="text-muted-foreground text-sm">
-                Understanding mobile development patterns and platform-specific considerations.
+                Building conversational interfaces, data pipelines, and cloud-based AI tools that solve practical problems.
               </p>
             </motion.div>
 
@@ -1010,9 +943,9 @@ export function GuiView() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Code className="text-primary" size={24} />
               </div>
-              <h4 className="font-semibold mb-2">Backend Systems & APIs</h4>
+              <h4 className="font-semibold mb-2">Mobile Application Development</h4>
               <p className="text-muted-foreground text-sm">
-                Building scalable server-side architectures and designing effective API interfaces.
+                Building Android apps with Kotlin, Android Studio, and SQLite for offline-first, practical tools.
               </p>
             </motion.div>
 
@@ -1026,9 +959,9 @@ export function GuiView() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Code className="text-primary" size={24} />
               </div>
-              <h4 className="font-semibold mb-2">Platform Selection Strategy</h4>
+              <h4 className="font-semibold mb-2">Full-Stack Engineering</h4>
               <p className="text-muted-foreground text-sm">
-                Choosing appropriate technologies based on problem constraints and iteration needs.
+                Designing end-to-end products — TypeScript, React, Node.js, Python — with clean implementation and practical problem solving.
               </p>
             </motion.div>
           </div>

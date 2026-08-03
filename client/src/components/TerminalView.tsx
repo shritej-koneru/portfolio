@@ -259,10 +259,10 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         response = (
           <div className="max-w-2xl mt-2 leading-relaxed">
             <p>
-              I am <span className="text-[var(--term-green)]">{PERSONAL_INFO.name}</span>, a {PERSONAL_INFO.title} pursuing my degree in Computer Science Engineering.
+              I am <span className="text-[var(--term-green)]">{PERSONAL_INFO.name}</span>, a {PERSONAL_INFO.title} pursuing my B.Tech in Computer Science Engineering.
             </p>
             <p className="mt-2">
-              Currently exploring software development through practical projects, including web applications, APIs, and system-oriented tools.
+              I design, develop, and deploy end-to-end projects — full-stack web applications, AI-powered tools, and Android mobile apps — using TypeScript, React, Node.js, Python, Kotlin, and cloud tools.
             </p>
             <p className="mt-2">
               Based in <span className="text-[var(--term-cyan)]">{PERSONAL_INFO.location}</span>.
@@ -275,7 +275,7 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
         response = (
           <div className="mt-2">
             <p className="text-[var(--term-green)] font-bold">{PERSONAL_INFO.name}</p>
-            <p className="opacity-80">CSE Student | Exploring Software Development</p>
+            <p className="opacity-80">Full-Stack Developer | AI & Mobile App Enthusiast</p>
           </div>
         );
         break;
@@ -428,21 +428,20 @@ export function TerminalView({ onExit }: { onExit: () => void }) {
             <p className="text-[var(--term-cyan)]">Areas I'm actively exploring:</p>
             <div className="pl-4 space-y-2">
               <div>
-                <span className="text-[var(--term-green)]">• Mobile Application Fundamentals</span>
-                <p className="pl-4 text-sm opacity-80">Understanding mobile development patterns and platform-specific considerations</p>
+                <span className="text-[var(--term-green)]">• AI-Enabled Products</span>
+                <p className="pl-4 text-sm opacity-80">Conversational interfaces, data pipelines, and cloud-based AI tools</p>
               </div>
               <div>
-                <span className="text-[var(--term-green)]">• Backend Systems & APIs</span>
-                <p className="pl-4 text-sm opacity-80">Building scalable server-side architectures and designing effective API interfaces</p>
+                <span className="text-[var(--term-green)]">• Mobile Application Development</span>
+                <p className="pl-4 text-sm opacity-80">Android apps with Kotlin, Android Studio, and SQLite</p>
               </div>
               <div>
-                <span className="text-[var(--term-green)]">• Platform Selection Strategy</span>
-                <p className="pl-4 text-sm opacity-80">Choosing appropriate technologies based on problem constraints and iteration needs</p>
+                <span className="text-[var(--term-green)]">• Full-Stack Engineering</span>
+                <p className="pl-4 text-sm opacity-80">End-to-end products with TypeScript, React, Node.js, and Python</p>
               </div>
             </div>
             <p className="text-xs opacity-60 mt-4">
-              I often choose web platforms for faster iteration and simpler deployment.
-              My interest is in problem-solving and systems, not a single platform.
+              I focus on clean implementation and practical problem solving across the full stack.
             </p>
           </div>
         );

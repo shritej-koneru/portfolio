@@ -54,9 +54,9 @@ export interface Certification {
 const GITHUB_USERNAME = "shritej-koneru";
 export const PERSONAL_INFO = {
   name: "Koneru Shritej",
-  title: "Computer Science Engineering Student",
-  subtitle: "2nd Year CSE",
-  bio: "I'm a 2nd-year Computer Science Engineering student from Vijayawada, Andhra Pradesh, focused on exploring software development through practical projects, including web applications, APIs, and system-oriented tools.",
+  title: "Full-Stack Developer",
+  subtitle: "B.Tech CSE Student · AI & Mobile App Enthusiast",
+  bio: "Motivated B.Tech Computer Science student with hands-on experience building full-stack web applications, AI-powered tools, and Android mobile apps. I independently design, develop, and deploy end-to-end projects using TypeScript, React, Node.js, Python, Kotlin, and cloud tools — focused on clean implementation and practical problem solving.",
   email: "mail4shritejkoneru@gmail.com",
   location: "Vijayawada, Andhra Pradesh",
   linkedin: "https://www.linkedin.com/in/shritej-koneru-560111324/",
@@ -76,55 +76,127 @@ const FALLBACK_PROFILE: GitHubProfile = {
 
 // Fallback Skills (used when API rate limit is exceeded)
 const FALLBACK_SKILLS: Skill[] = [
-  { id: 1, category: "Languages", name: "C" },
+  { id: 1, category: "Languages", name: "Java" },
   { id: 2, category: "Languages", name: "Python" },
-  { id: 3, category: "Languages", name: "JavaScript" },
-  { id: 4, category: "Languages", name: "TypeScript" },
-  { id: 5, category: "Frontend", name: "React" },
-  { id: 6, category: "Frontend", name: "HTML" },
-  { id: 7, category: "Frontend", name: "CSS" },
-  { id: 8, category: "Backend", name: "Node.js" },
-  { id: 9, category: "Tools", name: "Git" },
-  { id: 10, category: "Concepts", name: "Data Structures" },
-  { id: 11, category: "Concepts", name: "Algorithms" }
+  { id: 3, category: "Languages", name: "C" },
+  { id: 4, category: "Languages", name: "Kotlin", level: "Fundamentals" },
+  { id: 5, category: "Languages", name: "SQL" },
+  { id: 6, category: "Languages", name: "TypeScript" },
+  { id: 7, category: "Languages", name: "JavaScript" },
+  { id: 8, category: "Frontend", name: "React.js" },
+  { id: 9, category: "Frontend", name: "HTML5" },
+  { id: 10, category: "Frontend", name: "CSS3" },
+  { id: 11, category: "Backend", name: "Node.js" },
+  { id: 12, category: "Backend", name: "REST APIs" },
+  { id: 13, category: "Mobile", name: "Android Studio" },
+  { id: 14, category: "Mobile", name: "Kotlin" },
+  { id: 15, category: "Mobile", name: "SQLite" },
+  { id: 16, category: "AI / Data", name: "Python data pipelines" },
+  { id: 17, category: "AI / Data", name: "Natural Language Interfaces" },
+  { id: 18, category: "AI / Data", name: "Cloud-based AI tools" },
+  { id: 19, category: "Tools", name: "Git" },
+  { id: 20, category: "Tools", name: "GitHub" },
+  { id: 21, category: "Tools", name: "Google Cloud Console" },
+  { id: 22, category: "Tools", name: "VS Code" },
+  { id: 23, category: "Tools", name: "Docker" },
+  { id: 24, category: "Tools", name: "Postman" },
+  { id: 25, category: "Tools", name: "Figma" },
+  { id: 26, category: "Tools", name: "Linux" }
 ];
 
 // Fallback Projects (used when GitHub API rate limit is exceeded)
 const FALLBACK_PROJECTS: Project[] = [
   {
     id: 1,
-    title: "Multi File Conversion",
-    description: "Convert files quickly and easily across formats. Upload single or multiple files, get smart format suggestions, and download converted files instantly. Supports documents, images, audio, video, and more — all in one secure, user-friendly platform.",
-    techStack: ["TypeScript", "Shell", "CSS", "HTML", "Dockerfile", "JavaScript"],
-    githubUrl: "https://github.com/shritej-koneru/multi-file-conversion",
-    liveUrl: "https://multi-file-conversion.vercel.app",
+    title: "EquiAlert",
+    description: "Full-stack dark-mode web app for Indian stock markets with real-time stock tracking, market news, watchlist management, and an AI-powered insights chatbot.",
+    techStack: ["TypeScript", "React", "Node.js", "Python"],
+    githubUrl: "https://github.com/shritej-koneru/EquiAlert",
+    liveUrl: "https://equialert.onrender.com",
     stars: 0,
     language: "TypeScript"
   },
   {
     id: 2,
-    title: "EquiAlert",
-    description: "EQUIALERT is a full-stack, dark-mode stock market web application focused on Indian stocks. The platform provides real-time stock tracking, market news, watchlist management, and AI-powered insights through a chatbot interface. The application emphasizes professional financial dashboard aesthetics with color-coded market indicators.",
-    techStack: ["TypeScript", "CSS", "HTML", "Python", "JavaScript"],
-    githubUrl: "https://github.com/shritej-koneru/EquiAlert",
+    title: "Stocks-API",
+    description: "FastAPI analytics API with real-time quotes, historical data, and technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands), powered by dual Google Finance & Yahoo Finance sources with automatic fallback.",
+    techStack: ["Python", "FastAPI", "SQLite", "PostgreSQL"],
+    githubUrl: "https://github.com/shritej-koneru/Stocks-API",
+    liveUrl: "https://stocks-api-pfay.onrender.com",
     stars: 0,
-    language: "TypeScript"
+    language: "Python"
   },
   {
     id: 3,
     title: "FloatChatSAHE",
-    description: "The current problem statement proposes the development of an AI-powered conversational system for ARGO float data that enables users to query, explore, and visualize oceanographic information using natural language.",
-    techStack: ["JavaScript", "Python", "CSS", "HTML"],
+    description: "AI-powered conversational system for querying and visualizing ARGO oceanographic float data via natural language. Simplifies access to scientific datasets for researchers and analysts.",
+    techStack: ["JavaScript", "Python", "SQL", "Google Cloud"],
     githubUrl: "https://github.com/shritej-koneru/FloatChatSAHE",
     stars: 0,
     language: "JavaScript"
   },
   {
     id: 4,
-    title: "Portfolio",
-    description: "Personal portfolio website showcasing projects, skills, and experience. Built with modern web technologies and featuring a clean, responsive design with both GUI and terminal views.",
-    techStack: ["TypeScript", "React", "CSS", "HTML"],
-    githubUrl: "https://github.com/shritej-koneru/Portfolio",
+    title: "FRIDAY",
+    description: "Windows voice assistant with speech-to-text, text-to-speech, wake-word detection, and pluggable AI providers (Ollama, OpenAI, Gemini, Grok).",
+    techStack: ["Python", "Ollama", "Speech APIs"],
+    githubUrl: "https://github.com/shritej-koneru/FRIDAY-Personal-Assistant",
+    stars: 0,
+    language: "Python"
+  },
+  {
+    id: 5,
+    title: "ProjectNOVA",
+    description: "Premium student-focused service website for laptop optimization and virtualization, with a 3D shader hero, scroll storytelling, and a full service catalog.",
+    techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Three.js"],
+    githubUrl: "https://github.com/shritej-koneru/ProjectNOVA",
+    liveUrl: "https://bit.ly/projectnovaservices",
+    stars: 0,
+    language: "TypeScript"
+  },
+  {
+    id: 6,
+    title: "WebOS",
+    description: "Retro-themed OS running entirely in the browser with BIOS boot sequence, CRT display effects, draggable windows, and multi-desktop support.",
+    techStack: ["JavaScript", "HTML", "CSS"],
+    githubUrl: "https://github.com/shritej-koneru/WebOS",
+    stars: 0,
+    language: "JavaScript"
+  },
+  {
+    id: 7,
+    title: "Multi-File-Conversion",
+    description: "Web application enabling batch file conversion across documents, images, audio, and video formats with smart format suggestions and instant downloads.",
+    techStack: ["TypeScript", "React", "Docker", "Shell"],
+    githubUrl: "https://github.com/shritej-koneru/Multi-File-Conversion",
+    liveUrl: "https://multi-file-conversion-1.onrender.com",
+    stars: 0,
+    language: "TypeScript"
+  },
+  {
+    id: 8,
+    title: "Event Management Hub",
+    description: "Android application for managing campus events and coordination workflows, developed for the EPICS program.",
+    techStack: ["Kotlin", "Android"],
+    githubUrl: "https://github.com/shritej-koneru/Event-Management-Hub-EPICS",
+    stars: 0,
+    language: "Kotlin"
+  },
+  {
+    id: 9,
+    title: "Expense Tracker App",
+    description: "Fully offline Android app to log income and expenses, categorize transactions, and visualize spending patterns through built-in charts and analytics.",
+    techStack: ["Kotlin", "Android", "SQLite"],
+    githubUrl: "https://github.com/shritej-koneru/Expense-Tracker-App",
+    stars: 0,
+    language: "Kotlin"
+  },
+  {
+    id: 10,
+    title: "LGC Official Website",
+    description: "Responsive portfolio website for LGC (Let's Get Connected) with smooth animations, mobile-first design, dynamic JSON-driven content, and GitHub integration.",
+    techStack: ["TypeScript", "React", "Vite", "Tailwind CSS", "Framer Motion", "Express.js"],
+    githubUrl: "https://github.com/shritej-koneru/LGC-Official-Website",
     stars: 0,
     language: "TypeScript"
   }
@@ -277,54 +349,53 @@ function extractSkillsFromRepos(repos: any[]): Skill[] {
 const timelineData: Experience[] = [
   {
     id: 1,
-    company: "SPARC FOUNDATION",
-    position: "Campus Innovator · Internship",
-    duration: "Jan 2026 - Present",
-    description: "Working on ideation and execution of student-focused technical initiatives, collaborating across teams.",
-    startDate: "2026-01-01"
+    company: "AWS Student Builder Group · Siddhartha University",
+    position: "Web Designer",
+    duration: "Jun 2026 - Present",
+    description: "Designing and building responsive web experiences for the AWS Student Builder community. Collaborating with the team on outreach and cloud-focused content.",
+    startDate: "2026-06-01"
   },
   {
     id: 2,
-    company: "TechnoVate-SAHE",
-    position: "Ideate Station Executive",
-    duration: "Sep 2025 - Present",
-    description: "Managed the collection and initial screening of member suggestions, prioritizing innovative concepts. Facilitated brainstorming sessions to refine ideas into actionable proposals.",
-    startDate: "2025-09-01"
+    company: "SPARC FOUNDATION",
+    position: "Campus Innovator",
+    duration: "Jan 2026 - Present",
+    description: "Leading ideation and execution of student-focused technical initiatives. Collaborating across teams to build practical innovation-driven solutions.",
+    startDate: "2026-01-01"
   },
   {
     id: 3,
-    company: "Velagapudi Ramakrishna Siddhartha Engineering College",
-    position: "Bachelor's in Computer Science Engineering",
-    duration: "2024 - 2028",
-    description: "Pursuing CSE degree with focus on software development fundamentals, data structures, algorithms, and practical application development. Learning C, Python, and modern web technologies.",
-    startDate: "2024-07-01"
+    company: "TechnoVate-SAHE",
+    position: "Ideate Station Executive",
+    duration: "Sep 2025 - Present",
+    description: "Screening and refining ideas into actionable proposals through brainstorming sessions. Supporting innovation workflows and student participation in ideation activities.",
+    startDate: "2025-09-01"
   },
   {
     id: 4,
-    company: "Sri Chaitanya Junior College (Krishna Reddy Chaithanya)",
-    position: "Intermediate Education (MPC)",
+    company: "Velagapudi Ramakrishna Siddhartha Engineering College",
+    position: "B.Tech in Computer Science",
+    duration: "2024 - 2028",
+    description: "Pursuing B.Tech in Computer Science with a CGPA of 8.64. Focused on software engineering, AI-enabled products, and mobile application development.",
+    startDate: "2024-07-01"
+  },
+  {
+    id: 5,
+    company: "Krishna Reddy Sri Chaitanya",
+    position: "Intermediate (MPC)",
     duration: "2022 - 2024",
-    description: "Completed intermediate education with focus on Mathematics, Physics, and Chemistry. Developed strong analytical and problem-solving skills.",
+    description: "Completed intermediate education with focus on Mathematics, Physics, and Chemistry. Scored 86.8%.",
     startDate: "2022-06-01",
     endDate: "2024-05-01"
   },
   {
-    id: 5,
-    company: "VPS Public School",
-    position: "Secondary Education",
+    id: 6,
+    company: "Veeramachaneni Paddayya Siddhartha Public School",
+    position: "10th Grade – CBSE",
     duration: "2012 - 2022",
-    description: "Completed primary and secondary education with excellent academic performance. Built foundational knowledge in science, mathematics, and technology.",
+    description: "Completed secondary education with a strong foundation in science and mathematics. Scored 72.6%.",
     startDate: "2012-06-01",
     endDate: "2022-05-01"
-  },
-  {
-    id: 6,
-    company: "Early Interest in Technology",
-    position: "Curiosity-Driven Exploration",
-    duration: "Before College",
-    description: "Developed curiosity about computers and technology through exploration before formal education.",
-    startDate: "2010-01-01",
-    endDate: "2024-06-01"
   }
 ];
 
@@ -332,26 +403,32 @@ const timelineData: Experience[] = [
 export const CURRENT_STATUS = {
   education: {
     institution: "Velagapudi Ramakrishna Siddhartha Engineering College",
-    degree: "Bachelor's in Computer Science Engineering",
-    year: "2nd Year (2024-2028)",
+    degree: "B.Tech in Computer Science",
+    year: "2nd Year (2024-2028) · CGPA 8.64",
     location: "Vijayawada, Andhra Pradesh, India"
   },
   work: [
     {
+      title: "Web Designer",
+      organization: "AWS Student Builder Group",
+      type: "Part-time, On-site",
+      status: "Active"
+    },
+    {
       title: "Campus Innovator",
-      organization: "SPARC FOUNDATION",
-      type: "Internship",
+      organization: "SPARC Foundation",
+      type: "Remote",
       status: "Active"
     },
     {
       title: "Ideate Station Executive",
       organization: "TechnoVate-SAHE",
-      type: "Leadership",
+      type: "On-campus",
       status: "Active"
     }
   ],
-  skills: ["C", "Python", "JavaScript", "React", "HTML/CSS", "Git", "Data Structures", "Algorithms"],
-  interests: ["Full-Stack Development", "Data Structures", "Algorithms", "Innovation"]
+  skills: ["TypeScript", "React", "Node.js", "Python", "Kotlin", "Java", "C", "SQL", "FastAPI", "Docker", "Git", "Linux"],
+  interests: ["Full-Stack Development", "AI-Enabled Products", "Mobile Application Development", "Software Engineering"]
 };
 
 // Hooks with GitHub API Integration
@@ -507,7 +584,7 @@ export function useExperience() {
 
 export function useCertifications() {
   return {
-    data: certificationsData,
+    data: certificationsData as Certification[],
     isLoading: false,
     error: null
   };
