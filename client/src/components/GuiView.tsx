@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import linkedInPosts from "@/data/linkedin-posts.json";
 import { ProfileCard } from "@/components/ProfileCard";
 import { extractColorsFromImage, createGradientBorder } from "@/lib/color-extractor";
+import InkReveal from "@/components/ui/ink-reveal";
 // --- Components ---
 
 function Navigation() {
@@ -707,6 +708,17 @@ export function GuiView() {
             </div>
           </motion.div>
         </div>
+      </section>
+
+      {/* Ink Reveal Section with Profile Picture */}
+      <section className="relative w-full h-[350px] md:h-[450px] overflow-hidden" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('/images/avatar.png')`,
+          }}
+        />
+        <InkReveal maskColor={[252, 250, 248]} brushSize={140} />
       </section>
 
       {/* About Me Section */}

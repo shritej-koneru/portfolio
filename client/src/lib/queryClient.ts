@@ -52,7 +52,7 @@ export const queryClient = new QueryClient({
         if (url.startsWith('http://') || url.startsWith('https://')) {
           throw new Error('External URLs should provide their own queryFn');
         }
-        return getQueryFn({ on401: "throw" })({ queryKey, meta: undefined, signal: undefined });
+        return getQueryFn({ on401: "throw" })({ queryKey, meta: undefined, signal: undefined as any });
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
