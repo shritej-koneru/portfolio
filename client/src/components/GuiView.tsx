@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import linkedInPosts from "@/data/linkedin-posts.json";
 import { ProfileCard } from "@/components/ProfileCard";
 import { extractColorsFromImage, createGradientBorder } from "@/lib/color-extractor";
-import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
 // --- Components ---
 
 function Navigation() {
@@ -708,15 +707,6 @@ export function GuiView() {
             </div>
           </motion.div>
         </div>
-      </section>
-
-      {/* Blueprint Ink Reveal Section */}
-      <section className="w-full">
-        <BlueprintInkReveal
-          wordmark="SHRITEJ"
-          inkRadius={180}
-          backgroundImage="/images/avatar.png"
-        />
       </section>
 
       {/* About Me Section */}
