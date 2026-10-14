@@ -12,7 +12,7 @@ typography.
 
 1. **Ink Reveal** (`src/components/ui/ink-reveal.tsx`) — wipe an ink mask off a
    photograph. Each brush stamp grows to full size in `expandMs` (600ms), and the
-   uncovered area is held for `lifetime` (30s) before the ink fades back over
+   uncovered area is held for `lifetime` (10s) before the ink fades back over
    `fadeMs`. The hold is refreshed by every new stamp, so it runs from the moment
    the pointer stops wiping.
 2. **Blueprint Ink Reveal hero** (`src/components/ui/blueprint-ink-reveal.tsx`) —

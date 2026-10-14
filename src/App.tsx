@@ -47,8 +47,8 @@ export default function App() {
         <InkReveal
           maskColor={MASK_COLOR}
           brushSize={150}
-          // Revealed area stays uncovered for 30s, then fades back to ink.
-          lifetime={30000}
+          // Revealed area stays uncovered for 10s, then fades back to ink.
+          lifetime={10000}
           cleared={revealed}
         />
 
