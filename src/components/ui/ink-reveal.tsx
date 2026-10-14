@@ -74,7 +74,10 @@ export default function InkReveal({
   const fadeStartRef = useRef(0);
   const hasRevealRef = useRef(false);
 
-  // Accessibility: honour prefers-reduced-motion by not hiding content at all.
+  // Accessibility: honour prefers-reduced-motion. Rather than drop the piece
+  // entirely (which would show the raw photo, not the reveal), keep the ink
+  // reveal but take the motion out of it: stamps land at full size and the
+  // reveal never fades back.
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -231,29 +234,25 @@ export default function InkReveal({
     const now = performance.now();
     const live = liveRef.current;
 
+    // Reduced motion takes the animation out, not the reveal: stamps land at
+    // full size (grow = 0) and the baked layer never ages out (fadeWindow =
+    // Infinity, so the reveal stays put once carved).
+    const grow = reduceMotion ? 0 : expandMs;
+    const fadeWindow = reduceMotion ? Number.POSITIVE_INFINITY : lifetime;
+
     // 1. Repaint the opaque mask.
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = `rgb(${mc[0]},${mc[1]},${mc[2]})`;
     ctx.fillRect(0, 0, w, h);
 
-    // 2. Punch the baked reveal through it (cheap: a single drawImage).
-    const fadeStart = fadeStartRef.current;
-    const t = (now - fadeStart) / lifetime;
-    const fade = fadeStart === 0 || t <= 0 ? 1 : t >= 1 ? 0 : 1 - t * t;
-    const reveal = revealRef.current;
-    if (reveal && hasRevealRef.current && fade > 0) {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.globalAlpha = fade;
-      ctx.drawImage(reveal, 0, 0, w, h);
-    }
-
-    // 3. Draw the handful of stamps that are still expanding.
+    // 2. Advance the stamps: finished ones bake into the reveal layer, the rest
+    //    are carved straight through the mask at their current radius.
     ctx.globalCompositeOperation = "destination-out";
     ctx.globalAlpha = 1;
     for (let i = live.length - 1; i >= 0; i--) {
       const s = live[i];
-      const st = (now - s.born) / expandMs;
+      const st = grow > 0 ? (now - s.born) / grow : 1;
       if (st >= 1) {
         bakeStamp(s);
         live.splice(i, 1);
@@ -262,6 +261,20 @@ export default function InkReveal({
       const ease = 1 - Math.pow(1 - st, 3);
       const r = rStart + (s.rmax - rStart) * ease;
       carveInk(ctx, s.x, s.y, r, s.seed, 1);
+    }
+
+    // 3. Punch the baked reveal through the mask (cheap: a single drawImage).
+    //    Punching after the stamps above means a stamp baked this frame is
+    //    already on screen, which is what makes the reduced-motion instant
+    //    reveal visible without a second frame.
+    const reveal = revealRef.current;
+    const fadeStart = fadeStartRef.current;
+    const t = (now - fadeStart) / fadeWindow;
+    const fade = fadeStart === 0 || t <= 0 ? 1 : t >= 1 ? 0 : 1 - t * t;
+    if (reveal && hasRevealRef.current && fade > 0) {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.globalAlpha = fade;
+      ctx.drawImage(reveal, 0, 0, w, h);
     }
     ctx.globalAlpha = 1;
 
@@ -276,12 +289,15 @@ export default function InkReveal({
       hasRevealRef.current = false;
     }
 
-    if (live.length || hasRevealRef.current) {
+    // Keep drawing while stamps are still growing, or while the reveal is
+    // fading back. Under reduced motion the reveal never fades, so the loop
+    // stops as soon as the last stamp has been baked.
+    if (live.length || (!reduceMotion && hasRevealRef.current)) {
       requestAnimationFrame(loop);
     } else {
       runningRef.current = false;
     }
-  }, [carveInk, bakeStamp, mc, lifetime, expandMs, rStart]);
+  }, [carveInk, bakeStamp, mc, lifetime, expandMs, rStart, reduceMotion]);
 
   const startLoop = useCallback(() => {
     if (!runningRef.current) {
@@ -325,7 +341,9 @@ export default function InkReveal({
     startLoop();
   };
 
-  if (reduceMotion || cleared) return null;
+  // `cleared` is the deliberate "move to uncover" skip. Reduced motion is NOT
+  // a reason to drop the reveal — the loop above just runs it without motion.
+  if (cleared) return null;
 
   return (
     <canvas

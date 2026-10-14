@@ -16,6 +16,10 @@ typography.
    the name drafted as an outline plate and uncovered as solid type under the
    pointer.
 
+Both honour `prefers-reduced-motion` by removing the *motion*, not the piece:
+the reveal still renders and still responds to the pointer, but Scene 1's stamps
+land at full size and never fade back, and Scene 2 snaps instead of springing.
+
 ## Featured Projects (Works Wheel)
 
 `src/components/sections/featured-projects.tsx` renders the project showcase.
