@@ -11,10 +11,9 @@ import { useInView } from "./use-in-view";
 /**
  * A supporting case study — the compact editorial card.
  *
- * Deliberately shorter than the featured plate and composed asymmetrically:
- * the media column and the text column swap sides on every other card so two
- * consecutive studies never read as the same card twice. On tablet and phone the
- * asymmetry collapses to a single stack, with the notes above the diagram.
+ * Deliberately shorter than the featured plate and composed asymmetrically, with
+ * `reversed` available to swap the media and text columns. On tablet and phone
+ * the asymmetry collapses to a single stack, with the notes above the diagram.
  *
  * The layout takes its media as a node, so a project with a real screenshot and
  * a project with only a documented diagram share one component.
@@ -24,11 +23,14 @@ export function CaseStudyEditorial({
   position,
   media,
   reversed = false,
+  eyebrow,
 }: {
   study: ResolvedCaseStudy;
   position: number;
   media: React.ReactNode;
   reversed?: boolean;
+  /** Overrides the default "Case study · NN" label. */
+  eyebrow?: string;
 }) {
   const { project } = study;
   const { ref, inView } = useInView<HTMLElement>({
@@ -59,13 +61,15 @@ export function CaseStudyEditorial({
           </div>
 
           <div className={cn("lg:col-span-5", reversed && "lg:order-1")}>
-            <Eyebrow>Case study · {String(position).padStart(2, "0")}</Eyebrow>
-            <h3
+            <Eyebrow>
+              {eyebrow ?? `Case study · ${String(position).padStart(2, "0")}`}
+            </Eyebrow>
+            <h1
               id={`${project.slug}-case-heading`}
               className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink sm:text-4xl"
             >
               {project.title}
-            </h3>
+            </h1>
             <Reveal
               shown={inView}
               delayMs={80}

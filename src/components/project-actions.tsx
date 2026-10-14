@@ -1,16 +1,18 @@
 import * as React from "react";
 
 import type { Project } from "@/data/projects";
+import { projectPath } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
 /**
- * Shared project affordances, reused by the Works Wheel (Scene 03) and the case
- * studies (Scene 05) so a project's actions and technology chips look and behave
- * identically wherever the project appears.
+ * Shared project affordances, reused by the Works Wheel and the project pages so
+ * a project's actions and technology chips look and behave identically wherever
+ * the project appears.
  *
- * The rule both places follow: an action is only rendered when the project
- * actually has that link, so a missing demo or repository hides the button
- * instead of leaving a dead one.
+ * The rule they follow: an action is only rendered when the project actually has
+ * that link, so a missing demo or repository hides the button instead of leaving
+ * a dead one. The one exception is the link to the project's own page — every
+ * project has one, so that affordance is always there.
  */
 
 const ACTION_CLASS =
@@ -21,6 +23,9 @@ const SECONDARY_CLASS = cn(
   ACTION_CLASS,
   "border border-ink/25 text-ink/80 hover:border-ink hover:text-ink",
 );
+
+const DETAIL_CLASS =
+  "group inline-flex min-h-[40px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-blueprint underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export function ExtIcon() {
   return (
@@ -104,5 +109,34 @@ export function TechChips({
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * The way into a project's own page at `/work/<slug>`.
+ *
+ * Deliberately not one of the pill buttons above: those leave the site, this one
+ * stays in it, so it reads as a text link and never competes with a project's
+ * live demo for the eye.
+ */
+export function ProjectDetailLink({
+  slug,
+  label = "Open project",
+  className,
+}: {
+  slug: string;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <a href={projectPath(slug)} className={cn(DETAIL_CLASS, className)}>
+      {label}
+      <span
+        aria-hidden="true"
+        className="transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none"
+      >
+        →
+      </span>
+    </a>
   );
 }

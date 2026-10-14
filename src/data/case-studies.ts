@@ -1,11 +1,14 @@
 /**
- * Scene 05 — Selected Case Studies.
+ * The build notes behind individual projects.
  *
  * This is *not* a second project list. Every entry here is keyed by the `slug`
- * of a project in `src/data/projects.ts`, and the section resolves the name,
- * description, links, cover and technology chips from that single source of
- * truth. If a slug is missing here, nothing renders — so this file can never
- * drift into a competing list, and removing a project removes its case study.
+ * of a project in `src/data/projects.ts`, and a project's own page resolves the
+ * name, description, links, cover and technology chips from that single source
+ * of truth. A project with no entry here still has a page — it renders what is
+ * verifiable about it and says the write-up does not exist yet (see
+ * `src/pages/project.tsx`). If a slug disappears from the project list, its
+ * case study disappears with it, so this file can never drift into a competing
+ * list.
  *
  * Everything below is transcribed from material that already exists: the project
  * READMEs under github.com/shritej-koneru and the resume that seeded
@@ -369,7 +372,7 @@ const caseStudyList: CaseStudy[] = [
 
 /**
  * Case studies joined to their project entry. Entries whose slug no longer
- * exists in `projects.ts` are dropped, so the page can never link to a project
+ * exists in `projects.ts` are dropped, so the site can never link to a project
  * that isn't in the canonical list.
  */
 export const getCaseStudies = (): ResolvedCaseStudy[] =>
@@ -377,6 +380,12 @@ export const getCaseStudies = (): ResolvedCaseStudy[] =>
     const project = projects.find((entry) => entry.slug === study.slug);
     return project ? [{ ...study, project }] : [];
   });
+
+/** The build notes for one project, or `undefined` when none are written. */
+export const getCaseStudyBySlug = (
+  slug: string,
+): ResolvedCaseStudy | undefined =>
+  getCaseStudies().find((study) => study.slug === slug);
 
 /** The one featured case study, or `undefined` if none is flagged. */
 export const getFeaturedCaseStudy = (): ResolvedCaseStudy | undefined =>

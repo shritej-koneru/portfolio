@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { revealClass, useInView } from "./use-in-view";
 
 /**
- * The schematic used twice in Scene 05: once in ink for the featured project's
- * system map, once on paper for a supporting project's data-source map.
+ * The schematic used on a project's page: in ink for a featured project's
+ * system map, on paper for a supporting project's data-source map.
  *
  * It is deliberately a grid of hairline cells rather than boxes-and-arrows —
  * `gap-px` over a tinted parent draws every divider with a single pixel, so the

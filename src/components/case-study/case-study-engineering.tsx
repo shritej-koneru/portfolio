@@ -7,14 +7,14 @@ import { FlowDiagram } from "./flow-diagram";
 import { useInView } from "./use-in-view";
 
 /**
- * The dark engineering view — the featured project's implementation.
+ * The dark engineering view — a featured project's implementation.
  *
  * This is the deep-ink counterpart to the light plate above it: same sheet, same
  * 48px module, inverted. Everything drawn here is transcribed from the project's
  * own documentation (see `src/data/case-studies.ts`), and the diagram says so on
  * the page rather than letting a drawing imply more than the repository states.
  *
- * No scrolling is hijacked — the section reveals itself once and then leaves the
+ * No scrolling is hijacked — the block reveals itself once and then leaves the
  * reader alone to examine the details.
  */
 export function CaseStudyEngineering({ study }: { study: ResolvedCaseStudy }) {
@@ -35,12 +35,12 @@ export function CaseStudyEngineering({ study }: { study: ResolvedCaseStudy }) {
       <div className="relative mx-auto max-w-7xl px-6 py-16 sm:px-10 sm:py-20 lg:py-24">
         <header className="max-w-3xl">
           <Eyebrow>Implementation · system map</Eyebrow>
-          <h3
+          <h2
             id={`${project.slug}-engineering-heading`}
             className="mt-4 font-display text-3xl leading-tight tracking-tight text-paper sm:text-4xl lg:text-5xl"
           >
             Inside {project.title}.
-          </h3>
+          </h2>
           <Reveal
             shown={inView}
             delayMs={80}

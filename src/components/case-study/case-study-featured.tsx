@@ -9,17 +9,24 @@ import { useInView } from "./use-in-view";
 /**
  * The featured case study — the light blueprint plate.
  *
- * Oversized editorial title, the project's real screenshot given the widest
- * column, and a narrow information rail beside it carrying the role, the
- * problem, the approach and the technology chips read from the canonical
- * project data. Lime appears exactly twice: the role marker and nothing else.
+ * The opening of a featured project's own page: an oversized editorial title,
+ * the project's real screenshot given the widest column, and a narrow
+ * information rail beside it carrying the role, the problem, the approach and
+ * the technology chips read from the canonical project data. Lime appears
+ * exactly twice: the role marker and nothing else.
+ *
+ * The title is the page's `<h1>`; the dark engineering plate that follows takes
+ * the `<h2>`.
  */
 export function CaseStudyFeatured({
   study,
   position,
+  eyebrow,
 }: {
   study: ResolvedCaseStudy;
   position: number;
+  /** Overrides the default "Featured case study · NN" label. */
+  eyebrow?: string;
 }) {
   const { project, visual } = study;
   const { ref, inView, reduced } = useInView<HTMLElement>({
@@ -38,14 +45,15 @@ export function CaseStudyFeatured({
       <div className="relative mx-auto max-w-7xl px-6 pb-16 pt-16 sm:px-10 sm:pb-20 sm:pt-20 lg:pb-28 lg:pt-24">
         <header className="max-w-4xl">
           <Eyebrow>
-            Featured case study · {String(position).padStart(2, "0")}
+            {eyebrow ??
+              `Featured case study · ${String(position).padStart(2, "0")}`}
           </Eyebrow>
-          <h3
+          <h1
             id={`${project.slug}-case-heading`}
             className="mt-4 font-display text-5xl leading-[0.95] tracking-tight text-ink sm:text-6xl lg:text-7xl"
           >
             {project.title}
-          </h3>
+          </h1>
           <Reveal
             shown={inView}
             delayMs={80}

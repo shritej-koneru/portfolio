@@ -6,7 +6,7 @@ import { revealClass } from "./use-in-view";
 
 /**
  * Small pieces shared by the three case-study layouts, so the light featured
- * plate, the dark engineering view and the compact editorial cards all label,
+ * plate, the dark engineering view and the compact editorial card all label,
  * stagger and annotate their content the same way.
  *
  * `tone` is the only thing that changes between them: paper is ink-on-paper,
@@ -15,7 +15,7 @@ import { revealClass } from "./use-in-view";
 
 export type Tone = "paper" | "ink";
 
-/** The mono eyebrow used for every technical label in the scene. */
+/** The mono eyebrow used for every technical label on a project page. */
 export function Eyebrow({
   children,
   className,
@@ -83,14 +83,14 @@ export function NoteEntry({
     <Reveal shown={shown} delayMs={delayMs} className={className}>
       <Eyebrow>{label}</Eyebrow>
       {title ? (
-        <h4
+        <h3
           className={cn(
             "mt-2 font-display text-base leading-snug",
             ink ? "text-paper" : "text-ink",
           )}
         >
           {title}
-        </h4>
+        </h3>
       ) : null}
       <p
         className={cn(

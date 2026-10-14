@@ -26,6 +26,34 @@ Scene 2 honours `prefers-reduced-motion` by removing the *motion*, not the piece
 (it snaps instead of springing). Scene 1 runs the source component's own brush
 motion unchanged.
 
+## Pages and routing
+
+The site is a single-page app with two kinds of address, both handled by
+`src/lib/router.tsx` — the History API plus `useSyncExternalStore`, so **no
+router dependency was added**:
+
+| Address | Renders |
+| --- | --- |
+| `/` | `src/pages/home.tsx` — the scenes on this page |
+| `/work/<slug>` | `src/pages/project.tsx` — one project on its own page |
+| anything else | `src/pages/not-found.tsx` — says what was asked for, offers a way back |
+
+- **Every project has a page.** The wheel's cards, the "Open project" link in the
+  details panel beneath the wheel and the titles in the "Also on GitHub" list all
+  point at `/work/<slug>`. Those are ordinary root-relative `<a>` links, and
+  `useRouter` installs one delegated click listener that upgrades them to
+  client-side navigation — so a component that knows nothing about routing (the
+  wheel, for instance) still links correctly. External links, new tabs, downloads
+  and modifier-clicks are left to the browser, and `#section` links stay native.
+- **Deep links work.** `vercel.json` already rewrites every path to
+  `index.html`, so `/work/equialert` opened cold renders that project rather than
+  a 404.
+- **The router owns scroll.** A new page starts at its top, or at its anchor — so
+  the project page's "← All work" link lands on the wheel rather than at the top
+  of the home page — and the back button returns you to where you were.
+  `history.scrollRestoration` is set to `manual` so the browser does not fight
+  that.
+
 ## Featured Projects (Works Wheel)
 
 `src/components/sections/featured-projects.tsx` renders the project showcase.
@@ -45,7 +73,9 @@ Scroll length scales with the number of projects — `PIN_STEP_VH` in
 `featured-projects.tsx` is the percent of viewport height of scrolling per
 project — so adding a project lengthens the section and adds a stop
 automatically, with no hardcoded count or index anywhere. Clicking a project in
-the index down the right-hand side scrolls the page to that project's stop.
+the index down the right-hand side scrolls the page to that project's stop;
+clicking the card itself — or the "Open project" link in the panel below the
+wheel — opens that project's own page (see **Pages and routing**).
 
 ### Adding a project
 
@@ -77,8 +107,9 @@ Everything comes from one file: **`src/data/projects.ts`**.
    of rendering a dead link.
 
 The wheel, the details panel and the fallback list all read from this array, so
-a new entry appears everywhere automatically. Projects are eligible for the
-wheel unless marked `featured: false` (those appear under "Also on GitHub").
+a new entry appears everywhere automatically — including its own page at
+`/work/<slug>`. Projects are eligible for the wheel unless marked
+`featured: false` (those appear under "Also on GitHub").
 
 > **Temporary covers:** the current `public/images/projects/*.svg` files are
 > generated Digital Blueprint placeholders, not screenshots. Regenerate them with
@@ -142,27 +173,29 @@ card header is computed from the fetched days.
 > `src/data/contributions.ts`. To change the colour ramp, edit
 > `SKYLINE_PALETTE` in `open-source-activity.tsx`.
 
-## Scene 05 — Selected Case Studies
+## Project pages — behind the build
 
-`src/components/sections/selected-case-studies.tsx` renders directly after the
-contribution skyline. Heading *"Behind the build."*, supporting copy *"Ideas
-become systems. Systems become things people can use."*, technical label
-`05 / SELECTED WORK`.
+`src/pages/project.tsx` is what `/work/<slug>` renders. It reads the project from
+`src/data/projects.ts` and any build notes from `src/data/case-studies.ts`, both
+looked up by slug, and renders one of two things:
 
-It is staged in three parts, and the order is the point:
+- **A project with a case study** gets the full write-up. A `kind: "featured"`
+  project opens on the light blueprint plate (`case-study-featured.tsx`) — its
+  real screenshot in the widest column, a narrow rail carrying the role,
+  `01 / PROBLEM`, `02 / APPROACH` and `03 / TECHNOLOGY` — and continues into the
+  dark engineering view (`case-study-engineering.tsx`): the system map, the
+  engineering notes, the documented stack and, where the repository publishes
+  one, its real project structure. A `kind: "supporting"` project gets the
+  compact editorial layout (`case-study-editorial.tsx`), labelled `03 / TRADE-OFF`
+  when the repository documents one and `03 / DETAILS` when it does not.
+- **A project without one** renders what is verifiable — description,
+  technology, status and links, all from `projects.ts` — and says plainly that
+  the build notes are not written yet. No problem/approach prose is invented to
+  fill the labels, so a page for an undocumented project is short by design.
 
-1. **Light blueprint introduction** (`case-study-featured.tsx`) — the featured
-   project on a warm blueprint paper field with a ruled edge, its real
-   screenshot given the widest column, and a narrow information rail carrying
-   the role, `01 / PROBLEM`, `02 / APPROACH` and `03 / TECHNOLOGY`.
-2. **Dark engineering view** (`case-study-engineering.tsx`) — the same sheet
-   inverted to deep ink: a system map, the engineering notes, the documented
-   stack and, where the repository publishes one, its real project structure.
-   Everything drawn there is transcribed from the project's own docs and says so
-   on the page.
-3. **Compact editorial cards** (`case-study-editorial.tsx`) — the supporting
-   studies on an asymmetric grid that swaps the media and text columns on every
-   other card.
+Either way the page is framed by its own chrome: a sticky bar carrying the way
+back to the wheel (`/#work`) and the project's position in the work (`03 / 15`),
+and a footer with the previous and next project.
 
 `src/components/case-study/` holds the reusable pieces (`blueprint-backdrop.tsx`
 for the grid, ruler and drawn rules, `flow-diagram.tsx` for the schematic,
@@ -175,26 +208,28 @@ the shared `src/components/project-actions.tsx`, which the Works Wheel uses too.
 block plus CSS transitions, and the blueprint rules are drawn with a single
 `stroke-dashoffset` transition. Under `prefers-reduced-motion: reduce` every
 block is rendered immediately, the screenshot loses its clip-path and the rules
-appear fully drawn. Nothing about the section is pinned, and it captures no
-scroll or touch input.
+appear fully drawn. Nothing is pinned, and no scroll or touch input is captured.
 
 ### Adding or changing a case study
 
-Case studies are **not** a second project list. `src/data/case-studies.ts`
-stores notes keyed by the `slug` of a project in `src/data/projects.ts`, and the
-section resolves name, description, links and technology from there. An entry
-whose slug is not in the project list is skipped, so the page can never link to
-a project that no longer exists.
+Case studies are **not** a second project list. `src/data/case-studies.ts` stores
+notes keyed by the `slug` of a project in `src/data/projects.ts`, and the page
+resolves name, description, links and technology from there — `getCaseStudyBySlug`
+finds one, and an entry whose slug is not in the project list is skipped, so the
+site can never link to a project that no longer exists.
 
 1. Add or edit an object in `caseStudyList`, with `slug` matching a project.
-2. `kind: "featured"` marks the one project that gets the light plate and the
-   dark engineering view; everything else is `kind: "supporting"`.
+2. `kind: "featured"` marks the one project that gets the light plate *and* the
+   dark engineering view; everything else is `kind: "supporting"` and gets the
+   compact editorial layout.
 3. Fill only what the repository actually documents. `tradeoffs` stays empty for
    projects that document none, and the UI hides the block rather than inventing
    a story — that is why the featured project has no trade-off section.
-4. Screenshots live in `public/images/case-studies/<slug>.jpg` and are
-   referenced through `visual`. They are real captures of the running project,
-   not mockups; drop the field and a project falls back to its diagram.
+4. Screenshots live in `public/images/case-studies/<slug>.jpg` and are referenced
+   through `visual`. They are real captures of the running project, not mockups;
+   drop the field and a project falls back to its diagram.
+5. Nothing else to wire up: the entry gives that project's existing page its full
+   write-up.
 
 ## Scripts
 

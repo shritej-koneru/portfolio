@@ -1,17 +1,18 @@
 import * as React from "react";
 
+import { WorksWheel, type WorksWheelHandle, type WorksWheelItem } from "@/components/ui/works-wheel";
 import {
-  WorksWheel,
-  type WorksWheelHandle,
-  type WorksWheelItem,
-} from "@/components/ui/works-wheel";
-import { ProjectActions, TechChips } from "@/components/project-actions";
+  ProjectActions,
+  ProjectDetailLink,
+  TechChips,
+} from "@/components/project-actions";
 import {
   GITHUB_PROFILE,
   getFeaturedProjects,
   getOtherProjects,
   type Project,
 } from "@/data/projects";
+import { projectPath } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,16 +32,14 @@ const prefersReducedMotion = () =>
   typeof window.matchMedia === "function" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** A project's single best link for the wheel card: live demo, else source. */
-const cardHref = (project: Project) => project.liveUrl ?? project.repoUrl;
-
 /** Maps the project data onto the wheel's item shape. Nothing is hardcoded. */
 const toWheelItems = (list: Project[]): WorksWheelItem[] =>
   list.map((project) => ({
     id: project.slug,
     title: project.title,
     image: project.image,
-    href: cardHref(project),
+    // A card opens the project's own page, which is where its build notes are.
+    href: projectPath(project.slug),
   }));
 
 /** Details for the project at the front of the wheel. */
@@ -70,7 +69,9 @@ function ProjectDetails({
         </p>
         <TechChips tech={project.tech} className="mt-4" />
       </div>
-      <div className="shrink-0">
+      <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+        {/* Into the project's own page — the same door the card above opens. */}
+        <ProjectDetailLink slug={project.slug} />
         <ProjectActions project={project} />
       </div>
     </div>
@@ -106,7 +107,14 @@ function ProjectList({
             />
           ) : null}
           <div className="flex flex-1 flex-col p-5">
-            <h3 className="font-display text-lg text-ink">{project.title}</h3>
+            <h3 className="font-display text-lg text-ink">
+              <a
+                href={projectPath(project.slug)}
+                className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {project.title}
+              </a>
+            </h3>
             {project.status ? (
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-blueprint">
                 {project.status}

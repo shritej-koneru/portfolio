@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The blueprint field every Scene 05 plate sits on.
+ * The blueprint field every project-page plate sits on.
  *
  * Three layers, all decorative and non-interactive: the grid itself (the 48px
  * module Scene 02 and Scene 04 use, with a heavier 192px major line over it so
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  * architectural drawing is referenced.
  *
  * `tone` flips every line between ink-on-paper and paper-on-ink; nothing else
- * about the field changes, so the light and dark parts of the case study are
+ * about the field changes, so the light and dark parts of a project's page are
  * recognisably the same sheet.
  */
 export function BlueprintBackdrop({

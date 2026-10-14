@@ -3,8 +3,8 @@ import * as React from "react";
 /**
  * The repository's only motion dependency is Tailwind, so reveals are plain CSS
  * transitions toggled by a single IntersectionObserver — the same pattern Scene
- * 04 uses, lifted into a hook so every block in Scene 05 can stagger itself
- * without each one re-implementing an observer.
+ * 04 uses, lifted into a hook so every block on a project page can stagger
+ * itself without each one re-implementing an observer.
  *
  * Reduced motion and missing observer support both resolve to "already
  * revealed": the content is present and readable, just without the transition.
