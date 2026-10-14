@@ -42,14 +42,12 @@ export default function App() {
           draggable={false}
         />
 
+        {/* Motion is the source component's own: every brush stamp grows and
+            fades on its own `lifetime` (600ms), so the ink closes back over the
+            reveal shortly after the pointer passes. */}
         <InkReveal
           maskColor={MASK_COLOR}
           brushSize={150}
-          // Revealed area stays uncovered for 30s, then fades back.
-          lifetime={30000}
-          // Only bounds the still-expanding buffer; older stamps are baked,
-          // so nothing is lost and per-frame cost stays tiny.
-          maxStamps={320}
           cleared={revealed}
         />
 

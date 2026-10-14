@@ -11,14 +11,16 @@ typography.
 ## Opening scenes
 
 1. **Ink Reveal** (`src/components/ui/ink-reveal.tsx`) — carve an ink mask off a
-   photograph.
+   photograph. Each brush stamp is short-lived (`lifetime`, 600ms): it grows and
+   fades on its own, so the ink closes back over the reveal shortly after the
+   pointer passes.
 2. **Blueprint Ink Reveal hero** (`src/components/ui/blueprint-ink-reveal.tsx`) —
    the name drafted as an outline plate and uncovered as solid type under the
    pointer.
 
-Both honour `prefers-reduced-motion` by removing the *motion*, not the piece:
-the reveal still renders and still responds to the pointer, but Scene 1's stamps
-land at full size and never fade back, and Scene 2 snaps instead of springing.
+Scene 2 honours `prefers-reduced-motion` by removing the *motion*, not the piece
+(it snaps instead of springing). Scene 1 runs the source component's own brush
+motion unchanged.
 
 ## Featured Projects (Works Wheel)
 
