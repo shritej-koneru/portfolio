@@ -88,9 +88,59 @@ wheel unless marked `featured: false` (those appear under "Also on GitHub").
 ### GitHub
 
 Project metadata is curated by hand from the public repositories at
-<https://github.com/shritej-koneru>. There is **no** runtime GitHub API call and
-**no** token in the browser code. A later integration could discover repositories
-and merge them with this manual metadata, but it is not implemented.
+<https://github.com/shritej-koneru>. Curating the project list makes **no**
+runtime GitHub API call and uses **no** token. A later integration could
+discover repositories and merge them with this manual metadata, but it is not
+implemented. (Scene 04 below does read the public contribution graph at
+runtime — see there for how and why.)
+
+## Scene 04 — Contribution Skyline
+
+`src/components/sections/open-source-activity.tsx` renders directly after the
+Works Wheel: the wheel shows what was built, this shows the activity behind it.
+Heading *"Every commit builds something."*, technical label
+`04 / OPEN SOURCE ACTIVITY`, and a link to the profile.
+
+The chart itself is `src/components/ui/contribution-skyline.tsx` (the 21st.dev
+"Contribution Skyline" component by @kedhareswer), copied in as-is: one canvas,
+React the only import, no extra dependency. It draws the year as a heat map and
+folds it into an isometric skyline on first sight, with hover/tap day readouts,
+arrow-key navigation, legend isolation, a 2D/3D toggle and drag-to-orbit (which
+is kept — it double-click-resets and yields vertical scrolling to the page on
+touch via `touch-action: pan-y`). The card is coloured through the CSS variables
+it already reads (`--color-background`, `--color-foreground`, `--color-border`,
+`--color-muted-foreground`), which `PLATE_COLORS` in the section sets to the
+ink plate. The scene adds **no** pinned scroll — the Works Wheel owns that.
+
+### Where the contribution data comes from
+
+Real data, always — the scene never draws generated activity.
+
+- GitHub has no unauthenticated REST/GraphQL endpoint for the contribution
+  calendar, and `github.com/users/<user>/contributions` is served **without**
+  CORS headers, so a static browser app cannot read the graph from github.com.
+- `src/data/contributions.ts` therefore reads the public, key-less
+  [github-contributions-api](https://github-contributions-api.jogruber.de)
+  service, which resolves that same public graph and does send
+  `Access-Control-Allow-Origin: *`. **No token, secret or credential is involved
+  anywhere, and nothing is stored beyond the page's lifetime.**
+- The username is not hardcoded: it is derived from `GITHUB_PROFILE` in
+  `src/data/projects.ts`, so changing that URL moves the scene with it.
+- Every response is validated (`readContributions`) before it can render: bad
+  dates, negative counts and unexpected shapes are dropped, and a payload that
+  does not look like a calendar falls back rather than drawing something.
+
+States, all verified in a browser: **loading** reserves the chart's own footprint
+(the grid is always 53 weeks × 7 days, so the placeholder uses that ratio capped
+at 620px) so the data landing shifts nothing; **empty** (a real year with zero
+contributions) and **unavailable** (request failed, timed out after 9s, or the
+payload was unrecognisable) both render a short honest note and a link to the
+profile. There are no invented counts, streaks or dates, and the total in the
+card header is computed from the fetched days.
+
+> To point the scene at a different source, change `CONTRIBUTIONS_ENDPOINT` in
+> `src/data/contributions.ts`. To change the colour ramp, edit
+> `SKYLINE_PALETTE` in `open-source-activity.tsx`.
 
 ## Scripts
 
