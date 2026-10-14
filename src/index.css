@@ -74,10 +74,21 @@
 
   html,
   body {
-    height: 100%;
+    min-height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    overflow-x: hidden;
   }
 }
