@@ -1,6 +1,10 @@
 import * as React from "react";
 
-import { WorksWheel, type WorksWheelItem } from "@/components/ui/works-wheel";
+import {
+  WorksWheel,
+  type WorksWheelHandle,
+  type WorksWheelItem,
+} from "@/components/ui/works-wheel";
 import {
   GITHUB_PROFILE,
   getFeaturedProjects,
@@ -8,6 +12,23 @@ import {
   type Project,
 } from "@/data/projects";
 import { cn } from "@/lib/utils";
+
+/**
+ * How much page scroll (as a percentage of the viewport height) it takes to
+ * turn the wheel through one stop — the ring opening into the drum, then one
+ * project per stop after that. The section is `wheel.length + 1` stops tall, so
+ * the total distance scales with the number of projects and nothing is
+ * hardcoded to a count.
+ */
+const PIN_STEP_VH = 22;
+
+const clamp = (value: number, lo: number, hi: number) =>
+  Math.min(hi, Math.max(lo, value));
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** A project's single best link for the wheel card: live demo, else source. */
 const cardHref = (project: Project) => project.liveUrl ?? project.repoUrl;
@@ -106,23 +127,23 @@ function ProjectDetails({
   total: number;
 }) {
   return (
-    <div className="border-t border-ink/10 pt-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-10">
-        <div className="max-w-2xl">
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40">
-            {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-            {project.status ? (
-              <span className="text-blueprint"> · {project.status}</span>
-            ) : null}
-          </p>
-          <h3 className="mt-2 font-display text-2xl text-ink sm:text-3xl">
-            {project.title}
-          </h3>
-          <p className="mt-3 text-pretty leading-relaxed text-ink/70">
-            {project.description}
-          </p>
-          <TechChips tech={project.tech} />
-        </div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-10">
+      <div className="min-w-0 max-w-2xl">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40">
+          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          {project.status ? (
+            <span className="text-blueprint"> · {project.status}</span>
+          ) : null}
+        </p>
+        <h3 className="mt-2 font-display text-xl text-ink sm:text-2xl">
+          {project.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-pretty text-sm leading-relaxed text-ink/70 sm:text-base">
+          {project.description}
+        </p>
+        <TechChips tech={project.tech} />
+      </div>
+      <div className="shrink-0">
         <ProjectActions project={project} />
       </div>
     </div>
@@ -200,20 +221,78 @@ export function FeaturedProjects() {
   const wheelItems = React.useMemo(() => toWheelItems(featured), [featured]);
   const wheelSupported = React.useMemo(() => canRunWheel(), []);
 
+  const count = featured.length;
+
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const safeIndex = Math.min(activeIndex, Math.max(featured.length - 1, 0));
+  const safeIndex = Math.min(activeIndex, Math.max(count - 1, 0));
   const activeProject = featured[safeIndex];
+
+  const pinRef = React.useRef<HTMLDivElement>(null);
+  const wheelRef = React.useRef<WorksWheelHandle>(null);
 
   // Stable identity for the wheel's callback so it never restarts the animation.
   const handleActiveChange = React.useCallback((index: number) => {
     setActiveIndex(index);
   }, []);
 
+  /**
+   * The wheel is part of the page scroll: the section is pinned, and its
+   * position in that pinned scroll drives the wheel from the ring (0) through
+   * the drum to the last project. Nothing turns until the section reaches the
+   * top of the viewport, so the reader always sees the circle first and the
+   * cards go one after the other from there — then the page carries on to the
+   * next section.
+   */
+  React.useEffect(() => {
+    if (!wheelSupported || count === 0) return;
+    const el = pinRef.current;
+    if (!el) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      const progress = clamp(-el.getBoundingClientRect().top / total, 0, 1);
+      wheelRef.current?.setTurn(progress * count);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [wheelSupported, count]);
+
+  /** Index click: scroll the page to the position that brings that project up. */
+  const handleSelect = React.useCallback(
+    (index: number) => {
+      const el = pinRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      // Item `index` sits at turn `index + 1`, and turn runs 0..count.
+      const progress = (index + 1) / Math.max(count, 1);
+      window.scrollTo({
+        top: top + progress * total,
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
+    },
+    [count],
+  );
+
   return (
     <section
       id="work"
       aria-labelledby="work-heading"
-      className="relative scroll-mt-24 border-t border-ink/10 bg-background py-20 sm:py-28"
+      className="relative scroll-mt-24 border-t border-ink/10 bg-background pt-20 sm:pt-28"
     >
       <div className="mx-auto max-w-7xl px-6">
         <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-blueprint">
@@ -230,45 +309,56 @@ export function FeaturedProjects() {
         </p>
       </div>
 
-      <div className="mt-12 sm:mt-16">
-        {featured.length === 0 ? (
-          <div className="mx-auto max-w-7xl px-6">
-            <p className="text-ink/60">Projects are on the way.</p>
-          </div>
-        ) : wheelSupported ? (
-          <>
-            <div className="relative h-[62svh] min-h-[22rem] max-h-[46rem]">
-              <WorksWheel
-                items={wheelItems}
-                label="Selected Work"
-                action="Open"
-                onActiveChange={handleActiveChange}
-              />
-              <p
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-4 z-20 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-ink/35"
-              >
-                Scroll or drag · ↑ ↓ to browse
-              </p>
-            </div>
+      {count === 0 ? (
+        <div className="mx-auto mt-12 max-w-7xl px-6">
+          <p className="text-ink/60">Projects are on the way.</p>
+        </div>
+      ) : wheelSupported ? (
+        <div
+          ref={pinRef}
+          className="relative mt-12"
+          style={{ height: `calc(100svh + ${count * PIN_STEP_VH}svh)` }}
+        >
+          <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
+            <div className="flex h-full flex-col">
+              <div className="relative min-h-0 flex-1">
+                <WorksWheel
+                  ref={wheelRef}
+                  items={wheelItems}
+                  label="Selected Work"
+                  action="Open"
+                  interactive={false}
+                  onActiveChange={handleActiveChange}
+                  onSelect={handleSelect}
+                />
+                <p
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-3 z-20 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-ink/35"
+                >
+                  Scroll to turn the wheel
+                </p>
+              </div>
 
-            <div className="mx-auto mt-8 max-w-7xl px-6">
-              <ProjectDetails
-                project={activeProject}
-                index={safeIndex}
-                total={featured.length}
-              />
+              <div className="shrink-0 border-t border-ink/10 bg-background">
+                <div className="mx-auto max-w-7xl px-6 py-4 sm:py-5">
+                  <ProjectDetails
+                    project={activeProject}
+                    index={safeIndex}
+                    total={count}
+                  />
+                </div>
+              </div>
             </div>
-          </>
-        ) : (
-          <div className="mx-auto max-w-7xl px-6">
-            <ProjectList items={featured} />
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="mx-auto mt-12 max-w-7xl px-6">
+          <ProjectList items={featured} />
+        </div>
+      )}
 
       {other.length > 0 ? (
-        <div className="mx-auto mt-16 max-w-7xl px-6">
+        <div className="mx-auto mt-16 max-w-7xl px-6 pb-20 sm:pb-28">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h3 className="font-mono text-[11px] uppercase tracking-[0.3em] text-ink/45">
               Also on GitHub
@@ -286,7 +376,9 @@ export function FeaturedProjects() {
             <ProjectList items={other} compact />
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="pb-20 sm:pb-28" />
+      )}
     </section>
   );
 }

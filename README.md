@@ -19,10 +19,23 @@ typography.
 ## Featured Projects (Works Wheel)
 
 `src/components/sections/featured-projects.tsx` renders the project showcase.
-The interactive wheel (`src/components/ui/works-wheel.tsx`) receives its items
-through props — it holds no project list of its own and never assumes a number
-of projects. A conventional, static project list is used automatically if the
-environment can't run the 3D wheel.
+The wheel (`src/components/ui/works-wheel.tsx`) receives its items through props
+— it holds no project list of its own and never assumes a number of projects. A
+conventional, static project list is used automatically if the environment can't
+run the 3D wheel.
+
+The section is **pinned to the viewport and driven by the page scroll** rather
+than by the cursor: the reader sees the ring (circle) first, then the drum
+carries each project to the front one after another as they keep scrolling, and
+the page carries on to the next section once the last project has been shown.
+The wheel does not capture wheel or touch input, so the scrollbar, trackpad,
+touch and arrow keys all behave normally.
+
+Scroll length scales with the number of projects — `PIN_STEP_VH` in
+`featured-projects.tsx` is the percent of viewport height of scrolling per
+project — so adding a project lengthens the section and adds a stop
+automatically, with no hardcoded count or index anywhere. Clicking a project in
+the index down the right-hand side scrolls the page to that project's stop.
 
 ### Adding a project
 

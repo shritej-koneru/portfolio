@@ -18,7 +18,12 @@
 //  - `onActiveChange` reports the front item so a details panel can follow it.
 //  - `id` gives React a stable key; `image` is optional (a labelled plate is
 //    drawn when a cover is missing or fails to load).
-//  - The animation below is unchanged from the original component.
+//  - `interactive` (default true) lets the wheel capture wheel/drag/key input
+//    itself. Set it false to hand that over to the page: the owner then drives
+//    `turn` through the ref (`setTurn`) as the reader scrolls past a pinned
+//    section, and `onSelect` receives index clicks so the owner can scroll to
+//    the matching position instead.
+//  - The animation below is otherwise unchanged from the original component.
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -34,9 +39,16 @@ export interface WorksWheelItem {
   href?: string;
 }
 
+/** Imperative handle: the owner drives the wheel's position from the page. */
+export interface WorksWheelHandle {
+  /** Set the wheel position. 0 is the ring, `items.length` is the last item. */
+  setTurn: (value: number) => void;
+}
+
 export interface WorksWheelProps extends Omit<
   React.ComponentPropsWithoutRef<"section">,
-  "children"
+  // `onSelect` is our own index callback, not the DOM text-selection event.
+  "children" | "onSelect"
 > {
   items: WorksWheelItem[];
   /** Sits in the middle of the ring. @default undefined */
@@ -45,6 +57,14 @@ export interface WorksWheelProps extends Omit<
   action?: string;
   /** Called whenever the front item changes. */
   onActiveChange?: (index: number) => void;
+  /**
+   * Whether the wheel captures wheel/drag/key input itself.
+   * `false` leaves the page free to scroll and lets the owner drive `setTurn`.
+   * @default true
+   */
+  interactive?: boolean;
+  /** Replaces the index buttons' default behaviour (used to scroll the page). */
+  onSelect?: (index: number) => void;
 }
 
 /* Geometry. The card is measured against the stage; everything else is measured
@@ -124,322 +144,353 @@ function monogram(title: string) {
   );
 }
 
-export function WorksWheel({
-  items,
-  label = "Works '26",
-  action = "View",
-  onActiveChange,
-  className,
-  ...props
-}: WorksWheelProps) {
-  const stageRef = React.useRef<HTMLDivElement>(null);
-  const wheelRef = React.useRef<HTMLDivElement>(null);
-  const cardRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const labelRef = React.useRef<HTMLDivElement>(null);
-  const titleRef = React.useRef<HTMLDivElement>(null);
-
-  // The wheel's position, and where it is heading. Only `active` is state -
-  // everything else is written to the DOM, so turning the wheel is not a render.
-  const turn = React.useRef(0);
-  const target = React.useRef(0);
-  const [active, setActive] = React.useState(0);
-  const [stage, setStage] = React.useState<Stage>({ w: 0, h: 0 });
-
-  const count = items.length;
-  const last = Math.max(count - 1, 0);
-
-  // Report the front item to the owner (for a details panel beside the wheel).
-  React.useEffect(() => {
-    onActiveChange?.(active);
-  }, [active, onActiveChange]);
-
-  // Read after mount, not during render: the server has no matchMedia, and
-  // branching on it inline is a hydration mismatch. Reduced motion drops the
-  // easing, so the wheel lands where it is put instead of gliding there.
-  const [reduced, setReduced] = React.useState(false);
-  React.useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const read = () => setReduced(query.matches);
-    read();
-    query.addEventListener("change", read);
-    return () => query.removeEventListener("change", read);
-  }, []);
-
-  React.useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const read = () => setStage({ w: el.clientWidth, h: el.clientHeight });
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const metrics = React.useMemo(() => {
-    const { w, h } = stage;
-    const cardW = Math.min(h * CARD_H * CARD_RATIO, w * CARD_MAX_W);
-    const cardH = cardW / CARD_RATIO;
-    const drumR = cardH * DRUM;
-    const ringR = cardH * RING_R;
-    // Shrink the ring's cards until the circle reads as a closed loop rather
-    // than beads on a wire, however many pieces the wheel is given.
-    const ringScale = count
-      ? clamp((((2 * Math.PI * ringR) / count) * 0.82) / (cardW || 1), 0.16, 1)
-      : 1;
-    return {
-      cardW,
-      cardH,
-      ringR,
-      ringScale,
-      drumR,
-      bow: cardH * BOW,
-      depth: cardH * LENS,
-      title: cardH * TITLE,
-      index: cardH * INDEX,
-    };
-  }, [stage, count]);
-
-  // One pass per frame: ease toward the target, then write every transform.
-  React.useEffect(() => {
-    if (!stage.h) return;
-    let frame = 0;
-    const { ringR, ringScale, drumR, bow } = metrics;
-
-    const draw = () => {
-      frame = requestAnimationFrame(draw);
-      const gap = target.current - turn.current;
-      if (Math.abs(gap) < 0.0005) turn.current = target.current;
-      else turn.current += gap * (reduced ? 1 : EASE);
-
-      const t = turn.current;
-      const m = clamp(t, 0, 1);
-      const pos = Math.max(0, t - 1);
-
-      // The drum is pulled back so its front face lands on the picture plane.
-      // That set-back has to arrive with the drum, or the ring would sit at the
-      // far side of the perspective and render at half its size.
-      if (wheelRef.current) {
-        wheelRef.current.style.transform = `translateZ(${-m * drumR}px)`;
-      }
-
-      for (let i = 0; i < count; i++) {
-        const d = i - pos;
-        const drumDeg = d * STEP;
-        const card = cardRefs.current[i];
-        if (card) {
-          card.style.transform = place(
-            d * (360 / count),
-            drumDeg,
-            ringR,
-            drumR,
-            bow,
-            m,
-          );
-          // Culled by distance, not by angle: at a full turn the far side comes
-          // back round to face us, and everything past the neighbours lands on
-          // the vanishing point in a heap.
-          card.style.opacity = m > 0.5 && Math.abs(d) > CULL ? "0" : "1";
-          card.style.zIndex = String(Math.round(100 - Math.abs(d) * 2));
-        }
-        const face = card?.firstElementChild as HTMLElement | null;
-        if (face) face.style.transform = `scale(${lerp(ringScale, 1, m)})`;
-      }
-
-      if (labelRef.current) labelRef.current.style.opacity = String(1 - m);
-      if (titleRef.current) titleRef.current.style.opacity = String(m);
-      const near = clamp(Math.round(pos), 0, last);
-      setActive((prev) => (prev === near ? prev : near));
-    };
-
-    frame = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(frame);
-  }, [metrics, stage.h, count, last, reduced]);
-
-  const to = React.useCallback(
-    (next: number) => {
-      target.current = clamp(next, 0, last + 1);
+export const WorksWheel = React.forwardRef<WorksWheelHandle, WorksWheelProps>(
+  function WorksWheel(
+    {
+      items,
+      label = "Works '26",
+      action = "View",
+      onActiveChange,
+      interactive = true,
+      onSelect,
+      className,
+      ...props
     },
-    [last],
-  );
+    ref,
+  ) {
+    const stageRef = React.useRef<HTMLDivElement>(null);
+    const wheelRef = React.useRef<HTMLDivElement>(null);
+    const cardRefs = React.useRef<(HTMLElement | null)[]>([]);
+    const labelRef = React.useRef<HTMLDivElement>(null);
+    const titleRef = React.useRef<HTMLDivElement>(null);
 
-  // Native listener, because the wheel has to be cancellable - and it only
-  // cancels while it still has somewhere to go, so the page scrolls on at
-  // either end instead of trapping the reader.
-  const settling = React.useRef(0);
-  React.useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const onWheel = (event: WheelEvent) => {
-      const next = target.current + event.deltaY / WHEEL_UNITS;
-      if (next > 0 && next < last + 1) event.preventDefault();
-      to(next);
-      // A wheel gesture arrives as a burst of events with no end of its own, so
-      // the rest position is whatever notch it happened to stop on. Left there
-      // the drum sits between two cards - nothing at the front, and the pair
-      // either side of the gap both turned half away. Settle onto an item.
-      window.clearTimeout(settling.current);
-      settling.current = window.setTimeout(
-        () => to(Math.round(target.current)),
-        SETTLE,
-      );
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      el.removeEventListener("wheel", onWheel);
-      window.clearTimeout(settling.current);
-    };
-  }, [to, last]);
+    // The wheel's position, and where it is heading. Only `active` is state -
+    // everything else is written to the DOM, so turning the wheel is not a render.
+    const turn = React.useRef(0);
+    const target = React.useRef(0);
+    const [active, setActive] = React.useState(0);
+    const [stage, setStage] = React.useState<Stage>({ w: 0, h: 0 });
 
-  const drag = React.useRef<number | null>(null);
+    const count = items.length;
+    const last = Math.max(count - 1, 0);
 
-  return (
-    <section
-      aria-label={label}
-      className={cn(
-        "bg-background text-foreground relative h-full min-h-[24rem] w-full overflow-hidden select-none",
-        className,
-      )}
-      {...props}
-    >
-      <div
-        ref={stageRef}
-        tabIndex={0}
-        role="listbox"
+    // Report the front item to the owner (for a details panel beside the wheel).
+    React.useEffect(() => {
+      onActiveChange?.(active);
+    }, [active, onActiveChange]);
+
+    // Read after mount, not during render: the server has no matchMedia, and
+    // branching on it inline is a hydration mismatch. Reduced motion drops the
+    // easing, so the wheel lands where it is put instead of gliding there.
+    const [reduced, setReduced] = React.useState(false);
+    React.useEffect(() => {
+      const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const read = () => setReduced(query.matches);
+      read();
+      query.addEventListener("change", read);
+      return () => query.removeEventListener("change", read);
+    }, []);
+
+    React.useEffect(() => {
+      const el = stageRef.current;
+      if (!el) return;
+      const read = () => setStage({ w: el.clientWidth, h: el.clientHeight });
+      read();
+      const ro = new ResizeObserver(read);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }, []);
+
+    const metrics = React.useMemo(() => {
+      const { w, h } = stage;
+      const cardW = Math.min(h * CARD_H * CARD_RATIO, w * CARD_MAX_W);
+      const cardH = cardW / CARD_RATIO;
+      const drumR = cardH * DRUM;
+      const ringR = cardH * RING_R;
+      // Shrink the ring's cards until the circle reads as a closed loop rather
+      // than beads on a wire, however many pieces the wheel is given.
+      const ringScale = count
+        ? clamp((((2 * Math.PI * ringR) / count) * 0.82) / (cardW || 1), 0.16, 1)
+        : 1;
+      return {
+        cardW,
+        cardH,
+        ringR,
+        ringScale,
+        drumR,
+        bow: cardH * BOW,
+        depth: cardH * LENS,
+        title: cardH * TITLE,
+        index: cardH * INDEX,
+      };
+    }, [stage, count]);
+
+    // One pass per frame: ease toward the target, then write every transform.
+    React.useEffect(() => {
+      if (!stage.h) return;
+      let frame = 0;
+      const { ringR, ringScale, drumR, bow } = metrics;
+
+      const draw = () => {
+        frame = requestAnimationFrame(draw);
+        const gap = target.current - turn.current;
+        if (Math.abs(gap) < 0.0005) turn.current = target.current;
+        else turn.current += gap * (reduced ? 1 : EASE);
+
+        const t = turn.current;
+        const m = clamp(t, 0, 1);
+        const pos = Math.max(0, t - 1);
+
+        // The drum is pulled back so its front face lands on the picture plane.
+        // That set-back has to arrive with the drum, or the ring would sit at the
+        // far side of the perspective and render at half its size.
+        if (wheelRef.current) {
+          wheelRef.current.style.transform = `translateZ(${-m * drumR}px)`;
+        }
+
+        for (let i = 0; i < count; i++) {
+          const d = i - pos;
+          const drumDeg = d * STEP;
+          const card = cardRefs.current[i];
+          if (card) {
+            card.style.transform = place(
+              d * (360 / count),
+              drumDeg,
+              ringR,
+              drumR,
+              bow,
+              m,
+            );
+            // Culled by distance, not by angle: at a full turn the far side comes
+            // back round to face us, and everything past the neighbours lands on
+            // the vanishing point in a heap.
+            card.style.opacity = m > 0.5 && Math.abs(d) > CULL ? "0" : "1";
+            card.style.zIndex = String(Math.round(100 - Math.abs(d) * 2));
+          }
+          const face = card?.firstElementChild as HTMLElement | null;
+          if (face) face.style.transform = `scale(${lerp(ringScale, 1, m)})`;
+        }
+
+        if (labelRef.current) labelRef.current.style.opacity = String(1 - m);
+        if (titleRef.current) titleRef.current.style.opacity = String(m);
+        const near = clamp(Math.round(pos), 0, last);
+        setActive((prev) => (prev === near ? prev : near));
+      };
+
+      frame = requestAnimationFrame(draw);
+      return () => cancelAnimationFrame(frame);
+    }, [metrics, stage.h, count, last, reduced]);
+
+    const to = React.useCallback(
+      (next: number) => {
+        target.current = clamp(next, 0, last + 1);
+      },
+      [last],
+    );
+
+    // Owner-driven position (pinned, scroll-linked mode).
+    React.useImperativeHandle(
+      ref,
+      () => ({ setTurn: (value: number) => to(value) }),
+      [to],
+    );
+
+    // Native listener, because the wheel has to be cancellable - and it only
+    // cancels while it still has somewhere to go, so the page scrolls on at
+    // either end instead of trapping the reader.
+    const settling = React.useRef(0);
+    React.useEffect(() => {
+      const el = stageRef.current;
+      if (!el || !interactive) return;
+      const onWheel = (event: WheelEvent) => {
+        const next = target.current + event.deltaY / WHEEL_UNITS;
+        if (next > 0 && next < last + 1) event.preventDefault();
+        to(next);
+        // A wheel gesture arrives as a burst of events with no end of its own, so
+        // the rest position is whatever notch it happened to stop on. Left there
+        // the drum sits between two cards - nothing at the front, and the pair
+        // either side of the gap both turned half away. Settle onto an item.
+        window.clearTimeout(settling.current);
+        settling.current = window.setTimeout(
+          () => to(Math.round(target.current)),
+          SETTLE,
+        );
+      };
+      el.addEventListener("wheel", onWheel, { passive: false });
+      return () => {
+        el.removeEventListener("wheel", onWheel);
+        window.clearTimeout(settling.current);
+      };
+    }, [to, last, interactive]);
+
+    const drag = React.useRef<number | null>(null);
+
+    const interactiveProps = interactive
+      ? {
+          tabIndex: 0,
+          role: "listbox" as const,
+          "aria-activedescendant": `works-wheel-${active}`,
+          onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => {
+            drag.current = event.clientY;
+            event.currentTarget.setPointerCapture(event.pointerId);
+          },
+          onPointerMove: (event: React.PointerEvent<HTMLDivElement>) => {
+            if (drag.current === null) return;
+            to(target.current + (drag.current - event.clientY) / DRAG_UNITS);
+            drag.current = event.clientY;
+          },
+          onPointerUp: () => {
+            // Land on an item rather than between two.
+            drag.current = null;
+            if (target.current > 1) to(Math.round(target.current));
+          },
+          onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "ArrowDown") to(Math.round(target.current) + 1);
+            else if (event.key === "ArrowUp") to(Math.round(target.current) - 1);
+            else return;
+            event.preventDefault();
+          },
+        }
+      : {};
+
+    return (
+      <section
         aria-label={label}
-        aria-activedescendant={`works-wheel-${active}`}
-        className="focus-visible:outline-foreground absolute inset-0 cursor-grab touch-pan-x outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 active:cursor-grabbing"
-        style={{ perspective: `${metrics.depth}px` }}
-        onPointerDown={(event) => {
-          drag.current = event.clientY;
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerMove={(event) => {
-          if (drag.current === null) return;
-          to(target.current + (drag.current - event.clientY) / DRAG_UNITS);
-          drag.current = event.clientY;
-        }}
-        onPointerUp={() => {
-          // Land on an item rather than between two.
-          drag.current = null;
-          if (target.current > 1) to(Math.round(target.current));
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown") to(Math.round(target.current) + 1);
-          else if (event.key === "ArrowUp") to(Math.round(target.current) - 1);
-          else return;
-          event.preventDefault();
-        }}
+        className={cn(
+          "bg-background text-foreground relative h-full min-h-[24rem] w-full overflow-hidden select-none",
+          className,
+        )}
+        {...props}
       >
         <div
-          ref={wheelRef}
-          className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
+          ref={stageRef}
+          aria-label={interactive ? undefined : label}
+          className={cn(
+            "absolute inset-0 outline-none",
+            interactive
+              ? "focus-visible:outline-foreground cursor-grab touch-pan-x focus-visible:outline-2 focus-visible:-outline-offset-4 active:cursor-grabbing"
+              : "pointer-events-none",
+          )}
+          style={{ perspective: `${metrics.depth}px` }}
+          {...interactiveProps}
         >
-          {items.map((item, i) => {
-            const key = item.id ?? item.title;
-            const Tag = (item.href ? "a" : "div") as "a";
-            return (
-              <Tag
-                key={key}
-                id={`works-wheel-${i}`}
-                role="option"
-                aria-selected={i === active}
-                {...(item.href ? { href: item.href } : {})}
-                ref={(node: HTMLElement | null) => {
-                  cardRefs.current[i] = node;
-                }}
-                className="group absolute [backface-visibility:hidden] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5977E8]"
-                style={{
-                  width: metrics.cardW,
-                  height: metrics.cardH,
-                  marginLeft: -metrics.cardW / 2,
-                  marginTop: -metrics.cardH / 2,
-                }}
-              >
-                <span className="bg-muted shadow-foreground/12 relative block size-full overflow-hidden rounded-lg shadow-[0_18px_40px_-18px_var(--tw-shadow-color)]">
-                  {/* Placeholder plate, always behind the cover so a missing or
-                      broken image degrades to a labelled plate, never a hole. */}
-                  <span
-                    aria-hidden="true"
-                    className="text-foreground/35 absolute inset-0 grid place-items-center font-mono text-[clamp(1.5rem,8vh,4rem)] font-semibold tracking-widest"
-                  >
-                    {monogram(item.title)}
-                  </span>
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      draggable={false}
-                      onError={(event) => {
-                        event.currentTarget.style.display = "none";
-                      }}
-                      className="relative z-10 size-full object-cover"
-                    />
-                  ) : null}
-                  {action && item.href ? (
-                    <span className="bg-background/80 text-foreground pointer-events-none absolute right-3 bottom-3 z-20 flex translate-y-1 items-center gap-1 rounded-full px-2.5 py-1 text-[0.7rem] opacity-0 backdrop-blur-sm transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-                      <svg
-                        viewBox="0 0 12 12"
-                        className="size-2.5"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M3 9 9 3M4 3h5v5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      {action}
+          <div
+            ref={wheelRef}
+            className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
+          >
+            {items.map((item, i) => {
+              const key = item.id ?? item.title;
+              const Tag = (item.href ? "a" : "div") as "a";
+              return (
+                <Tag
+                  key={key}
+                  id={`works-wheel-${i}`}
+                  {...(interactive
+                    ? { role: "option" as const, "aria-selected": i === active }
+                    : { "aria-current": i === active ? true : undefined })}
+                  {...(item.href ? { href: item.href } : {})}
+                  ref={(node: HTMLElement | null) => {
+                    cardRefs.current[i] = node;
+                  }}
+                  className={cn(
+                    "group absolute [backface-visibility:hidden]",
+                    interactive
+                      ? "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5977E8]"
+                      : "pointer-events-auto",
+                  )}
+                  style={{
+                    width: metrics.cardW,
+                    height: metrics.cardH,
+                    marginLeft: -metrics.cardW / 2,
+                    marginTop: -metrics.cardH / 2,
+                  }}
+                >
+                  <span className="bg-muted shadow-foreground/12 relative block size-full overflow-hidden rounded-lg shadow-[0_18px_40px_-18px_var(--tw-shadow-color)]">
+                    {/* Placeholder plate, always behind the cover so a missing or
+                        broken image degrades to a labelled plate, never a hole. */}
+                    <span
+                      aria-hidden="true"
+                      className="text-foreground/35 absolute inset-0 grid place-items-center font-mono text-[clamp(1.5rem,8vh,4rem)] font-semibold tracking-widest"
+                    >
+                      {monogram(item.title)}
                     </span>
-                  ) : null}
-                </span>
-              </Tag>
-            );
-          })}
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        draggable={false}
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                        className="relative z-10 size-full object-cover"
+                      />
+                    ) : null}
+                    {action && item.href ? (
+                      <span className="bg-background/80 text-foreground pointer-events-none absolute right-3 bottom-3 z-20 flex translate-y-1 items-center gap-1 rounded-full px-2.5 py-1 text-[0.7rem] opacity-0 backdrop-blur-sm transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                        <svg
+                          viewBox="0 0 12 12"
+                          className="size-2.5"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M3 9 9 3M4 3h5v5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        {action}
+                      </span>
+                    ) : null}
+                  </span>
+                </Tag>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Ring title and front-card title trade places across the transition.
-          Type is sized off the measured stage, not vh, so the wheel keeps its
-          proportions inside a card as well as at full bleed. */}
-      <div
-        ref={labelRef}
-        className="pointer-events-none absolute inset-0 grid place-items-center tracking-tight"
-        style={{ fontSize: metrics.title }}
-      >
-        {label}
-      </div>
-      <div
-        ref={titleRef}
-        className="pointer-events-none absolute top-1/2 left-[8%] -translate-y-1/2 tracking-tight opacity-0"
-        style={{ fontSize: metrics.title }}
-      >
-        {items[active]?.title}
-      </div>
+        {/* Ring title and front-card title trade places across the transition.
+            Type is sized off the measured stage, not vh, so the wheel keeps its
+            proportions inside a card as well as at full bleed. */}
+        <div
+          ref={labelRef}
+          className="pointer-events-none absolute inset-0 grid place-items-center tracking-tight"
+          style={{ fontSize: metrics.title }}
+        >
+          {label}
+        </div>
+        <div
+          ref={titleRef}
+          className="pointer-events-none absolute top-1/2 left-[8%] -translate-y-1/2 tracking-tight opacity-0"
+          style={{ fontSize: metrics.title }}
+        >
+          {items[active]?.title}
+        </div>
 
-      <ol
-        className="text-muted-foreground absolute top-[7.5%] right-[2.5%] text-right leading-[1.75]"
-        style={{ fontSize: metrics.index }}
-      >
-        {items.map((item, i) => (
-          <li key={item.id ?? item.title}>
-            <button
-              type="button"
-              onClick={() => to(i + 1)}
-              className={cn(
-                "focus-visible:outline-foreground cursor-pointer transition-colors outline-none focus-visible:outline-1",
-                i === active && "text-foreground font-medium",
-              )}
-            >
-              {item.title}
-            </button>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
+        <ol
+          className="text-muted-foreground absolute top-[7.5%] right-[2.5%] text-right leading-[1.75]"
+          style={{ fontSize: metrics.index }}
+        >
+          {items.map((item, i) => (
+            <li key={item.id ?? item.title}>
+              <button
+                type="button"
+                onClick={() => (onSelect ? onSelect(i) : to(i + 1))}
+                className={cn(
+                  "focus-visible:outline-foreground cursor-pointer transition-colors outline-none focus-visible:outline-1",
+                  i === active && "text-foreground font-medium",
+                )}
+              >
+                {item.title}
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  },
+);
 
 export default WorksWheel;
