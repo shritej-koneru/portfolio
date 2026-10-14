@@ -5,6 +5,7 @@ import {
   type WorksWheelHandle,
   type WorksWheelItem,
 } from "@/components/ui/works-wheel";
+import { ProjectActions, TechChips } from "@/components/project-actions";
 import {
   GITHUB_PROFILE,
   getFeaturedProjects,
@@ -42,80 +43,6 @@ const toWheelItems = (list: Project[]): WorksWheelItem[] =>
     href: cardHref(project),
   }));
 
-const ACTION_CLASS =
-  "inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background";
-
-const PRIMARY_CLASS = cn(ACTION_CLASS, "bg-ink text-paper hover:bg-blueprint");
-const SECONDARY_CLASS = cn(
-  ACTION_CLASS,
-  "border border-ink/25 text-ink/80 hover:border-ink hover:text-ink",
-);
-
-/** Live / source links — only the actions a project actually has. */
-function ProjectActions({ project }: { project: Project }) {
-  // Nothing to offer (e.g. a project whose repository was removed): the brief
-  // is to reveal only actions that exist, so render no affordance at all.
-  if (!project.liveUrl && !project.repoUrl) return null;
-
-  return (
-    <div className="flex flex-wrap gap-3">
-      {project.liveUrl ? (
-        <a
-          href={project.liveUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={PRIMARY_CLASS}
-        >
-          Live Demo
-          <ExtIcon />
-        </a>
-      ) : null}
-      {project.repoUrl ? (
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={SECONDARY_CLASS}
-        >
-          Source Code
-          <ExtIcon />
-        </a>
-      ) : null}
-    </div>
-  );
-}
-
-function ExtIcon() {
-  return (
-    <svg viewBox="0 0 12 12" className="size-2.5" aria-hidden="true">
-      <path
-        d="M3 9 9 3M4 3h5v5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function TechChips({ tech }: { tech: string[] }) {
-  if (!tech.length) return null;
-  return (
-    <ul className="mt-4 flex flex-wrap gap-2">
-      {tech.map((item) => (
-        <li
-          key={item}
-          className="rounded-full border border-ink/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-ink/60"
-        >
-          {item}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 /** Details for the project at the front of the wheel. */
 function ProjectDetails({
   project,
@@ -141,7 +68,7 @@ function ProjectDetails({
         <p className="mt-2 line-clamp-2 text-pretty text-sm leading-relaxed text-ink/70 sm:text-base">
           {project.description}
         </p>
-        <TechChips tech={project.tech} />
+        <TechChips tech={project.tech} className="mt-4" />
       </div>
       <div className="shrink-0">
         <ProjectActions project={project} />
@@ -188,7 +115,7 @@ function ProjectList({
             <p className="mt-2 flex-1 text-sm leading-relaxed text-ink/70">
               {project.description}
             </p>
-            <TechChips tech={project.tech} />
+            <TechChips tech={project.tech} className="mt-4" />
             <div className="mt-5">
               <ProjectActions project={project} />
             </div>

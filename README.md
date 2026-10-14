@@ -142,6 +142,60 @@ card header is computed from the fetched days.
 > `src/data/contributions.ts`. To change the colour ramp, edit
 > `SKYLINE_PALETTE` in `open-source-activity.tsx`.
 
+## Scene 05 — Selected Case Studies
+
+`src/components/sections/selected-case-studies.tsx` renders directly after the
+contribution skyline. Heading *"Behind the build."*, supporting copy *"Ideas
+become systems. Systems become things people can use."*, technical label
+`05 / SELECTED WORK`.
+
+It is staged in three parts, and the order is the point:
+
+1. **Light blueprint introduction** (`case-study-featured.tsx`) — the featured
+   project on a warm blueprint paper field with a ruled edge, its real
+   screenshot given the widest column, and a narrow information rail carrying
+   the role, `01 / PROBLEM`, `02 / APPROACH` and `03 / TECHNOLOGY`.
+2. **Dark engineering view** (`case-study-engineering.tsx`) — the same sheet
+   inverted to deep ink: a system map, the engineering notes, the documented
+   stack and, where the repository publishes one, its real project structure.
+   Everything drawn there is transcribed from the project's own docs and says so
+   on the page.
+3. **Compact editorial cards** (`case-study-editorial.tsx`) — the supporting
+   studies on an asymmetric grid that swaps the media and text columns on every
+   other card.
+
+`src/components/case-study/` holds the reusable pieces (`blueprint-backdrop.tsx`
+for the grid, ruler and drawn rules, `flow-diagram.tsx` for the schematic,
+`screenshot-figure.tsx` for the clip-path screenshot reveal, `common.tsx` for the
+labels and notes, `use-in-view.ts` for the single reveal hook). None of them
+knows about a specific project, and the actions and technology chips come from
+the shared `src/components/project-actions.tsx`, which the Works Wheel uses too.
+
+**No animation library was added.** Reveals are one IntersectionObserver per
+block plus CSS transitions, and the blueprint rules are drawn with a single
+`stroke-dashoffset` transition. Under `prefers-reduced-motion: reduce` every
+block is rendered immediately, the screenshot loses its clip-path and the rules
+appear fully drawn. Nothing about the section is pinned, and it captures no
+scroll or touch input.
+
+### Adding or changing a case study
+
+Case studies are **not** a second project list. `src/data/case-studies.ts`
+stores notes keyed by the `slug` of a project in `src/data/projects.ts`, and the
+section resolves name, description, links and technology from there. An entry
+whose slug is not in the project list is skipped, so the page can never link to
+a project that no longer exists.
+
+1. Add or edit an object in `caseStudyList`, with `slug` matching a project.
+2. `kind: "featured"` marks the one project that gets the light plate and the
+   dark engineering view; everything else is `kind: "supporting"`.
+3. Fill only what the repository actually documents. `tradeoffs` stays empty for
+   projects that document none, and the UI hides the block rather than inventing
+   a story — that is why the featured project has no trade-off section.
+4. Screenshots live in `public/images/case-studies/<slug>.jpg` and are
+   referenced through `visual`. They are real captures of the running project,
+   not mockups; drop the field and a project falls back to its diagram.
+
 ## Scripts
 
 ```bash

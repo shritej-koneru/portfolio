@@ -3,6 +3,7 @@ import InkReveal from "@/components/ui/ink-reveal";
 import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
+import { SelectedCaseStudies } from "@/components/sections/selected-case-studies";
 
 /** Blueprint paper (#F2F0E9) — stable reference so the canvas never re-inits. */
 const MASK_COLOR: [number, number, number] = [242, 240, 233];
@@ -167,6 +168,11 @@ export default function App() {
       {/* Scene 04 — contribution skyline over the live GitHub history         */}
       {/* ------------------------------------------------------------------ */}
       <OpenSourceActivity />
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Scene 05 — selected case studies                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <SelectedCaseStudies />
 
       {/* ------------------------------------------------------------------ */}
       {/* Integration anchor (section shell only — content lands later)        */}
