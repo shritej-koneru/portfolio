@@ -5,8 +5,11 @@ Blueprint": architectural line-work, ink-reveal interactions and technical
 typography.
 
 - **Stack:** Vite + React 18 + TypeScript + Tailwind CSS
-- **Deploy:** Vercel (static `dist/`)
-- **Active branch:** `redesign` (preview deploys from this branch)
+- **Deploy:** Vercel (static `dist/`), project `portfolio` on the Custom Craft Team account
+- **Branches:** all work happens on `redesign`, and that branch is the Vercel
+  project's **production branch** — pushing to it publishes straight to the live
+  site (`portfolio-seven-psi-l2qf199nrn.vercel.app`). `main` holds the previous
+  design and never receives redesign work.
 
 ## Opening scenes
 
