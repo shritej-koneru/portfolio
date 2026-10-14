@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Digital Blueprint palette */
+    /* blueprint paper #F2F0E9 */
+    --background: 47 26% 93%;
+    /* ink black #111318 */
+    --foreground: 223 17% 8%;
+
+    --card: 45 29% 96%;
+    --card-foreground: 223 17% 8%;
+    --popover: 45 29% 96%;
+    --popover-foreground: 223 17% 8%;
+
+    /* technical blue #5977E8 */
+    --primary: 227 76% 63%;
+    --primary-foreground: 45 29% 97%;
+
+    --secondary: 44 18% 88%;
+    --secondary-foreground: 223 17% 12%;
+
+    --muted: 44 18% 88%;
+    --muted-foreground: 223 12% 38%;
+
+    /* signal lime #C4F06A */
+    --accent: 80 82% 68%;
+    --accent-foreground: 223 17% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 45 29% 97%;
+
+    --border: 223 17% 82%;
+    --input: 223 17% 82%;
+    --ring: 227 76% 63%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 223 17% 7%;
+    --foreground: 45 29% 93%;
+
+    --card: 223 16% 10%;
+    --card-foreground: 45 29% 93%;
+    --popover: 223 16% 10%;
+    --popover-foreground: 45 29% 93%;
+
+    --primary: 227 76% 63%;
+    --primary-foreground: 223 17% 7%;
+
+    --secondary: 223 15% 15%;
+    --secondary-foreground: 45 29% 93%;
+
+    --muted: 223 15% 15%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 80 82% 68%;
+    --accent-foreground: 223 17% 8%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 45 29% 97%;
+
+    --border: 223 15% 18%;
+    --input: 223 15% 18%;
+    --ring: 227 76% 63%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+}

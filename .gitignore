@@ -2,6 +2,7 @@ node_modules
 dist
 dist-ssr
 .DS_Store
+.playwright-mcp
 *.local
 *.tar.gz
 .vercel
