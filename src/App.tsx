@@ -1,6 +1,7 @@
 import { useState } from "react";
 import InkReveal from "@/components/ui/ink-reveal";
 import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
+import { FeaturedProjects } from "@/components/sections/featured-projects";
 
 /** Blueprint paper (#F2F0E9) — stable reference so the canvas never re-inits. */
 const MASK_COLOR: [number, number, number] = [242, 240, 233];
@@ -158,19 +159,13 @@ export default function App() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Integration anchors (section shells only — content lands later)      */}
-      {/* These give the hero CTAs real, stable scroll targets.              */}
+      {/* Featured Projects — dynamic Works Wheel over the central data file   */}
       {/* ------------------------------------------------------------------ */}
-      <section
-        id="work"
-        aria-label="Featured projects"
-        className="relative flex min-h-[45svh] scroll-mt-24 items-center justify-center border-t border-ink/10 bg-background"
-      >
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-ink/35">
-          01 — Featured Projects
-        </p>
-      </section>
+      <FeaturedProjects />
 
+      {/* ------------------------------------------------------------------ */}
+      {/* Integration anchor (section shell only — content lands later)        */}
+      {/* ------------------------------------------------------------------ */}
       <section
         id="about"
         aria-label="About"
