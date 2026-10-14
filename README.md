@@ -10,10 +10,11 @@ typography.
 
 ## Opening scenes
 
-1. **Ink Reveal** (`src/components/ui/ink-reveal.tsx`) — carve an ink mask off a
-   photograph. Each brush stamp is short-lived (`lifetime`, 600ms): it grows and
-   fades on its own, so the ink closes back over the reveal shortly after the
-   pointer passes.
+1. **Ink Reveal** (`src/components/ui/ink-reveal.tsx`) — wipe an ink mask off a
+   photograph. Each brush stamp grows to full size in `expandMs` (600ms), and the
+   uncovered area is held for `lifetime` (30s) before the ink fades back over
+   `fadeMs`. The hold is refreshed by every new stamp, so it runs from the moment
+   the pointer stops wiping.
 2. **Blueprint Ink Reveal hero** (`src/components/ui/blueprint-ink-reveal.tsx`) —
    the name drafted as an outline plate and uncovered as solid type under the
    pointer.

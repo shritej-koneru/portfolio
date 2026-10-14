@@ -42,12 +42,13 @@ export default function App() {
           draggable={false}
         />
 
-        {/* Motion is the source component's own: every brush stamp grows and
-            fades on its own `lifetime` (600ms), so the ink closes back over the
-            reveal shortly after the pointer passes. */}
+        {/* The brush wipes the ink away at the source component's own speed; the
+            uncovered photo then holds for `lifetime` before the ink fades back. */}
         <InkReveal
           maskColor={MASK_COLOR}
           brushSize={150}
+          // Revealed area stays uncovered for 30s, then fades back to ink.
+          lifetime={30000}
           cleared={revealed}
         />
 
