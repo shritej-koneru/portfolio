@@ -6,15 +6,21 @@ interface InkRevealProps {
   maskColor?: [number, number, number];
   /** Radius of each ink stamp in px */
   brushSize?: number;
-  /** How long each stamp lives before fading (ms) */
+  /**
+   * How long a revealed area stays uncovered before it fades back to the mask
+   * (ms). The number is the whole reveal's persistence window — the grow-in
+   * animation of each stamp is separate (see `expandMs`).
+   */
   lifetime?: number;
+  /** How long a single stamp takes to grow from rStart to full radius (ms). */
+  expandMs?: number;
   /** Initial radius before the stamp expands */
   rStart?: number;
   /** Random variation factor for stamp radius (0–1) */
   rVary?: number;
   /** Min pixel distance between stamps along a stroke */
   stampStep?: number;
-  /** Max stamps alive at once (oldest are pruned) */
+  /** Max stamps still animating at once (older ones are baked immediately) */
   maxStamps?: number;
   /** Number of segments on the wobble circle (higher = smoother) */
   segments?: number;
@@ -28,11 +34,7 @@ interface InkRevealProps {
   className?: string;
   /** Extra inline styles for the canvas element */
   style?: React.CSSProperties;
-  /**
-   * When true, the reveal is cleared for everyone (e.g. a keyboard/assistive
-   * "reveal" control in the host section) and only the content underneath
-   * is shown. Defaults to false.
-   */
+  /** When true the mask is removed entirely (keyboard/assistive reveal). */
   cleared?: boolean;
 }
 
@@ -47,7 +49,8 @@ interface Stamp {
 export default function InkReveal({
   maskColor = [252, 250, 248],
   brushSize = 128,
-  lifetime = 600,
+  lifetime = 30000,
+  expandMs = 600,
   rStart = 10,
   rVary = 0.45,
   stampStep = 10,
@@ -61,10 +64,15 @@ export default function InkReveal({
   cleared = false,
 }: InkRevealProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stampsRef = useRef<Stamp[]>([]);
+  // Offscreen layer holding already-expanded ("baked") reveal, so the live
+  // animation loop never has to re-draw thousands of stamps each frame.
+  const revealRef = useRef<HTMLCanvasElement | null>(null);
+  const liveRef = useRef<Stamp[]>([]);
   const runningRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
   const dimsRef = useRef({ w: 0, h: 0 });
+  const fadeStartRef = useRef(0);
+  const hasRevealRef = useRef(false);
 
   // Accessibility: honour prefers-reduced-motion by not hiding content at all.
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -97,11 +105,33 @@ export default function InkReveal({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = `rgb(${mc[0]},${mc[1]},${mc[2]})`;
     ctx.fillRect(0, 0, w, h);
+
+    // Reset the reveal layer to match the new size (a resize discards reveal).
+    let reveal = revealRef.current;
+    if (!reveal) {
+      reveal = document.createElement("canvas");
+      revealRef.current = reveal;
+    }
+    reveal.width = Math.round(w * dpr);
+    reveal.height = Math.round(h * dpr);
+    const rctx = reveal.getContext("2d");
+    if (rctx) {
+      rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      rctx.globalAlpha = 1;
+      rctx.globalCompositeOperation = "source-over";
+      rctx.clearRect(0, 0, w, h);
+    }
+    liveRef.current = [];
+    hasRevealRef.current = false;
+    fadeStartRef.current = 0;
   }, [mc]);
 
+  // Draws one wobbly ink patch into `ctx` at `alpha`. Used both to carve the
+  // live mask (destination-out) and to bake the reveal layer (source-over).
   const carveInk = useCallback(
     (
       ctx: CanvasRenderingContext2D,
@@ -138,19 +168,39 @@ export default function InkReveal({
     [segments, wobble, gradientInnerRadius, gradientStops]
   );
 
+  // Permanently record a stamp's hole onto the reveal layer at full size.
+  const bakeStamp = useCallback(
+    (s: Stamp) => {
+      const reveal = revealRef.current;
+      if (!reveal) return;
+      const rctx = reveal.getContext("2d");
+      if (!rctx) return;
+      rctx.globalAlpha = 1;
+      rctx.globalCompositeOperation = "source-over";
+      carveInk(rctx, s.x, s.y, s.rmax, s.seed, 1);
+      hasRevealRef.current = true;
+    },
+    [carveInk]
+  );
+
   const addStamp = useCallback(
     (x: number, y: number) => {
-      const stamps = stampsRef.current;
-      if (stamps.length >= maxStamps) stamps.shift();
-      stamps.push({
+      const live = liveRef.current;
+      // Bake (never drop) the oldest stamps when the live buffer fills up.
+      while (live.length >= maxStamps) {
+        const oldest = live.shift();
+        if (oldest) bakeStamp(oldest);
+      }
+      live.push({
         x,
         y,
         born: performance.now(),
         seed: Math.random() * Math.PI * 2,
         rmax: brushSize * (1 - rVary + Math.random() * rVary),
       });
+      fadeStartRef.current = performance.now();
     },
-    [brushSize, rVary, maxStamps]
+    [bakeStamp, brushSize, rVary, maxStamps]
   );
 
   const stampAlong = useCallback(
@@ -179,31 +229,59 @@ export default function InkReveal({
     if (!ctx) return;
     const { w, h } = dimsRef.current;
     const now = performance.now();
-    const stamps = stampsRef.current;
+    const live = liveRef.current;
 
+    // 1. Repaint the opaque mask.
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = `rgb(${mc[0]},${mc[1]},${mc[2]})`;
     ctx.fillRect(0, 0, w, h);
-    ctx.globalCompositeOperation = "destination-out";
 
-    for (let i = stamps.length - 1; i >= 0; i--) {
-      const t = (now - stamps[i].born) / lifetime;
-      if (t >= 1) {
-        stamps.splice(i, 1);
-        continue;
-      }
-      const ease = 1 - Math.pow(1 - t, 3);
-      const r = rStart + (stamps[i].rmax - rStart) * ease;
-      const alpha = 1 - t * t;
-      carveInk(ctx, stamps[i].x, stamps[i].y, r, stamps[i].seed, alpha);
+    // 2. Punch the baked reveal through it (cheap: a single drawImage).
+    const fadeStart = fadeStartRef.current;
+    const t = (now - fadeStart) / lifetime;
+    const fade = fadeStart === 0 || t <= 0 ? 1 : t >= 1 ? 0 : 1 - t * t;
+    const reveal = revealRef.current;
+    if (reveal && hasRevealRef.current && fade > 0) {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.globalAlpha = fade;
+      ctx.drawImage(reveal, 0, 0, w, h);
     }
 
-    if (stamps.length) {
+    // 3. Draw the handful of stamps that are still expanding.
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = 1;
+    for (let i = live.length - 1; i >= 0; i--) {
+      const s = live[i];
+      const st = (now - s.born) / expandMs;
+      if (st >= 1) {
+        bakeStamp(s);
+        live.splice(i, 1);
+        continue;
+      }
+      const ease = 1 - Math.pow(1 - st, 3);
+      const r = rStart + (s.rmax - rStart) * ease;
+      carveInk(ctx, s.x, s.y, r, s.seed, 1);
+    }
+    ctx.globalAlpha = 1;
+
+    // Once the fade completes, drop the baked layer.
+    if (fade <= 0 && hasRevealRef.current && reveal) {
+      const rctx = reveal.getContext("2d");
+      if (rctx) {
+        rctx.globalAlpha = 1;
+        rctx.globalCompositeOperation = "source-over";
+        rctx.clearRect(0, 0, w, h);
+      }
+      hasRevealRef.current = false;
+    }
+
+    if (live.length || hasRevealRef.current) {
       requestAnimationFrame(loop);
     } else {
       runningRef.current = false;
     }
-  }, [carveInk, mc, lifetime, rStart]);
+  }, [carveInk, bakeStamp, mc, lifetime, expandMs, rStart]);
 
   const startLoop = useCallback(() => {
     if (!runningRef.current) {
@@ -221,7 +299,7 @@ export default function InkReveal({
   // Re-paint the full mask when the reveal is cleared programmatically.
   useEffect(() => {
     if (cleared) {
-      stampsRef.current = [];
+      liveRef.current = [];
       lastPosRef.current = null;
     }
     resize();

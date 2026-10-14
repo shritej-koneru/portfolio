@@ -1,6 +1,9 @@
 import { useState } from "react";
 import InkReveal from "@/components/ui/ink-reveal";
 
+/** Blueprint paper (#F2F0E9) — stable reference so the canvas never re-inits. */
+const MASK_COLOR: [number, number, number] = [242, 240, 233];
+
 /**
  * Opening screen — the ink mask hides a photograph of Shritej and is carved
  * away as the pointer moves over the canvas. A small labelled control doubles
@@ -15,8 +18,8 @@ export default function App() {
       <section
         aria-label="Opening"
         className="relative h-full w-full"
-        onMouseMove={() => setHasInteracted(true)}
-        onTouchStart={() => setHasInteracted(true)}
+        onMouseMove={() => setHasInteracted((prev) => prev || true)}
+        onTouchStart={() => setHasInteracted((prev) => prev || true)}
       >
         <img
           src="/images/campus-park-intro.jpg"
@@ -26,8 +29,13 @@ export default function App() {
         />
 
         <InkReveal
-          maskColor={[242, 240, 233]}
+          maskColor={MASK_COLOR}
           brushSize={150}
+          // Revealed area stays uncovered for 30s, then fades back.
+          lifetime={30000}
+          // Only bounds the still-expanding buffer; older stamps are baked,
+          // so nothing is lost and per-frame cost stays tiny.
+          maxStamps={320}
           cleared={revealed}
         />
 
