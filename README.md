@@ -187,21 +187,21 @@ piece of data**:
   track, on a phone as well as a desktop. The heading and the introduction stay in
   the page's normal flow; the timeline band then holds the viewport while the
   reader keeps scrolling, carrying a rule and the milestones that belong to it
-  from right to left. On a wide screen the milestones alternate above and below the
-  line; on a phone they all hang below it, because a copy block has to fit in less
-  than half a band that is also shorter. Either way they are one chronology read
-  in order.
+  from right to left. The milestones alternate above and below the line at every
+  width — that alternation is load-bearing, not cosmetic: it is what keeps two
+  milestones on the same side a full `item + gap` apart, so a copy block can never
+  read through its neighbour. They are one chronology read in order.
 - **`prefers-reduced-motion: reduce`, a viewport shorter than 640px, or a motion
   layer that could not be built** — a compact vertical `<ol>` with no pin, no
   scrub and no grid decoration. Nothing is held behind an animation, so the
   milestones are on the page even if the script never runs.
 
 Both pinned layouts are one implementation driven by two geometry sets: `WIDE`
-(`head`/`item`/`gap` in `vw`, `pinPerItem` in `vh`, milestones alternating) and
-`NARROW` (a wider column, all milestones on one side, the rule set higher in the
-band), tuned so the track travels about 1.65px sideways per 1px of scroll in both.
-The rule's position, the copy's offset from it and the stem length come from the
-same set, so the geometry follows the viewport without a second code path.
+(`head`/`item`/`gap` in `vw`, `pinPerItem` in `vh`) and `NARROW` (a wider column,
+a shorter pin per milestone), tuned so the track travels about 1.65px sideways per
+1px of scroll in both. The copy's offset from the rule and the stem length come
+from the same set, so the geometry follows the viewport without a second code
+path. The rule itself runs across the middle of the band at both sizes.
 
 The pinned band is `position: sticky` inside a spacer whose height is
 `calc(110vh + milestones × pinPerItem)` — 14vh per milestone on a wide screen,

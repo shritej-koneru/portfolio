@@ -47,8 +47,8 @@ if (typeof window !== "undefined") {
 const WIDE_QUERY = "(min-width: 1024px)";
 /**
  * Below this the pinned track is not used at all, whatever the width. A copy
- * block alternates above and below the rule, so the taller half has to fit in
- * less than half the band; on a short viewport — a phone on its side, a squat
+ * block alternates above and below the rule, so the taller copy has to fit in
+ * just under half the band; on a short viewport — a phone on its side, a squat
  * browser window — it would be cut off. Those readers get the vertical list,
  * which cannot clip, instead of a horizontal one that eats its own content.
  */
@@ -79,15 +79,6 @@ interface TrackGeometry {
    * sets are tuned so the track travels about 1.65px sideways per 1px of scroll.
    */
   pinPerItem: number;
-  /** Where the rule sits in the band, as a percentage of its height. */
-  ruleAt: number;
-  /**
-   * Whether milestones alternate above and below the rule. Alternating is what
-   * makes the desktop band read; on a phone it would mean fitting a copy block
-   * into less than half a shorter band, so there the milestones all hang below
-   * the rule and each one gets the whole lower half.
-   */
-  alternate: boolean;
   /** Distance the copy is held off the rule, in `vh`. */
   copyGapVh: number;
   /** Length of the stem pointing from the rule at the copy, in `vh`. */
@@ -105,8 +96,6 @@ const WIDE: TrackGeometry = {
   item: 34,
   gap: 6,
   pinPerItem: 14,
-  ruleAt: 50,
-  alternate: true,
   copyGapVh: 8,
   stemVh: 6,
 };
@@ -115,8 +104,6 @@ const NARROW: TrackGeometry = {
   item: 82,
   gap: 12,
   pinPerItem: 12,
-  ruleAt: 36,
-  alternate: false,
   copyGapVh: 5,
   stemVh: 4,
   copyMax: "26rem",
@@ -126,7 +113,9 @@ const NARROW: TrackGeometry = {
  * Milestones alternate above and below the rule, so consecutive ones are half a
  * column apart — that is what makes them interleave rather than stack. Two
  * milestones on the same side are a whole step apart, which is the measure that
- * has to stay clear of the copy.
+ * has to stay clear of the copy: `2 * step` is `item + gap` at every size, which
+ * is why this alternation is not a style choice but the thing the geometry is
+ * built on. Both sets alternate.
  */
 const step = (geometry: TrackGeometry) => (geometry.item + geometry.gap) / 2;
 
@@ -336,16 +325,7 @@ function PinnedTimeline({
   const splitsRef = React.useRef<SplitText[]>([]);
 
   const geometry = wide ? WIDE : NARROW;
-  const {
-    head,
-    item: itemW,
-    copyMax,
-    pinPerItem,
-    ruleAt,
-    alternate,
-    copyGapVh,
-    stemVh,
-  } = geometry;
+  const { head, item: itemW, copyMax, pinPerItem, copyGapVh, stemVh } = geometry;
   const stepVw = step(geometry);
 
   const width = trackWidth(items.length, geometry);
@@ -513,7 +493,9 @@ function PinnedTimeline({
   /**
    * The corner annotations sit on one line on a desktop and stack on a phone: at
    * 390px the two halves of a row do not fit side by side without shrinking to
-   * nothing, and stacking is what a technical sheet does anyway.
+   * nothing, and stacking is what a technical sheet does anyway. The rows are the
+   * one thing the copies share the band with, so their height is part of what
+   * has to fit — see `TALL_QUERY`.
    */
   const annotationRow = wide
     ? "flex items-baseline justify-between gap-6 px-6 py-5 tracking-[0.3em]"
@@ -529,14 +511,11 @@ function PinnedTimeline({
     >
       <div
         className="sticky top-0 h-[100svh] w-full overflow-hidden"
-        // Everything on the band hangs off the rule, and where the rule sits is
-        // part of the geometry: a desktop alternates milestones above and below
-        // it at half height; a phone puts them all below it, so each copy block
-        // gets the whole lower half of a band that is also shorter.
+        // The rule runs across the middle of the band at every size, and every
+        // milestone hangs off it: the copy is held a little clear of it by
+        // `--copy-gap`, and the stem closes most of that distance.
         style={
           {
-            "--rule-at": `${ruleAt}%`,
-            "--rule-rest": `${100 - ruleAt}%`,
             "--copy-gap": `${copyGapVh}vh`,
             "--stem-h": `${stemVh}vh`,
           } as React.CSSProperties
@@ -594,7 +573,7 @@ function PinnedTimeline({
           {/* The rule, drawn left-to-right as the section is scrubbed */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-[var(--rule-at)] -translate-y-1/2"
+            className="absolute inset-x-0 top-1/2 -translate-y-1/2"
           >
             <div ref={lineRef} className="h-px w-0 bg-blueprint/45" />
           </div>
@@ -602,7 +581,7 @@ function PinnedTimeline({
           {/* Head of the track — the plate, at four fifths of the head slot */}
           {imageSrc ? (
             <figure
-              className="absolute left-0 top-[var(--rule-at)] -translate-y-1/2"
+              className="absolute left-0 top-1/2 -translate-y-1/2"
               style={{ width: `${head * 0.8}vw` }}
             >
               <div className="aspect-[4/5] w-full overflow-hidden rounded-lg border border-ink/12 bg-card">
@@ -633,10 +612,15 @@ function PinnedTimeline({
             className="absolute inset-0 list-none p-0"
           >
             {items.map((item, index) => {
-              // Alternating sides of the rule is the desktop band's whole idea; a
-              // phone gets one side, so a copy block can be taller than half a
-              // band and never reach into the corner annotations.
-              const above = alternate && index % 2 === 0;
+              /*
+                Sides alternate at every size, and that is load-bearing rather
+                than decorative: it is what keeps two milestones on the same side
+                of the rule a full `item + gap` apart, which is the clearance the
+                copy needs. Putting every copy on one side would stack columns
+                half a `step` apart — on a phone, 320px-wide copy blocks 183px
+                apart, reading straight through each other.
+              */
+              const above = index % 2 === 0;
               return (
                 <li
                   key={item.id}
@@ -650,7 +634,7 @@ function PinnedTimeline({
                   <span
                     data-dot={item.id}
                     aria-hidden="true"
-                    className="absolute left-0 top-[var(--rule-at)] z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink ring-4 ring-background"
+                    className="absolute left-0 top-1/2 z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink ring-4 ring-background"
                   />
 
                   {/* Stem, growing out of the rule towards the copy */}
@@ -659,9 +643,7 @@ function PinnedTimeline({
                     aria-hidden="true"
                     className={cn(
                       "absolute left-0 h-[var(--stem-h)] w-px bg-blueprint/40",
-                      above
-                        ? "bottom-[var(--rule-rest)]"
-                        : "top-[var(--rule-at)]",
+                      above ? "bottom-1/2" : "top-1/2",
                     )}
                     style={{
                       transformOrigin: above ? "bottom bottom" : "top top",
@@ -678,8 +660,8 @@ function PinnedTimeline({
                     className={cn(
                       "absolute left-0 w-full opacity-0",
                       above
-                        ? "bottom-[var(--rule-rest)] pb-[var(--copy-gap)]"
-                        : "top-[var(--rule-at)] pt-[var(--copy-gap)]",
+                        ? "bottom-1/2 pb-[var(--copy-gap)]"
+                        : "top-1/2 pt-[var(--copy-gap)]",
                     )}
                     // Only ever set for a narrow track, where the column is wide
                     // enough that the text would otherwise run too long a line.
