@@ -213,6 +213,17 @@ because the height is reserved before any script runs. Track width, pin length
 and each milestone's reveal time are all computed from the number of milestones,
 so there is no hardcoded count anywhere.
 
+A copy's lines rise once the block has arrived, and the reveal is bounded at both
+ends: it starts when the block is on screen and it always **finishes before the
+block's leading edge reaches the left of the screen**, so the last lines never
+rise while the block is already on its way out. The pop is defined as a travel
+distance (`revealTravel`, in `vw`) rather than a share of the timeline, so it
+takes the same amount of scrolling whatever the milestone count — and it has to
+fit inside `100 - item` `vw`, the stretch in which a block is wholly on screen.
+On a phone that stretch is only 18vw, so the pop there is a short, deliberate
+snap (measured: it runs with the block fully visible, straddling the middle of
+the screen) rather than the long rise the wide layout gets.
+
 Two deliberate colour choices on the paper plate: technical blue is the **draft
 line work** (the rule and the stems), the milestone markers are **solid ink** so
 each point reads as the anchor it is, and everything meant to be read is ink.

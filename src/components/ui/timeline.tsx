@@ -89,6 +89,16 @@ interface TrackGeometry {
    * does not.
    */
   copyMax?: string;
+  /**
+   * How far the track travels while a copy's lines pop — first line to last — in
+   * `vw`. It has to stay inside `100 - item`, the stretch in which the copy is
+   * wholly on screen. A phone copy is four fifths of the viewport, so its whole
+   * uncut walk is only 18vw: a pop longer than that is still rising as its
+   * leading edge slides out of view, which is the one thing a reveal must not do.
+   * It is a distance rather than a share of the timeline so a pop always takes the
+   * same amount of scrolling, whatever the milestone count.
+   */
+  revealTravel: number;
 }
 
 const WIDE: TrackGeometry = {
@@ -98,6 +108,7 @@ const WIDE: TrackGeometry = {
   pinPerItem: 14,
   copyGapVh: 8,
   stemVh: 6,
+  revealTravel: 33,
 };
 const NARROW: TrackGeometry = {
   head: 52,
@@ -107,6 +118,7 @@ const NARROW: TrackGeometry = {
   copyGapVh: 5,
   stemVh: 4,
   copyMax: "26rem",
+  revealTravel: 15,
 };
 
 /**
@@ -119,15 +131,20 @@ const NARROW: TrackGeometry = {
  */
 const step = (geometry: TrackGeometry) => (geometry.item + geometry.gap) / 2;
 
-/** Fraction of the scrubbed timeline one milestone spends revealing. */
-const REVEAL = 0.1;
-
 const clamp = (value: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, value));
 
 /** Total track width for `count` milestones, in `vw`. */
 const trackWidth = (count: number, geometry: TrackGeometry) =>
   geometry.head + Math.max(count - 1, 0) * step(geometry) + geometry.item;
+
+/**
+ * Latest a pop may start, as progress through the section. A copy's lines finish
+ * rising shortly after they start, and at the far end of the track the copy never
+ * reaches the left of the screen, so this is what keeps the last pop's tail inside
+ * the section.
+ */
+const LAST_POP = 0.93;
 
 /* ------------------------------------------------------------------ */
 /* Media queries                                                       */
@@ -325,7 +342,15 @@ function PinnedTimeline({
   const splitsRef = React.useRef<SplitText[]>([]);
 
   const geometry = wide ? WIDE : NARROW;
-  const { head, item: itemW, copyMax, pinPerItem, copyGapVh, stemVh } = geometry;
+  const {
+    head,
+    item: itemW,
+    copyMax,
+    pinPerItem,
+    copyGapVh,
+    stemVh,
+    revealTravel,
+  } = geometry;
   const stepVw = step(geometry);
 
   const width = trackWidth(items.length, geometry);
@@ -335,23 +360,45 @@ function PinnedTimeline({
   const slidePercent = width > 0 ? -(slideVw / width) * 100 : 0;
 
   /**
-   * When milestone `index` reveals, as progress through the section: the point
-   * at which it has just slid fully into view. The first couple are already on
-   * screen when the pin begins, so they get a minimum stagger instead of firing
-   * together.
+   * The pop, as shares of the scrubbed timeline: the scrolling in which the track
+   * travels `revealTravel`. Split into the lead-in (in which the stem and the dot
+   * go up), the base rise of a line, and the stagger between lines. The three
+   * shares sum to about one copy's worth of travel, so `revealTravel` stays the
+   * measure of how far a pop actually runs, and it is bounded so that an unusual
+   * milestone count cannot make one either instant or glacial.
+   */
+  const pop = slideVw > 0 ? clamp(revealTravel / slideVw, 0.02, 0.25) : 0.2;
+  const lead = pop * 0.2;
+  const rise = pop * 0.6;
+  const stagger = pop * 0.08;
+
+  /**
+   * When milestone `index` pops, as progress through the section: the point at
+   * which its copy has just fully arrived, with `100 - item` of it on screen. That
+   * is the moment the pop can run with the whole block in view, and on a narrow
+   * screen it is also the moment the block straddles the middle of the screen —
+   * the copy sits centred either side of the pop. A milestone already past that
+   * point when the pin begins, and the first few behind it, get a minimum stagger
+   * instead of firing together.
+   *
+   * One end is then pinned down: a pop must finish before its copy's leading edge
+   * reaches the left of the screen, or the last of its lines rise while the block
+   * is already on its way out — which is the one thing a reveal must not do. The
+   * earliest milestones are the ones that need this, having been on screen since
+   * before the pin began. `LAST_POP` is the older bound: it keeps a pop's tail
+   * inside the section, for the milestones at the far end whose copy never reaches
+   * the left edge at all.
    */
   const revealAt = React.useCallback(
     (index: number) => {
       const trackX = head + index * stepVw;
-      const enter =
-        slideVw > 0 ? clamp((trackX - (100 - itemW)) / slideVw, 0, 1) : 1;
-      return clamp(
-        0.05 + Math.max(enter, (index + 1) * 0.05) * 0.88,
-        0,
-        0.93,
-      );
+      if (slideVw <= 0) return 0;
+      const arrived = clamp((trackX - (100 - itemW)) / slideVw, 0, 1);
+      const leftEdge = trackX / slideVw;
+      const latest = Math.min(LAST_POP, Math.max(leftEdge - pop, 0));
+      return clamp(Math.max(arrived, (index + 1) * 0.05), 0, latest);
     },
-    [head, itemW, stepVw, slideVw],
+    [head, itemW, pop, stepVw, slideVw],
   );
 
   React.useLayoutEffect(() => {
@@ -411,7 +458,7 @@ function PinnedTimeline({
             timeline.fromTo(
               stem,
               { scaleY: 0 },
-              { scaleY: 1, duration: REVEAL * 0.5 },
+              { scaleY: 1, duration: lead * 1.5 },
               at,
             );
           }
@@ -419,7 +466,7 @@ function PinnedTimeline({
             timeline.fromTo(
               dot,
               { scale: 0 },
-              { scale: 1, duration: REVEAL * 0.5 },
+              { scale: 1, duration: lead * 1.5 },
               at,
             );
           }
@@ -434,8 +481,8 @@ function PinnedTimeline({
             timeline.fromTo(
               split.lines,
               { yPercent: 110 },
-              { yPercent: 0, duration: REVEAL, stagger: 0.02 },
-              at + REVEAL * 0.35,
+              { yPercent: 0, duration: rise, stagger },
+              at + lead,
             );
           });
         });
@@ -488,7 +535,7 @@ function PinnedTimeline({
       });
       context?.revert();
     };
-  }, [items, revealAt, slidePercent, onMotionFailed]);
+  }, [items, lead, rise, revealAt, slidePercent, stagger, onMotionFailed]);
 
   /**
    * The corner annotations sit on one line on a desktop and stack on a phone: at
