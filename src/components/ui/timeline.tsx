@@ -133,10 +133,11 @@ export interface TimelineProps {
  * is ordinary responsive type. Everything else — the order of period, title,
  * organisation, description and annotation — is identical in both.
  *
- * Colour follows the scene's rule: technical blue is the line work (the rule,
- * the dots, the stems, the eyebrow above the section), and everything the reader
- * actually has to read is ink, which keeps it well clear of the contrast floor
- * that 11px blue on paper sits at.
+ * Colour follows the scene's rule: technical blue is the *draft* line work (the
+ * horizontal rule, the stems, the eyebrow above the section), the markers are
+ * solid ink so each milestone reads as the anchor point it is, and everything the
+ * reader actually has to read is ink — which keeps the copy well clear of the
+ * contrast floor that 11px blue on paper sits at.
  */
 function MilestoneText({
   item,
@@ -231,7 +232,7 @@ function VerticalTimeline({ items }: { items: TimelineMilestone[] }) {
           <li key={item.id} className={reveal.className} style={reveal.style}>
             <span
               aria-hidden="true"
-              className="absolute -left-8 top-1.5 size-2 rounded-full bg-blueprint ring-4 ring-background"
+              className="absolute -left-8 top-1.5 size-2 rounded-full bg-ink ring-4 ring-background"
             />
             <MilestoneText item={item} variant="list" />
           </li>
@@ -521,7 +522,7 @@ function PinnedTimeline({
                   <span
                     data-dot={item.id}
                     aria-hidden="true"
-                    className="absolute left-0 top-1/2 z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blueprint ring-4 ring-background"
+                    className="absolute left-0 top-1/2 z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink ring-4 ring-background"
                   />
 
                   {/* Stem, growing out of the rule towards the copy */}

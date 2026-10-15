@@ -202,12 +202,15 @@ because the height is reserved before any script runs. Track width, pin length
 and each milestone's reveal time are all computed from the number of milestones,
 so there is no hardcoded count anywhere.
 
-Two deliberate colour choices on the paper plate: technical blue is the **line
-work** (the rule, the markers, the stems), and everything meant to be read is
-ink. Measured on `#F2F0E9`, blueprint `#5977E8` is 3.52:1 — below AA for small
-text — so the milestone dates, descriptions and annotations use ink at 65–70%
+Two deliberate colour choices on the paper plate: technical blue is the **draft
+line work** (the rule and the stems), the milestone markers are **solid ink** so
+each point reads as the anchor it is, and everything meant to be read is ink.
+Measured on `#F2F0E9`, blueprint `#5977E8` is 3.52:1 — below AA for small text —
+so the milestone dates, descriptions and annotations use ink at 65–70%
 (4.7:1 to 6.5:1) rather than blue, and the single milestone link is ink at 75%
-with a hairline underline that turns blue on hover.
+with a hairline underline that turns blue on hover. The markers are ink for the
+same reason: the anchor points are the strongest thing on the rule (≈16:1), and
+no colour outside the palette is introduced for one element.
 
 ### Adding a milestone
 
