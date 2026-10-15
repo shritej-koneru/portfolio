@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { AboutJourney } from "@/components/sections/about-journey";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
 import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
@@ -18,6 +19,9 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * Scene 1 — interactive ink reveal over a photograph.
  * Scene 2 — blueprint ink reveal hero: the name is drafted as an outline plate
  *           and uncovered as solid type under the pointer.
+ * Scene 3 — the Works Wheel, in `featured-projects.tsx`.
+ * Scene 4 — the contribution skyline, in `open-source-activity.tsx`.
+ * Scene 5 — about and the journey timeline, in `about-journey.tsx`.
  *
  * Both scenes share the same blueprint-paper field (#F2F0E9) so the hand-off
  * is a scroll, not a colour cut.
@@ -177,17 +181,9 @@ export function HomePage() {
       <OpenSourceActivity />
 
       {/* ------------------------------------------------------------------ */}
-      {/* Integration anchor (section shell only — content lands later)        */}
+      {/* Scene 05 — about and the journey timeline                            */}
       {/* ------------------------------------------------------------------ */}
-      <section
-        id="about"
-        aria-label="About"
-        className="relative flex min-h-[45svh] scroll-mt-24 items-center justify-center border-t border-ink/10 bg-background"
-      >
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-ink/35">
-          02 — About
-        </p>
-      </section>
+      <AboutJourney />
     </main>
   );
 }

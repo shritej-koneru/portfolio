@@ -173,6 +173,75 @@ card header is computed from the fetched days.
 > `src/data/contributions.ts`. To change the colour ramp, edit
 > `SKYLINE_PALETTE` in `open-source-activity.tsx`.
 
+## Scene 05 — About & the Journey
+
+`src/components/sections/about-journey.tsx` closes the page: the paper plate
+after the ink of the skyline. Label `05 / THE JOURNEY`, heading *"The path so
+far."*, a short introduction with the facts that are actually known (degree,
+city) and the two profile links, then the timeline.
+
+`src/components/ui/timeline.tsx` renders the milestones in **two layouts from one
+piece of data**:
+
+- **Wide screen, motion allowed** — a pinned horizontal track. The heading and the
+  introduction stay in the page's normal flow; the timeline band then holds the
+  viewport while the reader keeps scrolling, carrying a rule and the milestones
+  that belong to it from right to left. Milestones alternate above and below the
+  line, but they are one chronology read in order.
+- **Narrow screen, `prefers-reduced-motion: reduce`, or a motion layer that could
+  not be built** — a compact vertical `<ol>` with no pin, no scrub and no grid
+  decoration. Nothing is held behind an animation, so the milestones are on the
+  page even if the script never runs.
+
+The pinned band is `position: sticky` inside a spacer whose height is
+`calc(110vh + milestones × 14vh)`; GSAP (`gsap/ScrollTrigger`) is used **only** to
+scrub the animation against the scroll — `start: "top top"`, `end: "bottom
+bottom"`, **no** `pin: true` — so nothing is inserted into the document, the
+`#about` anchor stays honest, and the layout cannot shift when the bundle lands,
+because the height is reserved before any script runs. Track width, pin length
+and each milestone's reveal time are all computed from the number of milestones,
+so there is no hardcoded count anywhere.
+
+Two deliberate colour choices on the paper plate: technical blue is the **line
+work** (the rule, the markers, the stems), and everything meant to be read is
+ink. Measured on `#F2F0E9`, blueprint `#5977E8` is 3.52:1 — below AA for small
+text — so the milestone dates, descriptions and annotations use ink at 65–70%
+(4.7:1 to 6.5:1) rather than blue, and the single milestone link is ink at 75%
+with a hairline underline that turns blue on hover.
+
+### Adding a milestone
+
+Everything comes from one file: **`src/data/timeline.ts`**.
+
+1. Append an object to `milestoneList`:
+
+   ```ts
+   {
+     id: "my-milestone",     // stable id: React key and animation hook
+     start: "2026-08",       // YYYY-MM — the list sorts on this
+     period: "Aug 2026",     // what the reader sees
+     title: "What it was",
+     organisation: "Where",  // optional — the line is hidden when omitted
+     description: "One short sentence.",
+     category: "Learning",   // Education | Leadership | Learning
+     note: "Score 92%",      // optional — a small technical annotation
+     href: "/work/thing",    // optional — only when the link really exists
+     linkLabel: "See the project", // optional — defaults to "Open"
+   }
+   ```
+
+2. Nothing else to wire up. The list is sorted chronologically (`start`) and the
+   section lengthens its own scroll, adds a stop and re-times the reveals for the
+   new count.
+
+3. **Do not invent milestones.** Every entry is copied from
+   `Shritej_Koneru_Resume_2page.pdf` — education, leadership roles and selected
+   learning. A milestone that is not in the resume does not belong here, and a
+   missing `href` is left off rather than pointed at a guessed URL. Only one
+   milestone links anywhere: the Web Designer role links to `/work/awssahe`,
+   the page of the community site that already exists in
+   `src/data/projects.ts`.
+
 ## Project pages — behind the build
 
 `src/pages/project.tsx` is what `/work/<slug>` renders. It reads the project from
@@ -204,11 +273,13 @@ labels and notes, `use-in-view.ts` for the single reveal hook). None of them
 knows about a specific project, and the actions and technology chips come from
 the shared `src/components/project-actions.tsx`, which the Works Wheel uses too.
 
-**No animation library was added.** Reveals are one IntersectionObserver per
-block plus CSS transitions, and the blueprint rules are drawn with a single
-`stroke-dashoffset` transition. Under `prefers-reduced-motion: reduce` every
-block is rendered immediately, the screenshot loses its clip-path and the rules
-appear fully drawn. Nothing is pinned, and no scroll or touch input is captured.
+**The project pages add no animation library.** Reveals are one
+IntersectionObserver per block plus CSS transitions, and the blueprint rules are
+drawn with a single `stroke-dashoffset` transition. Under
+`prefers-reduced-motion: reduce` every block is rendered immediately, the
+screenshot loses its clip-path and the rules appear fully drawn. Nothing is
+pinned, and no scroll or touch input is captured. (Scene 05's timeline is the
+one part of the site that uses GSAP — see there.)
 
 ### Adding or changing a case study
 
