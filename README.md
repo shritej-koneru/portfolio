@@ -183,18 +183,29 @@ city) and the two profile links, then the timeline.
 `src/components/ui/timeline.tsx` renders the milestones in **two layouts from one
 piece of data**:
 
-- **Wide screen, motion allowed** — a pinned horizontal track. The heading and the
-  introduction stay in the page's normal flow; the timeline band then holds the
-  viewport while the reader keeps scrolling, carrying a rule and the milestones
-  that belong to it from right to left. Milestones alternate above and below the
-  line, but they are one chronology read in order.
-- **Narrow screen, `prefers-reduced-motion: reduce`, or a motion layer that could
-  not be built** — a compact vertical `<ol>` with no pin, no scrub and no grid
-  decoration. Nothing is held behind an animation, so the milestones are on the
-  page even if the script never runs.
+- **Motion allowed and the viewport at least 640px tall** — a pinned horizontal
+  track, on a phone as well as a desktop. The heading and the introduction stay in
+  the page's normal flow; the timeline band then holds the viewport while the
+  reader keeps scrolling, carrying a rule and the milestones that belong to it
+  from right to left. On a wide screen the milestones alternate above and below the
+  line; on a phone they all hang below it, because a copy block has to fit in less
+  than half a band that is also shorter. Either way they are one chronology read
+  in order.
+- **`prefers-reduced-motion: reduce`, a viewport shorter than 640px, or a motion
+  layer that could not be built** — a compact vertical `<ol>` with no pin, no
+  scrub and no grid decoration. Nothing is held behind an animation, so the
+  milestones are on the page even if the script never runs.
+
+Both pinned layouts are one implementation driven by two geometry sets: `WIDE`
+(`head`/`item`/`gap` in `vw`, `pinPerItem` in `vh`, milestones alternating) and
+`NARROW` (a wider column, all milestones on one side, the rule set higher in the
+band), tuned so the track travels about 1.65px sideways per 1px of scroll in both.
+The rule's position, the copy's offset from it and the stem length come from the
+same set, so the geometry follows the viewport without a second code path.
 
 The pinned band is `position: sticky` inside a spacer whose height is
-`calc(110vh + milestones × 14vh)`; GSAP (`gsap/ScrollTrigger`) is used **only** to
+`calc(110vh + milestones × pinPerItem)` — 14vh per milestone on a wide screen,
+12vh on a narrow one; GSAP (`gsap/ScrollTrigger`) is used **only** to
 scrub the animation against the scroll — `start: "top top"`, `end: "bottom
 bottom"`, **no** `pin: true` — so nothing is inserted into the document, the
 `#about` anchor stays honest, and the layout cannot shift when the bundle lands,

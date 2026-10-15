@@ -31,36 +31,105 @@ import { cn } from "@/lib/utils";
  *   derived from `items.length`. Adding a milestone does not need a code change.
  * - **Content is separate from presentation.** This file knows nothing about
  *   education or projects; it renders anything shaped like `TimelineMilestone`.
- * - **Two layouts, chosen by the environment.** The pinned horizontal track is
- *   desktop-only. On small screens, and under `prefers-reduced-motion`, the same
- *   items render as a compact vertical timeline with no pin, no horizontal
- *   movement, and no GSAP at all. That is also the fallback if the motion layer
- *   cannot be built, so the content is never trapped in an un-run animation.
+ * - **Two layouts, chosen by the environment.** The pinned horizontal track runs
+ *   everywhere: a phone gets the same animation at a narrower geometry, not a
+ *   long static list. It gives way to a compact vertical timeline — no pin, no
+ *   horizontal movement, no GSAP at all — under `prefers-reduced-motion`, on a
+ *   viewport too short to hold one copy block, and if the motion layer cannot be
+ *   built. So the content is never trapped in an un-run animation.
  */
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, SplitText);
 }
 
-/** Where the timeline is allowed to become the pinned, scroll-driven version. */
-const PINNED_QUERY = "(min-width: 1024px)";
+/** Which of the two geometries the pinned track is drawn with. */
+const WIDE_QUERY = "(min-width: 1024px)";
+/**
+ * Below this the pinned track is not used at all, whatever the width. A copy
+ * block alternates above and below the rule, so the taller half has to fit in
+ * less than half the band; on a short viewport — a phone on its side, a squat
+ * browser window — it would be cut off. Those readers get the vertical list,
+ * which cannot clip, instead of a horizontal one that eats its own content.
+ */
+const TALL_QUERY = "(min-height: 640px)";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 /* ------------------------------------------------------------------ */
-/* Track geometry — all in viewport-width units, all derived from data  */
+/* Track geometry — viewport units, derived from the data               */
 /* ------------------------------------------------------------------ */
 
-/** The plate at the head of the track. */
-const HEAD_W = 30;
-/** One milestone's column width. */
-const ITEM_W = 34;
-/** Space between two milestones sitting on the same side of the rule. */
-const ITEM_GAP = 6;
+/**
+ * One column width cannot serve both a 1440px desktop and a 390px phone: the
+ * column has to be about a third of the viewport when four or five milestones
+ * are in view together, and about four fifths when only one is. So there are two
+ * geometry sets, and everything downstream — track width, slide distance, reveal
+ * times, pin length — is derived from whichever is in play. The animation itself
+ * is the same code on both, and nothing here knows how many milestones there are.
+ */
+interface TrackGeometry {
+  /** Width of the plate at the head of the track, in `vw`. */
+  head: number;
+  /** One milestone's column, in `vw`. */
+  item: number;
+  /** Air between two milestones on the same side of the rule, in `vw`. */
+  gap: number;
+  /**
+   * Scroll distance per milestone, in `vh` — how fast the track slides. Both
+   * sets are tuned so the track travels about 1.65px sideways per 1px of scroll.
+   */
+  pinPerItem: number;
+  /** Where the rule sits in the band, as a percentage of its height. */
+  ruleAt: number;
+  /**
+   * Whether milestones alternate above and below the rule. Alternating is what
+   * makes the desktop band read; on a phone it would mean fitting a copy block
+   * into less than half a shorter band, so there the milestones all hang below
+   * the rule and each one gets the whole lower half.
+   */
+  alternate: boolean;
+  /** Distance the copy is held off the rule, in `vh`. */
+  copyGapVh: number;
+  /** Length of the stem pointing from the rule at the copy, in `vh`. */
+  stemVh: number;
+  /**
+   * Longest line the copy may run. Without it a tablet gets a 630px measure of
+   * 14px text: the column stays wide so the movement still reads, the text
+   * does not.
+   */
+  copyMax?: string;
+}
+
+const WIDE: TrackGeometry = {
+  head: 30,
+  item: 34,
+  gap: 6,
+  pinPerItem: 14,
+  ruleAt: 50,
+  alternate: true,
+  copyGapVh: 8,
+  stemVh: 6,
+};
+const NARROW: TrackGeometry = {
+  head: 52,
+  item: 82,
+  gap: 12,
+  pinPerItem: 12,
+  ruleAt: 36,
+  alternate: false,
+  copyGapVh: 5,
+  stemVh: 4,
+  copyMax: "26rem",
+};
+
 /**
  * Milestones alternate above and below the rule, so consecutive ones are half a
- * column apart — that is what makes them interleave rather than stack.
+ * column apart — that is what makes them interleave rather than stack. Two
+ * milestones on the same side are a whole step apart, which is the measure that
+ * has to stay clear of the copy.
  */
-const ITEM_STEP = (ITEM_W + ITEM_GAP) / 2;
+const step = (geometry: TrackGeometry) => (geometry.item + geometry.gap) / 2;
+
 /** Fraction of the scrubbed timeline one milestone spends revealing. */
 const REVEAL = 0.1;
 
@@ -68,8 +137,8 @@ const clamp = (value: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, value));
 
 /** Total track width for `count` milestones, in `vw`. */
-const trackWidth = (count: number) =>
-  HEAD_W + Math.max(count - 1, 0) * ITEM_STEP + ITEM_W;
+const trackWidth = (count: number, geometry: TrackGeometry) =>
+  geometry.head + Math.max(count - 1, 0) * step(geometry) + geometry.item;
 
 /* ------------------------------------------------------------------ */
 /* Media queries                                                       */
@@ -157,10 +226,11 @@ function MilestoneText({
         data-title={item.id}
         className={cn(
           "mt-2 font-display leading-tight text-ink",
-          // `clamp` keeps the name legible at the narrow end of the pinned
-          // breakpoint, where a pure vw size would fall to single digits.
+          // `clamp` keeps the name legible at both ends of the pinned track: a
+          // pure vw size collapses to single digits on a phone, and the floor is
+          // set for the phone rather than for the narrowest desktop window.
           track
-            ? "text-[clamp(1rem,1.45vw,1.9rem)]"
+            ? "text-[clamp(1.125rem,1.45vw,1.9rem)]"
             : "text-lg sm:text-xl",
         )}
       >
@@ -182,7 +252,10 @@ function MilestoneText({
         data-description={item.id}
         className={cn(
           "mt-2 leading-relaxed text-ink/70",
-          track ? "text-[13px]" : "text-sm sm:text-base",
+          // The pinned column is a third of the viewport on desktop and four
+          // fifths of it on a phone, so the same px would be a dense measure on
+          // one and a cramped one on the other.
+          track ? "text-[14px] lg:text-[13px]" : "text-sm sm:text-base",
         )}
       >
         {item.description}
@@ -213,9 +286,10 @@ function MilestoneText({
 /* ------------------------------------------------------------------ */
 
 /**
- * What small screens and reduced-motion readers get: the whole journey as a
- * plain vertical list. No pin, no sideways movement, no grid decoration, and no
- * GSAP — the one reveal is the same IntersectionObserver + CSS transition the
+ * The fallback layout: the whole journey as a plain vertical list, for
+ * reduced-motion readers, a viewport too short to pin, and anyone whose motion
+ * layer could not be built. No pin, no sideways movement, no grid decoration, and
+ * no GSAP — the one reveal is the same IntersectionObserver + CSS transition the
  * project pages already use, and it stands down entirely under reduced motion.
  */
 function VerticalTimeline({ items }: { items: TimelineMilestone[] }) {
@@ -253,14 +327,28 @@ function PinnedTimeline({
   imageSrc,
   imageAlt,
   imageCaption,
+  wide,
   onMotionFailed,
-}: TimelineProps & { onMotionFailed: () => void }) {
+}: TimelineProps & { wide: boolean; onMotionFailed: () => void }) {
   const pinRef = React.useRef<HTMLDivElement>(null);
   const trackRef = React.useRef<HTMLDivElement>(null);
   const lineRef = React.useRef<HTMLDivElement>(null);
   const splitsRef = React.useRef<SplitText[]>([]);
 
-  const width = trackWidth(items.length);
+  const geometry = wide ? WIDE : NARROW;
+  const {
+    head,
+    item: itemW,
+    copyMax,
+    pinPerItem,
+    ruleAt,
+    alternate,
+    copyGapVh,
+    stemVh,
+  } = geometry;
+  const stepVw = step(geometry);
+
+  const width = trackWidth(items.length, geometry);
   const slideVw = Math.max(width - 100, 0);
   // `xPercent` is relative to the track's own width, so the distance in vw has
   // to be expressed as a share of the track.
@@ -274,16 +362,16 @@ function PinnedTimeline({
    */
   const revealAt = React.useCallback(
     (index: number) => {
-      const trackX = HEAD_W + index * ITEM_STEP;
+      const trackX = head + index * stepVw;
       const enter =
-        slideVw > 0 ? clamp((trackX - (100 - ITEM_W)) / slideVw, 0, 1) : 1;
+        slideVw > 0 ? clamp((trackX - (100 - itemW)) / slideVw, 0, 1) : 1;
       return clamp(
         0.05 + Math.max(enter, (index + 1) * 0.05) * 0.88,
         0,
         0.93,
       );
     },
-    [slideVw],
+    [head, itemW, stepVw, slideVw],
   );
 
   React.useLayoutEffect(() => {
@@ -422,15 +510,38 @@ function PinnedTimeline({
     };
   }, [items, revealAt, slidePercent, onMotionFailed]);
 
+  /**
+   * The corner annotations sit on one line on a desktop and stack on a phone: at
+   * 390px the two halves of a row do not fit side by side without shrinking to
+   * nothing, and stacking is what a technical sheet does anyway.
+   */
+  const annotationRow = wide
+    ? "flex items-baseline justify-between gap-6 px-6 py-5 tracking-[0.3em]"
+    : "flex flex-col items-start gap-1.5 px-5 py-4 tracking-[0.22em]";
+
   return (
     <div
       ref={pinRef}
       className="relative mt-12"
       // One screen plus a fixed distance per milestone, so the pin gets longer
       // as milestones are added and is never hardcoded to a count.
-      style={{ height: `calc(110vh + ${items.length * 14}vh)` }}
+      style={{ height: `calc(110vh + ${items.length * pinPerItem}vh)` }}
     >
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
+      <div
+        className="sticky top-0 h-[100svh] w-full overflow-hidden"
+        // Everything on the band hangs off the rule, and where the rule sits is
+        // part of the geometry: a desktop alternates milestones above and below
+        // it at half height; a phone puts them all below it, so each copy block
+        // gets the whole lower half of a band that is also shorter.
+        style={
+          {
+            "--rule-at": `${ruleAt}%`,
+            "--rule-rest": `${100 - ruleAt}%`,
+            "--copy-gap": `${copyGapVh}vh`,
+            "--stem-h": `${stemVh}vh`,
+          } as React.CSSProperties
+        }
+      >
         {/* Engineering grid — the same 48px module as Scenes 02 and 04 */}
         <div
           aria-hidden="true"
@@ -448,14 +559,25 @@ function PinnedTimeline({
           the blueprint blue is 3.52:1 and would fail AA at this size. Ink at
           65% is 5.5:1 and stays in the same quiet register.
         */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-baseline justify-between gap-6 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.3em] text-ink/65">
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-0 z-30 font-mono text-[10px] uppercase text-ink/65",
+            annotationRow,
+          )}
+        >
           <span>{label}</span>
           <span>{periodLabel}</span>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-baseline justify-between gap-6 px-6 py-5 font-mono text-[10px] uppercase tracking-[0.3em] text-ink/65">
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 bottom-0 z-30 font-mono text-[10px] uppercase text-ink/65",
+            annotationRow,
+          )}
+        >
           <span>
-            {items.length} milestones · scale 1:1
+            {items.length} milestones
+            {wide ? " · scale 1:1" : null}
           </span>
           <span>Scroll to follow the line</span>
         </div>
@@ -472,14 +594,17 @@ function PinnedTimeline({
           {/* The rule, drawn left-to-right as the section is scrubbed */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-1/2 -translate-y-1/2"
+            className="absolute inset-x-0 top-[var(--rule-at)] -translate-y-1/2"
           >
             <div ref={lineRef} className="h-px w-0 bg-blueprint/45" />
           </div>
 
-          {/* Head of the track */}
+          {/* Head of the track — the plate, at four fifths of the head slot */}
           {imageSrc ? (
-            <figure className="absolute left-0 top-1/2 w-[24vw] -translate-y-1/2">
+            <figure
+              className="absolute left-0 top-[var(--rule-at)] -translate-y-1/2"
+              style={{ width: `${head * 0.8}vw` }}
+            >
               <div className="aspect-[4/5] w-full overflow-hidden rounded-lg border border-ink/12 bg-card">
                 <img
                   src={imageSrc}
@@ -508,21 +633,24 @@ function PinnedTimeline({
             className="absolute inset-0 list-none p-0"
           >
             {items.map((item, index) => {
-              const above = index % 2 === 0;
+              // Alternating sides of the rule is the desktop band's whole idea; a
+              // phone gets one side, so a copy block can be taller than half a
+              // band and never reach into the corner annotations.
+              const above = alternate && index % 2 === 0;
               return (
                 <li
                   key={item.id}
                   className="absolute inset-y-0"
                   style={{
-                    left: `${HEAD_W + index * ITEM_STEP}vw`,
-                    width: `${ITEM_W}vw`,
+                    left: `${head + index * stepVw}vw`,
+                    width: `${itemW}vw`,
                   }}
                 >
                   {/* Marker, sitting on the rule */}
                   <span
                     data-dot={item.id}
                     aria-hidden="true"
-                    className="absolute left-0 top-1/2 z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink ring-4 ring-background"
+                    className="absolute left-0 top-[var(--rule-at)] z-20 size-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink ring-4 ring-background"
                   />
 
                   {/* Stem, growing out of the rule towards the copy */}
@@ -530,8 +658,10 @@ function PinnedTimeline({
                     data-stem={item.id}
                     aria-hidden="true"
                     className={cn(
-                      "absolute left-0 w-px bg-blueprint/40",
-                      above ? "bottom-1/2 h-[6vh]" : "top-1/2 h-[6vh]",
+                      "absolute left-0 h-[var(--stem-h)] w-px bg-blueprint/40",
+                      above
+                        ? "bottom-[var(--rule-rest)]"
+                        : "top-[var(--rule-at)]",
                     )}
                     style={{
                       transformOrigin: above ? "bottom bottom" : "top top",
@@ -547,8 +677,13 @@ function PinnedTimeline({
                     data-copy={item.id}
                     className={cn(
                       "absolute left-0 w-full opacity-0",
-                      above ? "bottom-1/2 pb-[8vh]" : "top-1/2 pt-[8vh]",
+                      above
+                        ? "bottom-[var(--rule-rest)] pb-[var(--copy-gap)]"
+                        : "top-[var(--rule-at)] pt-[var(--copy-gap)]",
                     )}
+                    // Only ever set for a narrow track, where the column is wide
+                    // enough that the text would otherwise run too long a line.
+                    style={copyMax ? { maxWidth: copyMax } : undefined}
                   >
                     <MilestoneText item={item} variant="track" />
                   </div>
@@ -568,7 +703,8 @@ function PinnedTimeline({
 
 export function Timeline(props: TimelineProps) {
   const { items, className } = props;
-  const wide = useMediaQuery(PINNED_QUERY);
+  const wide = useMediaQuery(WIDE_QUERY);
+  const tall = useMediaQuery(TALL_QUERY);
   const reduced = useMediaQuery(REDUCED_MOTION_QUERY);
   const [motionFailed, setMotionFailed] = React.useState(false);
 
@@ -582,9 +718,12 @@ export function Timeline(props: TimelineProps) {
     );
   }
 
-  // Small screens and reduced-motion readers get the compact vertical list —
-  // and so does anyone whose motion layer could not be built.
-  if (!wide || reduced || motionFailed) {
+  // The pinned track runs on a phone as well as a desktop, at the narrow
+  // geometry — so nobody gets a long static list. It stands down, for the
+  // compact vertical list that cannot clip and hides nothing, when motion is
+  // reduced, the viewport is too short to hold a copy block, or the motion layer
+  // could not be built.
+  if (reduced || !tall || motionFailed) {
     return (
       <div className={className}>
         <VerticalTimeline items={items} />
@@ -594,7 +733,7 @@ export function Timeline(props: TimelineProps) {
 
   return (
     <div className={className}>
-      <PinnedTimeline {...props} onMotionFailed={onMotionFailed} />
+      <PinnedTimeline {...props} wide={wide} onMotionFailed={onMotionFailed} />
     </div>
   );
 }
