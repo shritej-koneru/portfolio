@@ -4,7 +4,7 @@ import * as React from "react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Mail, Phone, Headphones } from "lucide-react";
+import { ArrowRight, GitFork, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import * as d3 from "d3";
@@ -21,14 +21,13 @@ const smoothEase: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 const CONTACT_LINKS = [
   {
     icon: Mail,
-    label: "contact@yoursaas.ai",
-    href: "mailto:contact@yoursaas.ai",
+    label: "mail4shritejkoneru@gmail.com",
+    href: "mailto:mail4shritejkoneru@gmail.com",
   },
-  { icon: Phone, label: "+1 (800) 321 XX21", href: "tel:+18003214321" },
   {
-    icon: Headphones,
-    label: "support@yoursaas.ai",
-    href: "mailto:support@yoursaas.ai",
+    icon: GitFork,
+    label: "github.com/shritej-koneru",
+    href: "https://github.com/shritej-koneru",
   },
 ];
 
@@ -696,9 +695,9 @@ interface ContactWithGlobeProps {
 }
 
 export default function ContactWithGlobe({
-  title = "Contact us",
+  title = "Contact me",
   subtitle = "Contact",
-  description = "We are always looking for ways to improve our products and services. Contact us and let us know how we can help you.",
+  description = "I'm always open to new opportunities, collaborations and interesting problems. Reach out and let's talk.",
   className,
 }: ContactWithGlobeProps) {
   return (
@@ -756,8 +755,7 @@ export default function ContactWithGlobe({
                 Get in touch
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                Reach out via any channel below. We typically reply within one
-                business day.
+                Reach out on any channel below — I usually reply within a day.
               </p>
             </div>
 
@@ -806,10 +804,10 @@ export default function ContactWithGlobe({
           >
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-0.5">
-                Send a message
+                Send me a message
               </h3>
               <p className="text-sm text-muted-foreground">
-                Fill out the form and we'll get back to you promptly.
+                Fill out the form and I'll get back to you soon.
               </p>
             </div>
 
@@ -818,11 +816,11 @@ export default function ContactWithGlobe({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-                  Full Name
+                  Your Name
                 </label>
                 <input
                   type="text"
-                  placeholder="Ahdeetai"
+                  placeholder="Your name"
                   className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
                 />
               </div>
@@ -832,7 +830,7 @@ export default function ContactWithGlobe({
                 </label>
                 <input
                   type="text"
-                  placeholder="ScrollX UI"
+                  placeholder="Your company"
                   className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
                 />
               </div>
@@ -840,11 +838,11 @@ export default function ContactWithGlobe({
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-                Email Address
+                Your Email
               </label>
               <input
                 type="email"
-                placeholder="support@scrollxui.com"
+                placeholder="you@example.com"
                 className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
               />
             </div>
@@ -854,14 +852,14 @@ export default function ContactWithGlobe({
                 Message
               </label>
               <textarea
-                placeholder="Type your message here"
+                placeholder="Tell me a bit about your project or idea"
                 rows={4}
                 className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none transition-all duration-200"
               />
             </div>
 
             <Button className="w-fit h-11 px-8 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground group">
-              Submit
+              Send message
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
           </motion.div>
