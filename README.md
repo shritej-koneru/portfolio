@@ -341,6 +341,64 @@ site can never link to a project that no longer exists.
 5. Nothing else to wire up: the entry gives that project's existing page its full
    write-up.
 
+## Scene 07 - Contact
+
+The form in `src/components/ui/contact-with-globe.tsx` posts to an endpoint that
+emails the message on through [Resend](https://resend.com). The endpoint lives in
+`server/`, and it is deliberately small: one file, no dependencies. Node's
+`fetch` talks to Resend's REST API directly, so there is nothing to install and
+the cold start on a free instance stays short.
+
+### Running it
+
+The front end needs one variable, baked in at build time:
+
+```bash
+VITE_CONTACT_ENDPOINT=https://<your-service>.onrender.com/api/contact
+```
+
+Left unset the form still renders, but submitting says it is not connected
+rather than pretending to send. `.env.example` carries it.
+
+The endpoint reads its own settings from the environment, so no secret is ever
+put in `.env`:
+
+| Variable | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | Required. From `resend.com/api-keys`. |
+| `CONTACT_TO_EMAIL` | Where messages land. Defaults to the address in the contact section. |
+| `CONTACT_FROM_EMAIL` | The sender. `onboarding@resend.dev` until a domain is verified — Resend then only delivers to the account's own address. |
+| `CONTACT_FROM_NAME` | Display name on the notification. |
+| `ALLOWED_ORIGINS` | Comma-separated origins. Blank accepts any — the endpoint keeps no session, no cookie and no stored data. |
+
+To run it locally, `cd server && npm start` on Node 20 or newer with
+`RESEND_API_KEY` in the environment. `GET /health` answers `{"ok":true}`, which
+is both the host's health check and the URL a keep-warm ping should hit.
+
+### Deploying
+
+`render.yaml` describes the service, so Render can create it from this
+repository: **New → Blueprint**, choose the repo, and supply the secrets it asks
+for. The site itself still deploys separately — it is a static bundle and does
+not need this service running in order to render.
+
+One consequence of hosting it there: a free Render instance sleeps after 15
+minutes idle, so the first message after a quiet spell can take up to a minute to
+send. If that matters, point a free uptime monitor at `/health` every 10 minutes,
+or move the endpoint somewhere without cold starts.
+
+### What arrives
+
+The notification carries the message and everything useful for judging whether
+to reply: name, email and company; the time it was sent in UTC and in the
+visitor's own timezone; the page they sent it from and the page they arrived
+through; their browser, language and IP. `reply_to` is set to the visitor's
+address, so hitting Reply goes straight back to them.
+
+Two things keep it from being a spam pipe: a form-filling honeypot (`website` —
+hidden, unfocusable, and any submission that fills it is rejected) and a limit of
+five messages per IP per minute.
+
 ## Scripts
 
 ```bash

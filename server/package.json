@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-contact-endpoint",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "The contact endpoint behind scene 07. Validates the form payload and hands it to Resend.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

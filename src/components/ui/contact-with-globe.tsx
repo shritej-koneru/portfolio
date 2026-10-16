@@ -706,6 +706,222 @@ const FormDots = React.forwardRef<
 );
 FormDots.displayName = "FormDots";
 
+/** Where the form posts. Set at build time — empty means it is not wired up. */
+const CONTACT_ENDPOINT = (import.meta.env.VITE_CONTACT_ENDPOINT ?? "").trim();
+
+const FIELD_CLASS =
+  "w-full bg-background border border-input rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200";
+
+const LABEL_CLASS =
+  "font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60";
+
+type SendState = "idle" | "sending" | "sent" | "error";
+
+interface FormValues {
+  name: string;
+  company: string;
+  email: string;
+  message: string;
+  /** The honeypot. Hidden from people, and irresistible to form-fillers. */
+  website: string;
+}
+
+const EMPTY_FORM: FormValues = {
+  name: "",
+  company: "",
+  email: "",
+  message: "",
+  website: "",
+};
+
+/**
+ * Scene 07's form. It posts the message to the contact endpoint, which emails
+ * it on through Resend — carrying the context below with it, so a reply can
+ * start from what the visitor actually sent and where they sent it from.
+ */
+function ContactForm() {
+  const [values, setValues] = useState<FormValues>(EMPTY_FORM);
+  const [state, setState] = useState<SendState>("idle");
+  const [error, setError] = useState("");
+
+  const update =
+    (field: keyof FormValues) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { value } = event.target;
+      setValues((current) => ({ ...current, [field]: value }));
+      if (state === "error") setState("idle");
+    };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (state === "sending") return;
+
+    if (!CONTACT_ENDPOINT) {
+      setState("error");
+      setError("The form is not connected yet — email me directly and I'll reply.");
+      return;
+    }
+
+    setState("sending");
+    setError("");
+
+    try {
+      const response = await fetch(CONTACT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          // Context the endpoint adds to the notification. None of it is typed
+          // by the visitor; it only records where the message came from.
+          url: window.location.href,
+          referrer: document.referrer,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: navigator.language,
+          localTime: new Date().toString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(body?.error ?? "The message could not be sent.");
+      }
+
+      setValues(EMPTY_FORM);
+      setState("sent");
+    } catch (cause) {
+      setState("error");
+      setError(
+        cause instanceof Error && cause.message
+          ? cause.message
+          : "The message could not be sent — email me directly and I'll reply.",
+      );
+    }
+  };
+
+  const sending = state === "sending";
+  const status =
+    state === "sending"
+      ? "Sending…"
+      : state === "sent"
+        ? "Sent — I'll reply by email."
+        : state === "error"
+          ? error
+          : "";
+
+  return (
+    <form
+      className="flex flex-col gap-5"
+      onSubmit={handleSubmit}
+      aria-busy={sending}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="contact-name" className={LABEL_CLASS}>
+            Name
+          </label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            placeholder="Your name"
+            className={cn(FIELD_CLASS, "py-2.5")}
+            value={values.name}
+            onChange={update("name")}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="contact-company" className={LABEL_CLASS}>
+            Company
+          </label>
+          <input
+            id="contact-company"
+            name="company"
+            type="text"
+            autoComplete="organization"
+            placeholder="Your company"
+            className={cn(FIELD_CLASS, "py-2.5")}
+            value={values.company}
+            onChange={update("company")}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="contact-email" className={LABEL_CLASS}>
+          Email
+        </label>
+        <input
+          id="contact-email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="you@example.com"
+          className={cn(FIELD_CLASS, "py-2.5")}
+          value={values.email}
+          onChange={update("email")}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="contact-message" className={LABEL_CLASS}>
+          Message
+        </label>
+        <textarea
+          id="contact-message"
+          name="message"
+          required
+          rows={4}
+          placeholder="Tell me a bit about your project or idea"
+          className={cn(FIELD_CLASS, "py-3 resize-none")}
+          value={values.message}
+          onChange={update("message")}
+        />
+      </div>
+
+      {/* Off-screen and unfocusable, so only a form-filler ever finds it. */}
+      <div aria-hidden="true" className="sr-only">
+        <label htmlFor="contact-website">Website</label>
+        <input
+          id="contact-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={values.website}
+          onChange={update("website")}
+        />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Button
+          type="submit"
+          disabled={sending}
+          className="group w-fit h-11 px-8 rounded-xl font-mono text-[11px] uppercase tracking-[0.22em] bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          {sending ? "Sending" : "Send message"}
+          <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+        </Button>
+
+        <p
+          role="status"
+          aria-live="polite"
+          className={cn(
+            "font-mono text-[11px] leading-relaxed tracking-[0.08em]",
+            state === "error" ? "text-destructive" : "text-blueprint",
+          )}
+        >
+          {status}
+        </p>
+      </div>
+    </form>
+  );
+}
+
 interface ContactWithGlobeProps {
   title?: string;
   description?: string;
@@ -829,55 +1045,7 @@ export default function ContactWithGlobe({
 
             <FormDots />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  placeholder="Your company"
-                  className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                Message
-              </label>
-              <textarea
-                placeholder="Tell me a bit about your project or idea"
-                rows={4}
-                className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none transition-all duration-200"
-              />
-            </div>
-
-            <Button className="group w-fit h-11 px-8 rounded-xl font-mono text-[11px] uppercase tracking-[0.22em] bg-primary hover:bg-primary/90 text-primary-foreground">
-              Send message
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-            </Button>
+            <ContactForm />
           </motion.div>
         </div>
       </div>
