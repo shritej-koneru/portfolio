@@ -468,9 +468,14 @@ export function ResumeImpact() {
           sliced down its sides by the column. Full-bleed means the field is
           never cut horizontally, and the heading keeps its own inset instead. */}
       <div className="relative">
+        {/* The scene's own eyebrow, in the same form as every other section's:
+            the blueprint mono line at 11px, on the 7xl column, left aligned. It
+            stays an `h2` rather than the decorative `p` the other plates use,
+            because this scene has no display heading under it — this *is* the
+            section's heading, and it is what `aria-labelledby` points at. */}
         <h2
           id="resume-heading"
-          className="mx-auto max-w-4xl px-6 text-center font-mono text-[10px] uppercase tracking-[0.32em] text-ink/60"
+          className="mx-auto max-w-7xl px-6 font-mono text-[11px] uppercase tracking-[0.32em] text-blueprint"
         >
           08 / Resume
         </h2>
