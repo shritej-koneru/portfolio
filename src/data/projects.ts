@@ -214,7 +214,7 @@ export const projects: Project[] = [
       "This site — a Digital Blueprint portfolio built with Vite, React and Tailwind.",
     image: cover("portfolio"),
     tech: ["TypeScript", "React", "Vite", "Tailwind CSS"],
-    liveUrl: "https://portfolio-custom-craft-team.vercel.app",
+    liveUrl: "https://portfolio-seven-psi-l2qf199nrn.vercel.app",
     liveKind: "site",
     repoUrl: "https://github.com/shritej-koneru/portfolio",
     featured: false,
