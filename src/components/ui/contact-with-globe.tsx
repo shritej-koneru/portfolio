@@ -708,44 +708,30 @@ FormDots.displayName = "FormDots";
 
 interface ContactWithGlobeProps {
   title?: string;
-  subtitle?: string;
   description?: string;
   className?: string;
 }
 
 export default function ContactWithGlobe({
   title = "Contact me",
-  subtitle = "Contact",
   description = "I'm always open to new opportunities, collaborations and interesting problems. Reach out and let's talk.",
   className,
 }: ContactWithGlobeProps) {
   return (
     <section
       className={cn(
-        "relative w-full bg-background overflow-hidden py-20",
+        "relative w-full scroll-mt-24 border-t border-ink/10 bg-background overflow-hidden py-20 sm:py-28",
         className,
       )}
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center text-center gap-4 mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: smoothEase }}
-            className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30"
-          >
-            <span className="text-sm text-primary font-medium">
-              {subtitle}
-            </span>
-          </motion.div>
-
           <motion.h2
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.15, ease: smoothEase }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground"
+            className="font-display text-4xl tracking-tight text-ink sm:text-5xl"
           >
             {title}
           </motion.h2>
@@ -755,7 +741,7 @@ export default function ContactWithGlobe({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.3, ease: smoothEase }}
-            className="text-base text-muted-foreground max-w-md"
+            className="max-w-md text-pretty text-lg leading-relaxed text-ink/70"
           >
             {description}
           </motion.p>
@@ -770,10 +756,10 @@ export default function ContactWithGlobe({
             className="flex flex-col gap-6"
           >
             <div className="flex flex-col gap-1">
-              <h3 className="text-xl font-semibold text-foreground">
+              <h3 className="font-display text-xl tracking-tight text-ink">
                 Get in touch
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+              <p className="max-w-xs font-sans text-sm leading-relaxed text-ink/60">
                 Reach out on any channel below — I usually reply within a day.
               </p>
             </div>
@@ -791,7 +777,7 @@ export default function ContactWithGlobe({
                     delay: 0.3 + i * 0.1,
                     ease: smoothEase,
                   }}
-                  className="group flex items-center gap-3 w-fit text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  className="group flex w-fit items-center gap-3 font-mono text-[11px] tracking-[0.08em] text-ink/70 transition-colors duration-200 hover:text-blueprint"
                 >
                   <div className="w-8 h-8 rounded-lg bg-secondary border border-border group-hover:border-primary/30 group-hover:bg-primary/10 flex items-center justify-center shrink-0 transition-all duration-200">
                     <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
@@ -822,10 +808,10 @@ export default function ContactWithGlobe({
             className="rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col gap-5"
           >
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-0.5">
+              <h3 className="mb-0.5 font-display text-lg tracking-tight text-ink">
                 Send me a message
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-sans text-sm leading-relaxed text-ink/60">
                 Fill out the form and I'll get back to you soon.
               </p>
             </div>
@@ -834,7 +820,7 @@ export default function ContactWithGlobe({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+                <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
                   Your Name
                 </label>
                 <input
@@ -844,7 +830,7 @@ export default function ContactWithGlobe({
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+                <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
                   Company
                 </label>
                 <input
@@ -856,7 +842,7 @@ export default function ContactWithGlobe({
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+              <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
                 Your Email
               </label>
               <input
@@ -867,7 +853,7 @@ export default function ContactWithGlobe({
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+              <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
                 Message
               </label>
               <textarea
@@ -877,7 +863,7 @@ export default function ContactWithGlobe({
               />
             </div>
 
-            <Button className="w-fit h-11 px-8 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground group">
+            <Button className="group w-fit h-11 px-8 rounded-xl font-mono text-[11px] uppercase tracking-[0.22em] bg-primary hover:bg-primary/90 text-primary-foreground">
               Send message
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
