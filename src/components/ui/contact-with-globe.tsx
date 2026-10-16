@@ -720,10 +720,21 @@ export default function ContactWithGlobe({
   return (
     <section
       className={cn(
-        "relative w-full scroll-mt-24 border-t border-ink/10 bg-background overflow-hidden py-20 sm:py-28",
+        "relative isolate w-full scroll-mt-24 border-t border-ink/10 bg-background overflow-hidden py-20 sm:py-28",
         className,
       )}
     >
+      {/* Engineering grid — the same 48px ink module Scenes 02 and 05 sit on. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(17,19,24,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(17,19,24,0.05) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center text-center gap-4 mb-12">
           <motion.h2
