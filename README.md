@@ -196,6 +196,20 @@ piece of data**:
   scrub and no grid decoration. Nothing is held behind an animation, so the
   milestones are on the page even if the script never runs.
 
+## Scene 06 — Technical Toolkit
+
+`src/components/sections/technical-toolkit.tsx` is the ruled plate at the end of
+the page. It renders the 34 technologies from `src/data/toolkit.ts`, grouped into
+Languages, Web, Backend and Tools. The tab row is an accessible ARIA tablist
+with roving focus, Home/End and arrow keys, and a measured sliding ink pill.
+The grid reuses the Logo Cloud 2 corner-plus pattern with full-bleed top/bottom
+rules and gap hairlines. Each tile is a whole-cell button (for valid HTML, a
+button with links outside it) showing the projects that use it, and it opens an
+inline detail panel that stays at a reserved height (no layout shifts). Project
+links go to the existing `/work/<slug>` pages, and everything honours
+`prefers-reduced-motion`. C++ is marked "Exploring" with its Cisco C++ Essentials
+source; the rest of the "exploring" legend is derived from the data.
+
 Both pinned layouts are one implementation driven by two geometry sets: `WIDE`
 (`head`/`item`/`gap` in `vw`, `pinPerItem` in `vh`) and `NARROW` (a wider column,
 a shorter pin per milestone), tuned so the track travels about 1.65px sideways per

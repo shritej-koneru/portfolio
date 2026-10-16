@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AboutJourney } from "@/components/sections/about-journey";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
+import { TechnicalToolkit } from "@/components/sections/technical-toolkit";
 import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
 import InkReveal from "@/components/ui/ink-reveal";
 import { usePageTitle } from "@/lib/router";
@@ -22,6 +23,7 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * Scene 3 — the Works Wheel, in `featured-projects.tsx`.
  * Scene 4 — the contribution skyline, in `open-source-activity.tsx`.
  * Scene 5 — about and the journey timeline, in `about-journey.tsx`.
+ * Scene 6 — the technical toolkit, in `technical-toolkit.tsx`.
  *
  * Both scenes share the same blueprint-paper field (#F2F0E9) so the hand-off
  * is a scroll, not a colour cut.
@@ -184,6 +186,11 @@ export function HomePage() {
       {/* Scene 05 — about and the journey timeline                            */}
       {/* ------------------------------------------------------------------ */}
       <AboutJourney />
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Scene 06 — the technical toolkit                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <TechnicalToolkit />
     </main>
   );
 }
