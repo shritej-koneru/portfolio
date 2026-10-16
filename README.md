@@ -343,25 +343,16 @@ site can never link to a project that no longer exists.
 
 ## Scene 07 - Contact
 
-The form in `src/components/ui/contact-with-globe.tsx` posts to an endpoint that
-emails the message on through [Resend](https://resend.com). The endpoint lives in
-`server/`, and it is deliberately small: one file, no dependencies. Node's
-`fetch` talks to Resend's REST API directly, so there is nothing to install and
-the cold start on a free instance stays short.
+The form in `src/components/ui/contact-with-globe.tsx` posts to the function in
+`api/contact.ts`, which emails the message on through
+[Resend](https://resend.com). The function is served from the site's own domain,
+so the form posts to a relative `/api/contact` — there is no CORS to configure
+and no build-time URL to keep in sync between two hosts.
 
 ### Running it
 
-The front end needs one variable, baked in at build time:
-
-```bash
-VITE_CONTACT_ENDPOINT=https://<your-service>.onrender.com/api/contact
-```
-
-Left unset the form still renders, but submitting says it is not connected
-rather than pretending to send. `.env.example` carries it.
-
-The endpoint reads its own settings from the environment, so no secret is ever
-put in `.env`:
+The endpoint reads its settings from the environment, so no secret is ever put
+in `.env`:
 
 | Variable | Purpose |
 | --- | --- |
@@ -369,23 +360,11 @@ put in `.env`:
 | `CONTACT_TO_EMAIL` | Where messages land. Defaults to the address in the contact section. |
 | `CONTACT_FROM_EMAIL` | The sender. `onboarding@resend.dev` until a domain is verified — Resend then only delivers to the account's own address. |
 | `CONTACT_FROM_NAME` | Display name on the notification. |
-| `ALLOWED_ORIGINS` | Comma-separated origins. Blank accepts any — the endpoint keeps no session, no cookie and no stored data. |
 
-To run it locally, `cd server && npm start` on Node 20 or newer with
-`RESEND_API_KEY` in the environment. `GET /health` answers `{"ok":true}`, which
-is both the host's health check and the URL a keep-warm ping should hit.
-
-### Deploying
-
-`render.yaml` describes the service, so Render can create it from this
-repository: **New → Blueprint**, choose the repo, and supply the secrets it asks
-for. The site itself still deploys separately — it is a static bundle and does
-not need this service running in order to render.
-
-One consequence of hosting it there: a free Render instance sleeps after 15
-minutes idle, so the first message after a quiet spell can take up to a minute to
-send. If that matters, point a free uptime monitor at `/health` every 10 minutes,
-or move the endpoint somewhere without cold starts.
+Set them on the Vercel project (Settings → Environment Variables) and redeploy.
+`VITE_CONTACT_ENDPOINT` overrides where the form posts if the endpoint ever
+moves off this origin; left unset it stays on `/api/contact`, and `.env.example`
+carries it.
 
 ### What arrives
 
@@ -397,7 +376,12 @@ address, so hitting Reply goes straight back to them.
 
 Two things keep it from being a spam pipe: a form-filling honeypot (`website` —
 hidden, unfocusable, and any submission that fills it is rejected) and a limit of
-five messages per IP per minute.
+five messages per IP per minute. That limit is per instance, so it throttles a
+persistent sender rather than being a real rate limiter — the honeypot does most
+of the work.
+
+A `GET /api/contact` answers `{"ok":true}`, which is what an uptime monitor
+should poll.
 
 ## Scripts
 

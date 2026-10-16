@@ -706,8 +706,13 @@ const FormDots = React.forwardRef<
 );
 FormDots.displayName = "FormDots";
 
-/** Where the form posts. Set at build time — empty means it is not wired up. */
-const CONTACT_ENDPOINT = (import.meta.env.VITE_CONTACT_ENDPOINT ?? "").trim();
+/**
+ * Where the form posts. The endpoint is a function on this same origin, so the
+ * default is a relative path — no build-time URL to keep in sync, no CORS.
+ * VITE_CONTACT_ENDPOINT overrides it if the endpoint ever moves.
+ */
+const CONTACT_ENDPOINT =
+  (import.meta.env.VITE_CONTACT_ENDPOINT ?? "").trim() || "/api/contact";
 
 const FIELD_CLASS =
   "w-full bg-background border border-input rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-200";
@@ -756,12 +761,6 @@ function ContactForm() {
     event.preventDefault();
     if (state === "sending") return;
 
-    if (!CONTACT_ENDPOINT) {
-      setState("error");
-      setError("The form is not connected yet — email me directly and I'll reply.");
-      return;
-    }
-
     setState("sending");
     setError("");
 
@@ -781,11 +780,20 @@ function ContactForm() {
         }),
       });
 
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(body?.error ?? "The message could not be sent.");
+      // A misrouted request can come back as the site's own HTML with a 200 —
+      // the SPA fallback will happily serve index.html for anything. So trust
+      // the body's `ok`, not just the status, or a message that never sent
+      // would be reported as sent.
+      const body = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+      } | null;
+
+      if (!response.ok || body?.ok !== true) {
+        throw new Error(
+          body?.error ??
+            "The message could not be sent — email me directly and I'll reply.",
+        );
       }
 
       setValues(EMPTY_FORM);
