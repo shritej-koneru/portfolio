@@ -11,11 +11,13 @@ import { RESUME_FILENAME, RESUME_FILE } from "@/data/resume";
 /**
  * Scene 08 — the resume, dropped onto the drawing.
  *
- * The scene rests as a dark plate with one button on it and nothing else: no
- * floor, no document, no decoration. Pressing the button stages the floor,
- * drops a resume page onto it, cracks the ground at the point of impact, holds
- * on the result for two seconds, hands the real PDF to the browser, and then
- * takes the whole scene back down so it can be run again.
+ * The scene sits on the same blueprint paper as the rest of the page, over the
+ * same 48px ink module, so it reads as one more plate on the drawing rather
+ * than a room of its own. At rest it is one line of type and one button and
+ * nothing else: no floor, no document, no decoration. Pressing the button
+ * stages the floor, drops a resume page onto it, cracks the ground at the point
+ * of impact, holds on the result for two seconds, hands the real PDF to the
+ * browser, and then takes the whole scene back down so it can be run again.
  *
  * ## Why this is not WebGL
  *
@@ -30,11 +32,20 @@ import { RESUME_FILENAME, RESUME_FILE } from "@/data/resume";
  *
  * ## One plane
  *
- * The floor, the crack field, the light the break gives off and the ring it
- * pushes outward are all children of the same layer, and that layer is the one
+ * The floor, the crack field, the scuff the break leaves and the ring it pushes
+ * outward are all children of the same layer, and that layer is the one
  * carrying the vertical squash that stands in for the floor's foreshortening. So
  * they lean together and stay registered to one another, and the floor, the
- * field, the ring and the bloom can never drift apart.
+ * field, the ring and the scuff can never drift apart.
+ *
+ * ## On paper
+ *
+ * Everything the break throws is ink. The cracks that open in the ground, the
+ * ring it pushes out, the scuff left at the epicentre and the dust it lifts are
+ * all the same `#111318` the rest of the site draws with, because ground that
+ * gives way is dark, not lit. Nothing here glows: a dark plate can leak light,
+ * paper cannot. The one place colour survives is the button's focus ring, which
+ * is the blueprint blue every other control on the site wears.
  *
  * ## The state machine
  *
@@ -60,7 +71,7 @@ type Phase = "idle" | "falling" | "impact" | "holding" | "fading";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-/** What the plate says when nothing is happening. Verified against the file. */
+/** What the scene says when nothing is happening. Verified against the file. */
 const RESTING_LABEL = "PDF · Two pages";
 
 const FALL_SECONDS = 1;
@@ -108,10 +119,14 @@ function PageLine({
  * The illustrated page. It is a layout, not a resume: no name, no claims, no
  * qualifications. The lines stand in for text and nothing on it is readable, so
  * no part of this can be mistaken for the real document's contents.
+ *
+ * The hairline matters more than it looks: a white page falling onto blueprint
+ * paper is nearly the same value as the paper, so the border and the soft shadow
+ * are the only things separating one sheet from the field it lands on.
  */
 function DocumentPage() {
   return (
-    <div className="relative w-full overflow-hidden rounded-[2px] bg-[#F7F5EF] shadow-[0_22px_44px_-16px_rgba(0,0,0,0.7)]">
+    <div className="relative w-full overflow-hidden rounded-[2px] border border-ink/10 bg-[#FCFBF7] shadow-[0_20px_38px_-16px_rgba(17,19,24,0.45)]">
       <div className="flex aspect-[10/13] w-full flex-col p-[9%]">
         <PageLine width="56%" tone={0.8} height={8} />
         <div className="mt-[5%] flex items-center gap-[6%]">
@@ -170,7 +185,7 @@ export function ResumeImpact() {
   const stageRef = React.useRef<HTMLDivElement>(null);
   const sceneRef = React.useRef<HTMLDivElement>(null);
   const impactRef = React.useRef<HTMLDivElement>(null);
-  const bloomRef = React.useRef<HTMLDivElement>(null);
+  const scuffRef = React.useRef<HTMLDivElement>(null);
   const rippleRef = React.useRef<HTMLSpanElement>(null);
   const flashRef = React.useRef<HTMLDivElement>(null);
   const shadowRef = React.useRef<HTMLDivElement>(null);
@@ -225,7 +240,7 @@ export function ResumeImpact() {
     const doc = docRef.current;
     const control = controlRef.current;
     const impact = impactRef.current;
-    const bloom = bloomRef.current;
+    const scuff = scuffRef.current;
     const ripple = rippleRef.current;
     const flash = flashRef.current;
     const shadow = shadowRef.current;
@@ -234,11 +249,11 @@ export function ResumeImpact() {
     if (!stage || !doc || !control || runningRef.current) return;
 
     // Reduced motion gets the document, not the theatre: a quiet label, the
-    // real download, and the plate back the way it was.
+    // real download, and the scene back the way it was.
     if (
       prefersReducedMotion() ||
       !impact ||
-      !bloom ||
+      !scuff ||
       !ripple ||
       !flash ||
       !shadow ||
@@ -315,7 +330,8 @@ export function ResumeImpact() {
         .to(doc, { scaleY: 1, duration: 0.36, ease: "power3.out" }, IMPACT + 0.08)
         .to(doc, { y: -7, duration: 0.12, ease: "power1.out" }, IMPACT)
         .to(doc, { y: 0, duration: 0.3, ease: "power2.inOut" }, IMPACT + 0.12)
-        // One pulse of light, and the ring the floor pushes outward from it.
+        // One pulse at the moment of contact, and the ring the floor pushes
+        // outward from it.
         .fromTo(
           flash,
           { opacity: 0 },
@@ -328,12 +344,12 @@ export function ResumeImpact() {
           { scale: 1, opacity: 0, duration: 0.8, ease: "power2.out" },
           IMPACT,
         )
-        // The break keeps glowing after the pulse: this is the light the
-        // completed scene holds on, not another flash.
+        // The ground stays darker where it broke after the pulse has passed:
+        // this is what the completed scene holds on, not another flash.
         .fromTo(
-          bloom,
+          scuff,
           { opacity: 0, scale: 0.7 },
-          { opacity: 0.34, scale: 1, duration: 0.5, ease: "power2.out" },
+          { opacity: 0.85, scale: 1, duration: 0.5, ease: "power2.out" },
           IMPACT + 0.04,
         )
         .fromTo(
@@ -383,7 +399,7 @@ export function ResumeImpact() {
       const fadeAt = HOLD_AT + HOLD_SECONDS;
       tl.call(() => setPhase("fading"), undefined, fadeAt)
         .to(doc, { opacity: 0, y: -18, duration: 0.5, ease: "power2.in" }, fadeAt)
-        .to(bloom, { opacity: 0, scale: 0.8, duration: 0.45, ease: "power1.in" }, fadeAt)
+        .to(scuff, { opacity: 0, scale: 0.8, duration: 0.45, ease: "power1.in" }, fadeAt)
         .to(
           branches,
           {
@@ -420,16 +436,16 @@ export function ResumeImpact() {
     <section
       id="resume"
       aria-labelledby="resume-heading"
-      className="relative isolate scroll-mt-24 overflow-hidden border-t border-ink/10 bg-ink py-20 text-paper sm:py-28"
+      className="relative isolate scroll-mt-24 overflow-hidden border-t border-ink/10 bg-background py-20 sm:py-28"
     >
-      {/* The same 48px engineering module Scenes 02, 04, 05 and 07 sit on,
-          inverted for ink. */}
+      {/* The same 48px engineering module Scenes 02, 04, 05 and 07 sit on — the
+          scene is one more plate on the drawing, not a room of its own. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgba(242,240,233,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(242,240,233,0.05) 1px, transparent 1px)",
+            "linear-gradient(to right, rgba(17,19,24,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(17,19,24,0.05) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
@@ -437,7 +453,7 @@ export function ResumeImpact() {
       <div className="relative mx-auto max-w-4xl px-6">
         <h2
           id="resume-heading"
-          className="text-center font-mono text-[10px] uppercase tracking-[0.32em] text-paper/60"
+          className="text-center font-mono text-[10px] uppercase tracking-[0.32em] text-ink/60"
         >
           08 / Resume
         </h2>
@@ -453,7 +469,7 @@ export function ResumeImpact() {
             {/* The impact plane. Squashed vertically so everything on it reads
                 as lying on the floor rather than standing on the page. GSAP
                 never writes a transform to this element, so the squash is safe
-                to keep in the style attribute, and the floor, the light and the
+                to keep in the style attribute, and the floor, the scuff and the
                 ring are all children of it — which is what keeps them
                 registered to one another. The `opacity-0` is load-bearing: the
                 timeline also sets this layer to zero, but that only happens on
@@ -464,21 +480,22 @@ export function ResumeImpact() {
               className={`pointer-events-none absolute left-1/2 aspect-square w-[min(118vw,640px)] opacity-0 ${LANDING_CLASS}`}
               style={{ transform: "translateX(-50%) translateY(50%) scaleY(0.62)" }}
             >
-              {/* The floor itself: a pool of the same ink the section sits on,
-                  lifted rather than recoloured, on the same 48px module as every
-                  other scene. Rendered as an ellipse and masked back to nothing
-                  at its own edge, so it has no horizon line and no sides to give
-                  itself away as a rectangle. The blueprint only tints the far
-                  side, which is where a surface would catch the light. */}
+              {/* The floor itself: the same paper the section sits on, shaded
+                  rather than recoloured, on the same 48px module as every other
+                  scene. On paper the ground reads as the darker thing — a pool
+                  of shade, not a surface catching light — so the gradient is
+                  ink at low alpha and nothing is added on top of it. Rendered as
+                  an ellipse and masked back to nothing at its own edge, so it
+                  has no horizon line and no sides to give itself away as a
+                  rectangle. */}
               <div
                 aria-hidden="true"
                 className="absolute inset-[-9%] rounded-[50%]"
                 style={{
                   backgroundImage: [
-                    "radial-gradient(66% 48% at 50% 26%, rgba(89,119,232,0.14), transparent 72%)",
-                    "radial-gradient(78% 62% at 50% 42%, rgba(242,240,233,0.12), rgba(242,240,233,0.045) 56%, transparent 90%)",
-                    "repeating-linear-gradient(to right, rgba(242,240,233,0.065) 0 1px, transparent 1px 34px)",
-                    "repeating-linear-gradient(to bottom, rgba(242,240,233,0.065) 0 1px, transparent 1px 34px)",
+                    "radial-gradient(72% 58% at 50% 40%, rgba(17,19,24,0.07), rgba(17,19,24,0.028) 58%, transparent 90%)",
+                    "repeating-linear-gradient(to right, rgba(17,19,24,0.05) 0 1px, transparent 1px 48px)",
+                    "repeating-linear-gradient(to bottom, rgba(17,19,24,0.05) 0 1px, transparent 1px 48px)",
                   ].join(", "),
                   maskImage:
                     "radial-gradient(closest-side, #000 4%, rgba(0,0,0,0.42) 58%, transparent 92%)",
@@ -487,23 +504,26 @@ export function ResumeImpact() {
                 }}
               />
 
-              {/* The light the break gives off. */}
+              {/* The scuff left where the ground broke: the broken ground is
+                  simply darker than the ground around it, and it stays darker
+                  for as long as the scene holds. */}
               <div
-                ref={bloomRef}
+                ref={scuffRef}
                 className="absolute inset-[-16%] rounded-[50%] opacity-0"
                 style={{
                   background:
-                    "radial-gradient(closest-side, rgba(89,119,232,0.3), rgba(89,119,232,0.07) 54%, transparent 78%)",
+                    "radial-gradient(closest-side, rgba(17,19,24,0.17), rgba(17,19,24,0.05) 54%, transparent 78%)",
                 }}
               />
 
-              {/* The pulse at the moment of contact. */}
+              {/* The pulse at the moment of contact: a brief darkening, as if
+                  the ground has just taken the weight. */}
               <div
                 ref={flashRef}
                 className="absolute inset-[-34%] rounded-[50%] opacity-0"
                 style={{
                   background:
-                    "radial-gradient(closest-side, rgba(112,140,240,0.6), transparent 72%)",
+                    "radial-gradient(closest-side, rgba(17,19,24,0.34), transparent 72%)",
                 }}
               />
 
@@ -511,7 +531,7 @@ export function ResumeImpact() {
               <span className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[68%] -translate-x-1/2 -translate-y-1/2">
                 <span
                   ref={rippleRef}
-                  className="block h-full w-full rounded-[50%] border border-blueprint/55 opacity-0"
+                  className="block h-full w-full rounded-[50%] border border-ink/25 opacity-0"
                 />
               </span>
 
@@ -526,13 +546,13 @@ export function ResumeImpact() {
                     key={`branch-${index}`}
                     data-crack
                     d={branch.d}
-                    stroke="#5977E8"
+                    stroke="#111318"
                     strokeWidth={branch.width}
                     strokeOpacity={branch.opacity}
                     // Round *joins*, square *ends* — deliberately. A round cap
                     // renders a dot at a dash boundary even when the dash is
                     // fully offset, so while the field was still undrawn every
-                    // branch would sprinkle a mote of blue over the floor.
+                    // branch would sprinkle a mote of ink over the floor.
                     strokeLinejoin="round"
                     style={{
                       strokeDasharray: branch.length,
@@ -547,7 +567,7 @@ export function ResumeImpact() {
                     cx={signal.cx}
                     cy={signal.cy}
                     r={signal.r}
-                    fill="#C4F06A"
+                    fill="#111318"
                     style={{ opacity: 0 }}
                   />
                 ))}
@@ -564,7 +584,7 @@ export function ResumeImpact() {
                 className="h-[30px] w-[190px] rounded-[50%] opacity-0 sm:w-[220px]"
                 style={{
                   background:
-                    "radial-gradient(closest-side, rgba(0,0,0,0.85), transparent 74%)",
+                    "radial-gradient(closest-side, rgba(17,19,24,0.6), transparent 74%)",
                 }}
               />
             </div>
@@ -578,7 +598,7 @@ export function ResumeImpact() {
                 <span
                   key={`dust-${index}`}
                   data-dust
-                  className="absolute left-0 top-0 block size-[3px] rounded-full bg-paper/45 opacity-0"
+                  className="absolute left-0 top-0 block size-[3px] rounded-full bg-ink/30 opacity-0"
                 />
               ))}
             </div>
@@ -604,7 +624,7 @@ export function ResumeImpact() {
               type="button"
               onClick={play}
               disabled={busy}
-              className="inline-flex min-h-[44px] items-center gap-2.5 rounded-full border border-paper/25 bg-paper/[0.06] px-7 py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-paper transition-colors hover:border-paper/60 hover:bg-paper/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:opacity-60"
+              className="inline-flex min-h-[44px] items-center gap-2.5 rounded-full border border-ink/25 bg-paper/70 px-7 py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-ink backdrop-blur-sm transition-colors hover:border-ink/60 hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -625,7 +645,7 @@ export function ResumeImpact() {
 
             <p
               aria-live="polite"
-              className="font-mono text-[10px] uppercase tracking-[0.28em] text-paper/50"
+              className="font-mono text-[10px] uppercase tracking-[0.28em] text-ink/60"
             >
               {label}
             </p>

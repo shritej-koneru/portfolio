@@ -385,12 +385,18 @@ should poll.
 
 ## Scene 08 - Resume
 
-The dark plate that closes the page, in
-`src/components/sections/resume-impact.tsx`. At rest it is one line of type, one
-button and nothing else — no floor, no document, no decoration. Pressing it
-stages a floor, drops a page onto it, cracks the ground where it lands, holds on
-the result for two seconds, hands the real PDF to the browser, and takes the
-whole scene back down so it can be run again.
+The scene that closes the page, in
+`src/components/sections/resume-impact.tsx`. It sits on the same blueprint paper
+and the same 48px ink module as the rest of the page, so it reads as one more
+plate on the drawing rather than a room of its own. At rest it is one line of
+type, one button and nothing else — no floor, no document, no decoration.
+Pressing it stages a floor, drops a page onto it, cracks the ground where it
+lands, holds on the result for two seconds, hands the real PDF to the browser,
+and takes the whole scene back down so it can be run again.
+
+Everything the break throws is ink: the cracks, the ring, the scuff left at the
+epicentre and the dust are all `#111318`, because ground that gives way is dark
+rather than lit. Nothing in the scene glows.
 
 ### The file
 

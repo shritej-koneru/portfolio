@@ -29,11 +29,11 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * Scene 6 — the technical toolkit, in `technical-toolkit.tsx`.
  * Scene 7 — contact, with the wireframe globe and the message form, in
  *           `src/components/ui/contact-with-globe.tsx`.
- * Scene 8 — the resume impact plate, in `resume-impact.tsx`.
+ * Scene 8 — the resume, dropped onto the drawing, in `resume-impact.tsx`.
  *
- * Scenes 1, 2, 3, 5, 6 and 7 all sit on the same blueprint-paper field
- * (#F2F0E9), so most hand-offs are a scroll rather than a colour cut. Scenes 4
- * and 8 are the two dark plates, both inverting to ink (#111318) and back.
+ * Every scene but 4 sits on the same blueprint-paper field (#F2F0E9), so the
+ * hand-offs are scrolls rather than colour cuts. Scene 4 is the one dark plate,
+ * inverting to ink (#111318) and back.
  *
  * The page's only landmark outside `<main>` is `@/components/site-footer`: a
  * short summary about Shritej, then an index of all eight scenes.
@@ -211,7 +211,7 @@ export function HomePage() {
         </div>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Scene 08 — the resume impact plate                                 */}
+        {/* Scene 08 — the resume, dropped onto the drawing                  */}
         {/* ---------------------------------------------------------------- */}
         <ResumeImpact />
       </main>

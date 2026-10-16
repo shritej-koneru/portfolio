@@ -44,7 +44,10 @@ export interface CrackBranch {
   reach: number;
 }
 
-/** A small restrained signal-lime highlight at a joint. */
+/**
+ * A small darker knot where breaks meet. Not a colour accent: on paper the
+ * deepest point of a joint simply reads as the fullest ink.
+ */
 export interface CrackSignal {
   cx: number;
   cy: number;
@@ -288,7 +291,7 @@ function build() {
     emit(points, "splay");
   }
 
-  /* --- Lime at a few joints, never along a whole crack ----------------- */
+  /* --- Knots at a few joints, never along a whole crack --------------- */
 
   for (let i = 0; i < 6 && joints.length; i += 1) {
     const joint = joints[Math.floor(random() * joints.length)];
