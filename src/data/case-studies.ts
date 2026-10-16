@@ -85,7 +85,7 @@ const caseStudyList: CaseStudy[] = [
     purpose:
       "One dark-mode dashboard for Indian markets: live prices, news, watchlists and an AI insights chatbot.",
     problem:
-      "Following NSE and BSE means moving between a price screen, a news feed, a watchlist kept somewhere else and a separate tool for questions. EquiAlert holds all four in one dashboard built around Indian market hours, with market status, opening and closing times, and SMS reminders for the sessions that matter.",
+      "Following NSE and BSE means moving between a price screen, a news feed, a watchlist kept somewhere else and a separate tool for questions. EquiAlert holds all four in one dashboard built around Indian market hours, with market status, opening and closing times and SMS reminders for the sessions that matter.",
     approach:
       "A single TypeScript codebase split three ways — a React client, an Express API and a shared schema both sides import. The client reads server state through TanStack Query, the server persists to PostgreSQL through Drizzle ORM, and a WebSocket channel pushes live prices rather than the browser polling for them.",
     stack: [
@@ -120,7 +120,7 @@ const caseStudyList: CaseStudy[] = [
       },
       {
         title: "Scheduling lives on the server",
-        body: "`server/scheduler.ts` fires the timed notifications — market open at 9:15, market close at 3:30, and an evening reminder — instead of a client timer that dies with the tab.",
+        body: "`server/scheduler.ts` fires the timed notifications — market open at 9:15, market close at 3:30 and an evening reminder — instead of a client timer that dies with the tab.",
       },
       {
         title: "Serverless Postgres, typed queries",
@@ -189,7 +189,7 @@ const caseStudyList: CaseStudy[] = [
     },
     visual: {
       src: "/images/case-studies/equialert.jpg",
-      alt: "EquiAlert's dark-mode dashboard: the EQUIALERT header with a stock search field, a market status banner reading “Market Closed”, the Market Overview and My Home panels, and the Home / News / Stocks navigation.",
+      alt: "EquiAlert's dark-mode dashboard: the EQUIALERT header with a stock search field, a market status banner reading “Market Closed”, the Market Overview and My Home panels, plus the Home / News / Stocks navigation.",
       caption:
         "EquiAlert running at equialert.onrender.com — captured from the live application.",
     },
@@ -205,7 +205,7 @@ const caseStudyList: CaseStudy[] = [
     problem:
       "A single market data source is a single point of failure, and the two free ones behave differently. Google Finance answers quickly but frequently returns null volume and market cap; Yahoo Finance gives complete data but is slower and rate-limits sooner.",
     approach:
-      "The scraper layer is modular instead of bolted into the routes: an abstract base interface, one implementation per source, a symbol mapper that translates exchange formats, and a factory that owns the fallback. The service then caches what is expensive to fetch, rate-limits its surface and versions itself under /api/v1.",
+      "The scraper layer is modular instead of bolted into the routes: an abstract base interface, one implementation per source, a symbol mapper that translates exchange formats and a factory that owns the fallback. The service then caches what is expensive to fetch, rate-limits its surface and versions itself under /api/v1.",
     stack: [
       "FastAPI",
       "Python",
@@ -282,7 +282,7 @@ const caseStudyList: CaseStudy[] = [
         {
           label: "Routers",
           detail:
-            "/api/v1 groups the surface: quotes and history, analytics and comparison, and chart-ready endpoints.",
+            "/api/v1 groups the surface: quotes and history, analytics and comparison, plus chart-ready endpoints.",
         },
       ],
     },
@@ -294,7 +294,7 @@ const caseStudyList: CaseStudy[] = [
     purpose:
       "A retro operating system that runs in the browser and boots like an old machine.",
     problem:
-      "The idea was a browser desktop that feels like switching on an old computer: a BIOS-style boot sequence, a taskbar, windows you can drag and resize, and applications that live in them. The guide stopped long before the idea did, so it kept growing.",
+      "The idea was a browser desktop that feels like switching on an old computer: a BIOS-style boot sequence, a taskbar, windows you can drag and resize, plus applications that live in them. The guide stopped long before the idea did, so it kept growing.",
     approach:
       "Everything rests on one idea in `js/windowManager.js`: an app is an object with an open function, and the window manager owns the frame, title bar, drag, resize and minimise. Adding an app means one new file and one script tag, which is how the desktop grew without the code turning into spaghetti.",
     stack: [
@@ -312,7 +312,7 @@ const caseStudyList: CaseStudy[] = [
       },
       {
         title: "The blank screen",
-        body: "The page loaded, then went blank about a second later, only in Firefox-based browsers. The cause was two things stacked: a service worker taking over the page right after load, and a full-screen CRT flicker animation some renderers disliked. Removing both fixed it everywhere.",
+        body: "The page loaded, then went blank about a second later, only in Firefox-based browsers. The cause was two things stacked: a service worker taking over the page right after load and a full-screen CRT flicker animation some renderers disliked. Removing both fixed it everywhere.",
       },
       {
         title: "Caching on GitHub Pages",

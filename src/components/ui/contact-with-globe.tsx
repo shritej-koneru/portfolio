@@ -714,7 +714,7 @@ interface ContactWithGlobeProps {
 
 export default function ContactWithGlobe({
   title = "Contact me",
-  description = "I'm always open to new opportunities, collaborations and interesting problems. Reach out and let's talk.",
+  description = "A project, a role or a question about something you saw on this site — my email and other profiles are below.",
   className,
 }: ContactWithGlobeProps) {
   return (
@@ -771,7 +771,7 @@ export default function ContactWithGlobe({
                 Get in touch
               </h3>
               <p className="max-w-xs font-sans text-sm leading-relaxed text-ink/60">
-                Reach out on any channel below — I usually reply within a day.
+                Reach me on any of these — I usually reply within a day.
               </p>
             </div>
 
@@ -823,7 +823,7 @@ export default function ContactWithGlobe({
                 Send me a message
               </h3>
               <p className="font-sans text-sm leading-relaxed text-ink/60">
-                Fill out the form and I'll get back to you soon.
+                A sentence or two about what you have in mind is enough.
               </p>
             </div>
 
@@ -832,7 +832,7 @@ export default function ContactWithGlobe({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                  Your Name
+                  Name
                 </label>
                 <input
                   type="text"
@@ -854,7 +854,7 @@ export default function ContactWithGlobe({
 
             <div className="flex flex-col gap-2">
               <label className="font-mono text-[10px] uppercase tracking-[0.24em] text-ink/60">
-                Your Email
+                Email
               </label>
               <input
                 type="email"

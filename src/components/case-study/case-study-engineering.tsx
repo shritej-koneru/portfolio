@@ -47,7 +47,7 @@ export function CaseStudyEngineering({ study }: { study: ResolvedCaseStudy }) {
             as="p"
             className="mt-4 text-pretty text-base leading-relaxed text-paper/70"
           >
-            How the pieces fit together, what the code separates, and what the
+            How the pieces fit together, what the code separates and what the
             repository documents about each decision.
           </Reveal>
           <DrawnRule

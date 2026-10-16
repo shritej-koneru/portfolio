@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import type { Project } from "@/data/projects";
+import type { Project, ProjectLiveKind } from "@/data/projects";
 import { projectPath } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,11 @@ import { cn } from "@/lib/utils";
  * that link, so a missing demo or repository hides the button instead of leaving
  * a dead one. The one exception is the link to the project's own page — every
  * project has one, so that affordance is always there.
+ *
+ * Every outbound link is labelled for what it is. A deployed app, a live API, a
+ * client site and a downloadable release are four different promises, so the
+ * project data says which one it holds and the button names it — rather than
+ * calling all four a "Live Demo".
  */
 
 const ACTION_CLASS =
@@ -42,7 +47,14 @@ export function ExtIcon() {
   );
 }
 
-/** Live / source links — only the actions a project actually has. */
+/** What the primary button says, per kind of deployment. */
+const LIVE_LABEL: Record<ProjectLiveKind, string> = {
+  demo: "Live Demo",
+  api: "Live API",
+  site: "Visit Site",
+};
+
+/** Live / release / source links — only the actions a project actually has. */
 export function ProjectActions({
   project,
   className,
@@ -50,26 +62,43 @@ export function ProjectActions({
   project: Project;
   className?: string;
 }) {
-  // Nothing to offer (e.g. a project whose repository was removed): render no
-  // affordance at all rather than pointing at a dead URL.
-  if (!project.liveUrl && !project.repoUrl) return null;
+  const { liveUrl, releaseUrl, repoUrl } = project;
 
+  // Nothing to offer (e.g. a project whose site went offline and whose
+  // repository was removed): render no affordance at all rather than pointing
+  // at a dead URL.
+  if (!liveUrl && !releaseUrl && !repoUrl) return null;
+
+  // The leading action is whatever the reader can actually open or install. A
+  // release only takes the primary style when there is no deployment to lead
+  // with, so an installable app still has one obvious way in.
   return (
     <div className={cn("flex flex-wrap gap-3", className)}>
-      {project.liveUrl ? (
+      {liveUrl ? (
         <a
-          href={project.liveUrl}
+          href={liveUrl}
           target="_blank"
           rel="noopener noreferrer"
           className={PRIMARY_CLASS}
         >
-          Live Demo
+          {LIVE_LABEL[project.liveKind ?? "demo"]}
           <ExtIcon />
         </a>
       ) : null}
-      {project.repoUrl ? (
+      {releaseUrl ? (
         <a
-          href={project.repoUrl}
+          href={releaseUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={liveUrl ? SECONDARY_CLASS : PRIMARY_CLASS}
+        >
+          Download
+          <ExtIcon />
+        </a>
+      ) : null}
+      {repoUrl ? (
+        <a
+          href={repoUrl}
           target="_blank"
           rel="noopener noreferrer"
           className={SECONDARY_CLASS}
@@ -117,7 +146,7 @@ export function TechChips({
  *
  * Deliberately not one of the pill buttons above: those leave the site, this one
  * stays in it, so it reads as a text link and never competes with a project's
- * live demo for the eye.
+ * primary action for the eye.
  */
 export function ProjectDetailLink({
   slug,

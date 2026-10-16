@@ -74,7 +74,7 @@ export function AboutJourney() {
             The path so far.
           </h2>
           <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-ink/70">
-            Learning, experimenting, and building toward what&apos;s next.
+            What I&apos;ve studied, and everything I&apos;ve built outside it.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export function AboutJourney() {
             <p>
               How it looks and feels matters as much to me as whether it works,
               which is why interface design keeps pulling me back — Figma
-              drafts, motion, and the details nobody is supposed to notice.
+              drafts, motion and the details nobody is supposed to notice.
               Right now I&apos;m going deeper on the other side of that work:
               REST APIs, data pipelines and cloud tooling, and where AI models
               fit into products people actually use.

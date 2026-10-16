@@ -85,7 +85,7 @@ export function ProjectPage({ slug }: { slug: string }) {
         <ProjectOverview project={project} />
       )}
 
-      <ProjectFooter previous={previous} next={next} />
+      <ProjectFooter project={project} previous={previous} next={next} />
     </main>
   );
 }
@@ -178,11 +178,13 @@ function ProjectOverview({ project }: { project: Project }) {
             <Reveal shown={inView} delayMs={240}>
               <Eyebrow>Behind the build</Eyebrow>
               <p className="mt-3 max-w-2xl text-pretty text-[15px] leading-relaxed text-ink/70">
-                I haven&apos;t written up the build notes for this one yet — no
-                problem, approach or engineering notes are published here,
-                because there is nothing documented to draw them from. What is on
-                this page is what can be checked: the description, the technology
-                and the links come straight from the project itself.
+                I haven&apos;t written the build notes for this one yet, so the
+                problem, approach and engineering notes are left out rather than
+                guessed at. Everything on this page comes from the project
+                itself: its description, its technology
+                {project.liveUrl || project.releaseUrl || project.repoUrl
+                  ? " and its links."
+                  : "."}
               </p>
               {project.repoUrl ? (
                 <a
@@ -219,20 +221,33 @@ function ProjectOverview({ project }: { project: Project }) {
   );
 }
 
-/** The foot of every project page: what the page is drawn from, and what's next. */
+/**
+ * The foot of every project page: what the page is drawn from, and what's next.
+ *
+ * The provenance line follows the project rather than the template — a project
+ * with nothing public to point at does not get to claim a repository it does not
+ * have.
+ */
 function ProjectFooter({
+  project,
   previous,
   next,
 }: {
+  project: Project;
   previous: Project;
   next: Project;
 }) {
+  const hasPublicLink = Boolean(
+    project.liveUrl || project.releaseUrl || project.repoUrl,
+  );
+
   return (
     <footer className="border-t border-ink/10 bg-background">
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/35">
-          Source · public project repositories and the documentation written for
-          them
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
+          {hasPublicLink
+            ? "Source · the project repository and its documentation"
+            : "Source · the portfolio record · no public repository or deployment"}
         </p>
 
         <nav
@@ -243,7 +258,7 @@ function ProjectFooter({
             href={projectPath(previous.slug)}
             className="group flex min-h-[44px] flex-col justify-center gap-1 bg-background px-5 py-4 transition-colors hover:bg-ink/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blueprint"
           >
-            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/40">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
               ← Previous
             </span>
             <span className="font-display text-lg text-ink">
@@ -254,7 +269,7 @@ function ProjectFooter({
             href={projectPath(next.slug)}
             className="group flex min-h-[44px] flex-col justify-center gap-1 bg-background px-5 py-4 transition-colors hover:bg-ink/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blueprint sm:items-end sm:text-right"
           >
-            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/40">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
               Next →
             </span>
             <span className="font-display text-lg text-ink">{next.title}</span>

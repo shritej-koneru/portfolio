@@ -133,9 +133,9 @@ export function TechnicalToolkit() {
             The tools, and where they were used.
           </h2>
           <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-ink/70">
-            Every technology here comes from the resume or the repositories behind
-            it. Pick one to see the projects it shipped in — or open a project
-            straight from its tile.
+            Every technology here comes from the resume or from a project in
+            this portfolio. Pick one to see the projects that used it, or open a
+            project straight from its tile.
           </p>
         </div>
 
@@ -348,11 +348,11 @@ export function TechnicalToolkit() {
                   </ul>
                 ) : (
                   <p className="max-w-2xl text-sm leading-relaxed text-ink/65">
-                    No project in this portfolio uses it yet.
+                    No project here uses it yet.
                     {openTech.source ? (
                       <>
                         {" "}
-                        The claim comes from the resume —{" "}
+                        It is on the list from the resume:{" "}
                         <span className="text-ink/80">{openTech.source}</span>.
                       </>
                     ) : null}
@@ -366,7 +366,7 @@ export function TechnicalToolkit() {
                 Detail
               </p>
               <p className="mt-3 max-w-md font-display text-lg leading-snug tracking-tight text-ink/70">
-                Pick a technology to see the projects it shipped in.
+                Pick a technology to see the projects that used it.
               </p>
             </div>
           )}

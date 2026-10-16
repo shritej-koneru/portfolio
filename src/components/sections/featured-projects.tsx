@@ -231,7 +231,7 @@ export function FeaturedProjects() {
     >
       <div className="mx-auto max-w-7xl px-6">
         <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-blueprint">
-          Selected Work / 2026
+          03 / Selected Work
         </p>
         <h2
           id="work-heading"
@@ -240,13 +240,13 @@ export function FeaturedProjects() {
           Things I&apos;ve Built.
         </h2>
         <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-ink/70">
-          A selection of projects, experiments, and tools I&apos;ve worked on.
+          Full-stack web apps, Android apps and a handful of AI experiments.
         </p>
       </div>
 
       {count === 0 ? (
         <div className="mx-auto mt-12 max-w-7xl px-6">
-          <p className="text-ink/60">Projects are on the way.</p>
+          <p className="text-ink/60">No projects are published here yet.</p>
         </div>
       ) : wheelSupported ? (
         <div

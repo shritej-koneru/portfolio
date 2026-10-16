@@ -69,7 +69,7 @@ const milestoneList: Milestone[] = [
     title: "10th Grade — CBSE",
     organisation: "Veeramachaneni Paddayya Siddhartha Public School, Vijayawada",
     description:
-      "Secondary education, with a foundation in science and mathematics.",
+      "Secondary education in science and mathematics.",
     category: "Education",
     note: "72.6%",
   },
@@ -91,7 +91,7 @@ const milestoneList: Milestone[] = [
     title: "B.Tech in Computer Science",
     organisation: "Siddhartha Academy of Higher Education, Vijayawada",
     description:
-      "Software engineering, AI-enabled products and mobile application development.",
+      "Software engineering, mobile application development and AI.",
     category: "Education",
     note: "CGPA 8.64",
   },
@@ -137,7 +137,7 @@ const milestoneList: Milestone[] = [
     title: "Ideate Station Executive",
     organisation: "TechnoVate-SAHE",
     description:
-      "Screening and refining student ideas into actionable proposals through brainstorming sessions.",
+      "Screening student ideas and turning them into proposals through brainstorming sessions.",
     category: "Leadership",
     note: "On-campus",
   },
@@ -158,7 +158,7 @@ const milestoneList: Milestone[] = [
     title: "Linux Essentials",
     organisation: "Cisco Networking Academy",
     description:
-      "The command line, file systems and the fundamentals of working in a Linux environment.",
+      "The command line, file systems and the basics of working in Linux.",
     category: "Learning",
   },
   {
@@ -168,7 +168,7 @@ const milestoneList: Milestone[] = [
     title: "Campus Innovator",
     organisation: "SPARC Foundation",
     description:
-      "Leading ideation and execution of student-focused technical initiatives.",
+      "Leading the planning and delivery of technical initiatives for students.",
     category: "Leadership",
     note: "Remote",
   },
@@ -189,7 +189,7 @@ const milestoneList: Milestone[] = [
     title: "Web Designer",
     organisation: "AWS Student Builder Group, Siddhartha University",
     description:
-      "Designing and building responsive web experiences for the AWS Student Builder community.",
+      "Designing and building the community's website.",
     category: "Leadership",
     note: "Part-time · On-site",
     // The site for that community is already one of the projects, so this links

@@ -182,14 +182,14 @@ export function OpenSourceActivity() {
     plate = (
       <SkylineFallback
         label="No activity yet"
-        message="No public contributions were recorded in the last year. The current activity is always on my GitHub profile."
+        message="GitHub recorded no public contributions over the last year. Current activity is always on my profile."
       />
     );
   } else {
     plate = (
       <SkylineFallback
         label="Activity unavailable"
-        message="The contribution history could not be loaded just now, so nothing is drawn here rather than something made up. The real activity is on my GitHub profile."
+        message="The contribution history could not be loaded just now, so the chart stays empty rather than showing something invented. The real activity is on my GitHub profile."
       />
     );
   }
@@ -221,17 +221,17 @@ export function OpenSourceActivity() {
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-blueprint">
-                04 / OPEN SOURCE ACTIVITY
+                04 / Open Source Activity
               </p>
               <h2
                 id="open-source-heading"
                 className="mt-4 font-display text-4xl tracking-tight text-paper sm:text-5xl"
               >
-                Every commit builds something.
+                The year in contributions.
               </h2>
               <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-paper/70">
-                A visual record of development activity, experiments, and
-                progress.
+                The public contribution calendar from GitHub, drawn as a
+                skyline.
               </p>
             </div>
 
