@@ -1,10 +1,11 @@
 import * as React from "react";
 
 import { revealClass, useInView } from "@/components/case-study/use-in-view";
+import { GITHUB_PROFILE } from "@/data/projects";
 import { cn } from "@/lib/utils";
 
 /**
- * The foot of the home page — a scene index, and the colophon beneath it.
+ * The foot of the home page — who this is, then the site index.
  *
  * Every page here renders its own `<main>`, and this is the one landmark that
  * sits *outside* it, so `<main>` stays the content and there is still a page
@@ -12,28 +13,73 @@ import { cn } from "@/lib/utils";
  * have a footer of their own (`ProjectFooter` in `@/pages/project`); this is the
  * same construction, so the two read as one family.
  *
- * It is an index rather than a list of destinations on purpose. The contact
- * scene already closes the page with GitHub, LinkedIn, email and a way home —
- * repeating any of them here would be the same links twice. What the page has
- * never had is a way back to the top, or any route between its own sections;
- * at this length that is the gap worth filling.
+ * It opens with the summary a footer is the right place for and the rest of the
+ * page has no room for: the role, the education, where the work is done from,
+ * and the way to reach me. Repeating those here is the one repetition this page
+ * allows itself. The contact scene lists the same three destinations and the
+ * journey scene lists two of them, and that is the point — someone who has read
+ * to the very bottom should not have to scroll back up to find out who they
+ * have been reading or how to write to me.
  *
- * The names are each scene's own, used verbatim, and the numbers are this
- * index's own position count rather than a quote from the sections: the page's
- * eyebrows are inconsistent about numbering, so nothing here is presented as
- * theirs.
+ * None of it is written for the footer. The role line is verbatim from the
+ * description this site already ships (`index.html`), the education and the
+ * location are scene 05's resume facts, and the current role is the milestone
+ * `@/data/timeline` already carries.
+ *
+ * Below it is the site index. It is an index rather than a list of destinations
+ * on purpose: what the page has never had is a way back to the top, or any
+ * route between its own sections, and at this length that is the gap worth
+ * filling. The names are each scene's own, used verbatim, and the numbers are
+ * this index's own position count rather than a quote from the sections: the
+ * page's eyebrows are inconsistent about numbering, so nothing here is
+ * presented as theirs.
  *
  * The hairline grid is `ProjectFooter`'s: a `gap-px` grid on an `ink/10`
  * ground, so the rules between the cells *are* the gap. Small mono text stops
  * at `ink/60`, which clears 4.5:1 on the paper; anything lighter on this page
  * is decoration and is hidden from assistive technology.
- *
- * Below the index is the colophon, which says how the page itself was made —
- * the one thing about this site a visitor cannot read anywhere else on it. It
- * carries a single destination, and that destination is the code rather than a
- * way to reach me, so it repeats nothing the contact scene already offers.
- * See `COLOPHON`.
  */
+
+/** Verbatim from the description this site already ships. */
+const ROLE = "Computer Science student, developer and builder.";
+
+/** From the resume, in the shape scene 05 presents its own facts. */
+const DETAILS = [
+  {
+    term: "Studying",
+    detail: "B.Tech in Computer Science",
+    sub: "Siddhartha Academy of Higher Education, Vijayawada",
+  },
+  {
+    term: "Based in",
+    detail: "Vijayawada, Andhra Pradesh",
+    sub: "India",
+  },
+  {
+    term: "Currently",
+    detail: "Campus Innovator, SPARC Foundation",
+    sub: "Leading technical initiatives for students",
+  },
+];
+
+/**
+ * The same three destinations the contact scene lists. GitHub uses the one
+ * profile URL the rest of the site shares; LinkedIn and the address are
+ * declared here in the shape scene 05 declares its own.
+ */
+const PROFILE_LINKS = [
+  { label: "GitHub", href: GITHUB_PROFILE, external: true },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/shritej-koneru-560111324",
+    external: true,
+  },
+  {
+    label: "Email",
+    href: "mailto:mail4shritejkoneru@gmail.com",
+    external: false,
+  },
+] as const;
 
 const SECTIONS = [
   { number: "01", label: "Opening", href: "#opening" },
@@ -46,34 +92,21 @@ const SECTIONS = [
 ] as const;
 
 /**
- * What the page itself is made of, for the visitor who reads the bottom of a
- * site to find out — a drawing's title block, in the drawing's own words.
- *
- * Every line is checkable in this repository and nothing here is a claim the
- * code does not already make: the stack is `package.json`, the fonts are
- * `tailwind.config.ts` and the three `index.html` actually loads, and the link
- * is the repository this page is built from.
- */
-const COLOPHON: { term: string; detail: string; href?: string }[] = [
-  { term: "Built with", detail: "Vite · React · TypeScript · Tailwind CSS" },
-  { term: "Set in", detail: "Space Grotesk, Inter and IBM Plex Mono" },
-  {
-    term: "Source",
-    detail: "github.com/shritej-koneru/portfolio",
-    href: "https://github.com/shritej-koneru/portfolio",
-  },
-];
-
-/**
  * One index cell. The ring is inset because the cells share hairlines: an
  * outset ring on a middle cell would be clipped by the row above it.
  */
 const CELL_CLASS =
   "group flex min-h-[44px] flex-col justify-center gap-1 bg-background px-5 py-4 transition-colors hover:bg-ink/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blueprint";
 
+/**
+ * The profile links follow scene 05's, so the two blocks read as one family.
+ */
+const LINK_CLASS =
+  "inline-flex min-h-[44px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 export function SiteFooter() {
   const { ref, inView } = useInView<HTMLElement>({ threshold: 0.05 });
-  const index = revealClass(inView, 0);
+  const reveal = revealClass(inView, 0);
 
   /**
    * The stylesheet owns the motion: `html { scroll-behavior: smooth }`, which
@@ -87,16 +120,72 @@ export function SiteFooter() {
   return (
     <footer
       ref={ref}
-      aria-labelledby="colophon-heading"
+      aria-labelledby="footer-about-heading"
       className="border-t border-ink/10 bg-background"
     >
       <div
-        className={cn("mx-auto max-w-7xl px-6 py-12 sm:px-10", index.className)}
-        style={index.style}
+        className={cn("mx-auto max-w-7xl px-6 py-12 sm:px-10", reveal.className)}
+        style={reveal.style}
       >
         <h2
-          id="site-index-heading"
+          id="footer-about-heading"
           className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
+        >
+          About
+        </h2>
+
+        {/* The summary, and the facts beside it — the same editorial split
+            scene 05 uses for its introduction, so the two read as one family. */}
+        <div className="mt-6 grid gap-8 border-t border-ink/10 pt-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
+          <div className="max-w-xl space-y-4 text-pretty">
+            <p className="font-display text-lg leading-snug text-ink">
+              {ROLE}
+            </p>
+            <p className="text-base leading-relaxed text-ink/75">
+              I build software end to end — the interface, the code and the
+              deploy. Most of it starts as something I wanted to exist, and
+              I&apos;m going deeper on the other side of that work: REST APIs,
+              data pipelines and cloud tooling.
+            </p>
+          </div>
+
+          <div>
+            <dl className="space-y-5">
+              {DETAILS.map(({ term, detail, sub }) => (
+                <div key={term}>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
+                    {term}
+                  </dt>
+                  <dd className="mt-1.5 font-display text-sm text-ink">
+                    {detail}
+                    <span className="mt-0.5 block font-sans text-sm leading-relaxed text-ink/60">
+                      {sub}
+                    </span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-ink/10 pt-4">
+              {PROFILE_LINKS.map(({ label, href, external }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer" : undefined}
+                  className={LINK_CLASS}
+                >
+                  {label}
+                  {external && <span aria-hidden="true">↗</span>}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <h2
+          id="site-index-heading"
+          className="mt-12 font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
         >
           Site index
         </h2>
@@ -119,52 +208,6 @@ export function SiteFooter() {
               one column, where there is no slot to fill. */}
           <span aria-hidden="true" className="hidden bg-background sm:block" />
         </nav>
-
-        {/* The title block. Left says what the page is, right says what it is
-            made of — the same editorial split scene 05 uses for its
-            introduction, so the two read as one family. */}
-        <h2
-          id="colophon-heading"
-          className="mt-12 font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
-        >
-          Colophon
-        </h2>
-
-        <div className="mt-6 grid gap-8 border-t border-ink/10 pt-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
-          <p className="max-w-xl text-pretty text-base leading-relaxed text-ink/70">
-            I designed and built this site as well as the work in it. It is a
-            static build: the open-source graph is read from a public API, and
-            the contact form posts to an endpoint I wrote.
-          </p>
-
-          <dl className="space-y-5">
-            {COLOPHON.map(({ term, detail, href }) => (
-              <div key={term}>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
-                  {term}
-                </dt>
-                <dd className="mt-1.5 font-display text-sm text-ink">
-                  {href ? (
-                    // The 44px touch target is the ::after, not the box. A
-                    // `min-h` here would push the value away from its label and
-                    // break the rhythm the two rows above keep.
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="relative inline-flex items-center gap-1.5 underline decoration-ink/25 underline-offset-4 transition-colors after:absolute after:inset-x-0 after:-inset-y-3 after:content-[''] hover:text-blueprint hover:decoration-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {detail}
-                      <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : (
-                    detail
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-ink/10 pt-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
