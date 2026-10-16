@@ -959,6 +959,20 @@ export default function ContactWithGlobe({
         }}
       />
 
+      {/* The scene's eyebrow, in the same form as every other plate. It sits on
+          the standard 24px gutter rather than inside the section's own `px-4`
+          content column, so all eight line up on a phone. The heading below it
+          stays centred, the same pairing Scene 08 uses. */}
+      <motion.p
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: smoothEase }}
+        className="relative mx-auto mb-4 w-full max-w-7xl px-6 font-mono text-[11px] uppercase tracking-[0.32em] text-blueprint"
+      >
+        07 / Contact
+      </motion.p>
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center text-center gap-4 mb-12">
           <motion.h2

@@ -26,6 +26,35 @@ Scene 2 honours `prefers-reduced-motion` by removing the *motion*, not the piece
 (it snaps instead of springing). Scene 1 runs the source component's own brush
 motion unchanged.
 
+## Section eyebrows
+
+All eight scenes open with the same line — `font-mono text-[11px] uppercase
+tracking-[0.32em] text-blueprint`:
+
+| | | | |
+| --- | --- | --- | --- |
+| 01 / Opening | 02 / Introduction | 03 / Selected Work | 04 / Open Source Activity |
+| 05 / The Journey | 06 / The Toolkit | 07 / Contact | 08 / Resume |
+
+The names are the ones the footer's site index uses, written out in full. Every
+label sits on the same `mx-auto max-w-7xl px-6` column as the rest of the page:
+x = 96 at 1440px wide, x = 24 below 1328px.
+
+Scenes 03–06 follow the label with a display heading and a lede on that column.
+Scenes 07 and 08 keep their own content centred below a left-aligned label.
+
+Scene 01 stands its label on a 52px paper strip above the photograph rather than
+over it: the brush uncovers the photo wherever the pointer passes, so a line
+printed on the image would not survive the interaction. The strip is pinned to a
+whole pixel with `leading-4` — at the inherited 16.5px line height the brush
+canvas below it lands on a half pixel, and the browser blends its first row half
+with the photograph, drawing a hair line of tree straight across the paper.
+
+Scene 02's label shares its row with the drawing's revision stamp. The two do not
+fit on one line on a phone (`02 / Introduction` is 172px, the stamp 334px, the
+content box 327px), so below `sm` the row stacks and the stamp drops to
+`Rev 02 · 2026`.
+
 ## Pages and routing
 
 The site is a single-page app with two kinds of address, both handled by

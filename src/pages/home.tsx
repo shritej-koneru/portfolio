@@ -57,39 +57,56 @@ export function HomePage() {
         <section
           id="opening"
           aria-label="Opening"
-          className="relative h-[100svh] w-full overflow-hidden bg-background"
+          className="relative flex h-[100svh] w-full flex-col overflow-hidden bg-background"
           onMouseMove={() => setHasInteracted((prev) => prev || true)}
           onTouchStart={() => setHasInteracted((prev) => prev || true)}
         >
-          <img
-            src="/images/campus-park-intro.jpg"
-            alt="Shritej Koneru standing in a campus park"
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            draggable={false}
-          />
+          {/* The scene's eyebrow, in the same form as every other plate. It sits
+              on the paper above the photograph rather than on the photograph:
+              the brush uncovers the photo wherever the pointer passes, and a
+              blueprint line over the trees would not survive that. The strip is
+              what keeps it readable in both states.
 
-          {/* The brush wipes the ink away at the source component's own speed; the
-              uncovered photo then holds for `lifetime` before the ink fades back. */}
-          <InkReveal
-            maskColor={MASK_COLOR}
-            brushSize={150}
-            // Revealed area stays uncovered for 10s, then fades back to ink.
-            lifetime={10000}
-            cleared={revealed}
-          />
+              `leading-4` is load bearing: it pins the strip to a whole 52px so
+              the brush canvas below it starts on a pixel boundary. At the
+              inherited 16.5px line height the canvas top lands on a half pixel,
+              and the browser blends its first row half with the photo — a hair
+              line of photograph straight across the paper. */}
+          <p className="relative z-20 mx-auto w-full max-w-7xl shrink-0 px-6 pb-4 pt-5 font-mono text-[11px] uppercase leading-4 tracking-[0.32em] text-blueprint">
+            01 / Opening
+          </p>
 
-          <div
-            className={`pointer-events-none absolute inset-x-0 bottom-10 z-30 flex justify-center transition-opacity duration-700 ${
-              hasInteracted || revealed ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() => setRevealed(true)}
-              className="pointer-events-auto rounded-full border border-ink/20 bg-paper/70 px-5 py-2 font-mono text-[11px] uppercase tracking-[0.3em] text-ink/70 backdrop-blur-sm transition-colors hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          <div className="relative flex-1">
+            <img
+              src="/images/campus-park-intro.jpg"
+              alt="Shritej Koneru standing in a campus park"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              draggable={false}
+            />
+
+            {/* The brush wipes the ink away at the source component's own speed; the
+                uncovered photo then holds for `lifetime` before the ink fades back. */}
+            <InkReveal
+              maskColor={MASK_COLOR}
+              brushSize={150}
+              // Revealed area stays uncovered for 10s, then fades back to ink.
+              lifetime={10000}
+              cleared={revealed}
+            />
+
+            <div
+              className={`pointer-events-none absolute inset-x-0 bottom-10 z-30 flex justify-center transition-opacity duration-700 ${
+                hasInteracted || revealed ? "opacity-0" : "opacity-100"
+              }`}
             >
-              Move to uncover
-            </button>
+              <button
+                type="button"
+                onClick={() => setRevealed(true)}
+                className="pointer-events-auto rounded-full border border-ink/20 bg-paper/70 px-5 py-2 font-mono text-[11px] uppercase tracking-[0.3em] text-ink/70 backdrop-blur-sm transition-colors hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              >
+                Move to uncover
+              </button>
+            </div>
           </div>
         </section>
 
@@ -112,10 +129,20 @@ export function HomePage() {
             }}
           />
 
-          {/* Top metadata row */}
-          <div className="relative z-10 flex items-center justify-between px-6 py-5 font-mono text-[10px] uppercase tracking-[0.3em] text-ink/45">
-            <span>Digital Blueprint</span>
-            <span className="text-ink/30">Rev 02 · 2026</span>
+          {/* The scene's eyebrow, in the same form as every other plate, with the
+              drawing's own revision stamp kept on the right of the row. On a
+              phone the two will not sit on one line — the label alone is 172px
+              and the stamp 334px against a 327px content box — so the row stacks
+              there and the stamp drops to its short form rather than wrapping
+              mid-phrase. */}
+          <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-1 px-6 py-5 font-mono text-[11px] uppercase tracking-[0.32em] sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <span className="text-blueprint">02 / Introduction</span>
+            <span className="text-ink/60">
+              <span className="sm:hidden">Rev 02 · 2026</span>
+              <span className="hidden sm:inline">
+                Digital Blueprint · Rev 02 · 2026
+              </span>
+            </span>
           </div>
 
           {/* Plate + supporting copy, vertically centred */}
