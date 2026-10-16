@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AboutJourney } from "@/components/sections/about-journey";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
+import { ResumeImpact } from "@/components/sections/resume-impact";
 import { TechnicalToolkit } from "@/components/sections/technical-toolkit";
 import { SiteFooter } from "@/components/site-footer";
 import ContactWithGlobeDemo from "@/components/contact-with-globe-demo";
@@ -28,13 +29,14 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * Scene 6 — the technical toolkit, in `technical-toolkit.tsx`.
  * Scene 7 — contact, with the wireframe globe and the message form, in
  *           `src/components/ui/contact-with-globe.tsx`.
+ * Scene 8 — the resume impact plate, in `resume-impact.tsx`.
  *
- * Every scene shares the same blueprint-paper field (#F2F0E9) so the hand-off
- * is a scroll, not a colour cut.
+ * Scenes 1, 2, 3, 5, 6 and 7 all sit on the same blueprint-paper field
+ * (#F2F0E9), so most hand-offs are a scroll rather than a colour cut. Scenes 4
+ * and 8 are the two dark plates, both inverting to ink (#111318) and back.
  *
- * The page's only landmark outside `<main>` is the scene index in
- * `@/components/site-footer` — it closes the sheet without repeating the
- * destinations the contact scene already carries.
+ * The page's only landmark outside `<main>` is `@/components/site-footer`: a
+ * short summary about Shritej, then an index of all eight scenes.
  *
  * The work itself now lives on its own page — one per project, at
  * `/work/<slug>` — so the wheel and the cards beneath it open a project rather
@@ -207,6 +209,11 @@ export function HomePage() {
         <div id="contact">
           <ContactWithGlobeDemo />
         </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Scene 08 — the resume impact plate                                 */}
+        {/* ---------------------------------------------------------------- */}
+        <ResumeImpact />
       </main>
 
       {/* The page's close — a landmark outside `<main>`, not a scene. */}

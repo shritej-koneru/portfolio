@@ -89,6 +89,7 @@ const SECTIONS = [
   { number: "05", label: "Journey", href: "#about" },
   { number: "06", label: "Toolkit", href: "#toolkit" },
   { number: "07", label: "Contact", href: "#contact" },
+  { number: "08", label: "Resume", href: "#resume" },
 ] as const;
 
 /**
@@ -202,11 +203,6 @@ export function SiteFooter() {
               <span className="font-display text-base text-ink">{label}</span>
             </a>
           ))}
-          {/* Seven cells leave one slot spare in the two- and four-column
-              grids, and an unfilled slot shows the ground the hairlines are
-              drawn on. An empty cell of paper closes the rule. It is hidden at
-              one column, where there is no slot to fill. */}
-          <span aria-hidden="true" className="hidden bg-background sm:block" />
         </nav>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-ink/10 pt-8">

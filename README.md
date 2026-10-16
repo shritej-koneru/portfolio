@@ -383,6 +383,58 @@ of the work.
 A `GET /api/contact` answers `{"ok":true}`, which is what an uptime monitor
 should poll.
 
+## Scene 08 - Resume
+
+The dark plate that closes the page, in
+`src/components/sections/resume-impact.tsx`. At rest it is one line of type, one
+button and nothing else — no floor, no document, no decoration. Pressing it
+stages a floor, drops a page onto it, cracks the ground where it lands, holds on
+the result for two seconds, hands the real PDF to the browser, and takes the
+whole scene back down so it can be run again.
+
+### The file
+
+The scene does not know where the resume is — `src/data/resume.ts` does:
+
+| Constant | Value |
+| --- | --- |
+| `RESUME_FILE` | `/Shritej_Koneru_Resume.pdf`, served from `public/` |
+| `RESUME_FILENAME` | What the browser names the saved copy |
+
+Replacing the resume means replacing `public/Shritej_Koneru_Resume.pdf` and, if
+the filename should change, those two constants. The animation reads neither.
+
+Because the file is real and same-origin, the download needs no backend, no token
+and no generated link: the scene clicks an anchor with `download` set. It does
+check the file first, and it checks the *content type* rather than the status —
+`vercel.json` rewrites every unmatched path to `index.html`, so a missing PDF
+answers `200` with a page of HTML. If the check fails the plate reads `Resume
+unavailable` and nothing is triggered, rather than claiming a file that is not
+there.
+
+`Download initiated` is as far as this can honestly go: a page is not told
+whether the browser accepted the download, saved it elsewhere or discarded it.
+
+### Why not Three.js
+
+The scene is a single flat page over a floor, so it is built from CSS 3D — a
+perspective parent, a flattened ellipse for the ground — with GSAP running the
+timeline and one SVG crack field. The project carries `gsap` and `motion` and no
+3D runtime at all; adding one would cost roughly 150 KB gzipped on a bundle that
+already warns at the 500 KB mark.
+
+`src/components/ui/impact-cracks.ts` is pure geometry, generated once from a
+fixed seed: a fracture network laid out as rings of nodes at roughly one block
+size, joined around the ring and outward to the next, with jitter, gaps where
+the ground did not break, and a few long ruptures running out from the impact
+point. It is sorted by distance from that point, so the scene draws it with a
+single uniform stagger and still gets an outward-spreading reveal.
+
+### Reduced motion
+
+Under `prefers-reduced-motion: reduce` there is no sequence at all: the label
+changes, the real download fires, and the plate is back 1.8 seconds later.
+
 ## Scripts
 
 ```bash
