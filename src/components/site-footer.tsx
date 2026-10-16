@@ -38,6 +38,12 @@ import { cn } from "@/lib/utils";
  * ground, so the rules between the cells *are* the gap. Small mono text stops
  * at `ink/60`, which clears 4.5:1 on the paper; anything lighter on this page
  * is decoration and is hidden from assistive technology.
+ *
+ * There is no rule across the top of it. Scene 08 ends on the same paper as
+ * this footer, with the cracked ground fading out a little above it, and a
+ * hairline between the two read as a hard cut through a surface that had not
+ * actually ended. The rules inside the footer — under its heading, above the
+ * copyright — carry the structure on their own.
  */
 
 /** Verbatim from the description this site already ships. */
@@ -122,10 +128,10 @@ export function SiteFooter() {
     <footer
       ref={ref}
       aria-labelledby="footer-about-heading"
-      className="border-t border-ink/10 bg-background"
+      className="bg-background"
     >
       <div
-        className={cn("mx-auto max-w-7xl px-6 py-12 sm:px-10", reveal.className)}
+        className={cn("mx-auto max-w-7xl px-6 pt-10 pb-12 sm:px-10", reveal.className)}
         style={reveal.style}
       >
         <h2

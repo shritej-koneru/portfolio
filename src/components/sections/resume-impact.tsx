@@ -81,8 +81,19 @@ const IMPACT = FALL_START + FALL_SECONDS;
 const HOLD_AT = IMPACT + 0.82;
 const HOLD_SECONDS = 2;
 
-/** The document's resting height above the bottom of the stage. */
-const LANDING_CLASS = "bottom-[86px] sm:bottom-[112px]";
+/**
+ * Where the page comes to rest, measured up from the bottom of the stage.
+ *
+ * This is the scene's one load-bearing number. The crack field is a 600-unit
+ * square squashed to 0.62 of its height, so it reaches a little under
+ * `0.62 × its own half-width` below the landing point — about 196px at full
+ * size. The stage used to have only 112px under the landing, so the bottom of
+ * the field was being sliced off along a straight edge and a whole band of
+ * cracks never appeared. The landing now sits high enough for the field to close
+ * on its own, and the stage is tall enough to keep the same headroom above the
+ * page as before.
+ */
+const LANDING_CLASS = "bottom-[128px] sm:bottom-[208px]";
 
 function prefersReducedMotion() {
   return (
@@ -436,7 +447,7 @@ export function ResumeImpact() {
     <section
       id="resume"
       aria-labelledby="resume-heading"
-      className="relative isolate scroll-mt-24 overflow-hidden border-t border-ink/10 bg-background py-20 sm:py-28"
+      className="relative isolate scroll-mt-24 overflow-hidden border-t border-ink/10 bg-background pt-14 pb-10 sm:pt-16"
     >
       {/* The same 48px engineering module Scenes 02, 04, 05 and 07 sit on — the
           scene is one more plate on the drawing, not a room of its own. */}
@@ -450,17 +461,23 @@ export function ResumeImpact() {
         }}
       />
 
-      <div className="relative mx-auto max-w-4xl px-6">
+      {/* The stage below runs to the edge of the screen on a phone and to the
+          column on anything wider. It carries no padding of its own on purpose:
+          the clip is what keeps the ground from widening the page on a phone,
+          and padding would not inset that clip — the ground would still be
+          sliced down its sides by the column. Full-bleed means the field is
+          never cut horizontally, and the heading keeps its own inset instead. */}
+      <div className="relative">
         <h2
           id="resume-heading"
-          className="text-center font-mono text-[10px] uppercase tracking-[0.32em] text-ink/60"
+          className="mx-auto max-w-4xl px-6 text-center font-mono text-[10px] uppercase tracking-[0.32em] text-ink/60"
         >
           08 / Resume
         </h2>
 
         <div
           ref={stageRef}
-          className="relative mt-8 h-[340px] w-full overflow-hidden sm:h-[420px] lg:h-[460px]"
+          className="relative mx-auto mt-8 h-[386px] w-full max-w-4xl overflow-hidden sm:h-[530px]"
           style={{ perspective: "900px", perspectiveOrigin: "50% 34%" }}
         >
           {/* Everything the impact throws around lives in here, so the shake
@@ -474,10 +491,14 @@ export function ResumeImpact() {
                 registered to one another. The `opacity-0` is load-bearing: the
                 timeline also sets this layer to zero, but that only happens on
                 the first press, so without the class the floor would be on
-                screen before anything had been clicked. */}
+                screen before anything had been clicked.
+                The width is capped at 96vw and at 640px so the field's own
+                radius — a little under half the layer's width — still lands
+                inside the stage at every breakpoint. It used to be 118vw, which
+                put the sides of the ground outside the frame on a phone. */}
             <div
               ref={impactRef}
-              className={`pointer-events-none absolute left-1/2 aspect-square w-[min(118vw,640px)] opacity-0 ${LANDING_CLASS}`}
+              className={`pointer-events-none absolute left-1/2 aspect-square w-[min(96vw,640px)] opacity-0 ${LANDING_CLASS}`}
               style={{ transform: "translateX(-50%) translateY(50%) scaleY(0.62)" }}
             >
               {/* The floor itself: the same paper the section sits on, shaded
