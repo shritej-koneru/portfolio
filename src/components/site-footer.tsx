@@ -4,7 +4,7 @@ import { revealClass, useInView } from "@/components/case-study/use-in-view";
 import { cn } from "@/lib/utils";
 
 /**
- * The foot of the home page — a scene index.
+ * The foot of the home page — a scene index, and the colophon beneath it.
  *
  * Every page here renders its own `<main>`, and this is the one landmark that
  * sits *outside* it, so `<main>` stays the content and there is still a page
@@ -27,6 +27,12 @@ import { cn } from "@/lib/utils";
  * ground, so the rules between the cells *are* the gap. Small mono text stops
  * at `ink/60`, which clears 4.5:1 on the paper; anything lighter on this page
  * is decoration and is hidden from assistive technology.
+ *
+ * Below the index is the colophon, which says how the page itself was made —
+ * the one thing about this site a visitor cannot read anywhere else on it. It
+ * carries a single destination, and that destination is the code rather than a
+ * way to reach me, so it repeats nothing the contact scene already offers.
+ * See `COLOPHON`.
  */
 
 const SECTIONS = [
@@ -38,6 +44,25 @@ const SECTIONS = [
   { number: "06", label: "Toolkit", href: "#toolkit" },
   { number: "07", label: "Contact", href: "#contact" },
 ] as const;
+
+/**
+ * What the page itself is made of, for the visitor who reads the bottom of a
+ * site to find out — a drawing's title block, in the drawing's own words.
+ *
+ * Every line is checkable in this repository and nothing here is a claim the
+ * code does not already make: the stack is `package.json`, the fonts are
+ * `tailwind.config.ts` and the three `index.html` actually loads, and the link
+ * is the repository this page is built from.
+ */
+const COLOPHON: { term: string; detail: string; href?: string }[] = [
+  { term: "Built with", detail: "Vite · React · TypeScript · Tailwind CSS" },
+  { term: "Set in", detail: "Space Grotesk, Inter and IBM Plex Mono" },
+  {
+    term: "Source",
+    detail: "github.com/shritej-koneru/portfolio",
+    href: "https://github.com/shritej-koneru/portfolio",
+  },
+];
 
 /**
  * One index cell. The ring is inset because the cells share hairlines: an
@@ -70,14 +95,14 @@ export function SiteFooter() {
         style={index.style}
       >
         <h2
-          id="colophon-heading"
+          id="site-index-heading"
           className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
         >
           Site index
         </h2>
 
         <nav
-          aria-label="Sections"
+          aria-labelledby="site-index-heading"
           className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/12 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4"
         >
           {SECTIONS.map(({ number, label, href }) => (
@@ -95,7 +120,53 @@ export function SiteFooter() {
           <span aria-hidden="true" className="hidden bg-background sm:block" />
         </nav>
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+        {/* The title block. Left says what the page is, right says what it is
+            made of — the same editorial split scene 05 uses for its
+            introduction, so the two read as one family. */}
+        <h2
+          id="colophon-heading"
+          className="mt-12 font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
+        >
+          Colophon
+        </h2>
+
+        <div className="mt-6 grid gap-8 border-t border-ink/10 pt-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
+          <p className="max-w-xl text-pretty text-base leading-relaxed text-ink/70">
+            I designed and built this site as well as the work in it. It is a
+            static build: the open-source graph is read from a public API, and
+            the contact form posts to an endpoint I wrote.
+          </p>
+
+          <dl className="space-y-5">
+            {COLOPHON.map(({ term, detail, href }) => (
+              <div key={term}>
+                <dt className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
+                  {term}
+                </dt>
+                <dd className="mt-1.5 font-display text-sm text-ink">
+                  {href ? (
+                    // The 44px touch target is the ::after, not the box. A
+                    // `min-h` here would push the value away from its label and
+                    // break the rhythm the two rows above keep.
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative inline-flex items-center gap-1.5 underline decoration-ink/25 underline-offset-4 transition-colors after:absolute after:inset-x-0 after:-inset-y-3 after:content-[''] hover:text-blueprint hover:decoration-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {detail}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    detail
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-ink/10 pt-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
             © 2026 Shritej Koneru
           </p>
