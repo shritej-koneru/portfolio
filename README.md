@@ -28,13 +28,16 @@ motion unchanged.
 
 ## Section eyebrows
 
-All eight scenes open with the same line — `font-mono text-[11px] uppercase
+Scenes 02–08 open with the same line — `font-mono text-[11px] uppercase
 tracking-[0.32em] text-blueprint`:
 
-| | | | |
-| --- | --- | --- | --- |
-| 01 / Opening | 02 / Introduction | 03 / Selected Work | 04 / Open Source Activity |
-| 05 / The Journey | 06 / The Toolkit | 07 / Contact | 08 / Resume |
+- `02 / Introduction`
+- `03 / Selected Work`
+- `04 / Open Source Activity`
+- `05 / The Journey`
+- `06 / The Toolkit`
+- `07 / Contact`
+- `08 / Resume`
 
 The names are the ones the footer's site index uses, written out in full. Every
 label sits on the same `mx-auto max-w-7xl px-6` column as the rest of the page:
@@ -43,17 +46,36 @@ x = 96 at 1440px wide, x = 24 below 1328px.
 Scenes 03–06 follow the label with a display heading and a lede on that column.
 Scenes 07 and 08 keep their own content centred below a left-aligned label.
 
-Scene 01 stands its label on a 52px paper strip above the photograph rather than
-over it: the brush uncovers the photo wherever the pointer passes, so a line
-printed on the image would not survive the interaction. The strip is pinned to a
-whole pixel with `leading-4` — at the inherited 16.5px line height the brush
-canvas below it lands on a half pixel, and the browser blends its first row half
-with the photograph, drawing a hair line of tree straight across the paper.
-
 Scene 02's label shares its row with the drawing's revision stamp. The two do not
 fit on one line on a phone (`02 / Introduction` is 172px, the stamp 334px, the
 content box 327px), so below `sm` the row stacks and the stamp drops to
 `Rev 02 · 2026`.
+
+**Scene 01 has no label**, deliberately — it is the photograph, and it carries
+its own hand-written annotations. A blueprint line over the image would be
+half-wiped by the brush wherever the pointer passed. The page therefore starts
+with scene 02's `sr-only` `<h1>` as its first heading.
+
+## Section menu
+
+Right-clicking anywhere on the home page opens the site index at the pointer
+instead of the browser's own menu (`src/components/section-menu.tsx`). The rows
+are the same eight, from the same `src/data/sections.ts` list the footer reads,
+and they are plain `#hash` anchors, so they land exactly as the footer's index
+does.
+
+It is mounted beside the footer rather than inside `<main>`: scenes 05–08 run
+`perspective` and `transform`, and any ancestor of a `position: fixed` panel
+becomes its containing block.
+
+- It is a `role="menu"`: arrows walk the rows, Home and End go to the ends,
+  Escape closes and hands focus back to whatever had it, Tab leaves.
+- It opens where the pointer is, pushed inside the window if it would hang off
+  an edge, and closes on a click or tap elsewhere, on scroll, on resize, and
+  when the window loses focus.
+- A context menu asked for from the keyboard (Menu key, Shift+F10) arrives at
+  0,0, so it is anchored to the focused element instead.
+- Project pages keep the browser's own menu; the index is the home page's.
 
 ## Pages and routing
 

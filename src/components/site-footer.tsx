@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { revealClass, useInView } from "@/components/case-study/use-in-view";
 import { GITHUB_PROFILE } from "@/data/projects";
+import { SECTIONS } from "@/data/sections";
 import { cn } from "@/lib/utils";
 
 /**
@@ -85,17 +86,6 @@ const PROFILE_LINKS = [
     href: "mailto:mail4shritejkoneru@gmail.com",
     external: false,
   },
-] as const;
-
-const SECTIONS = [
-  { number: "01", label: "Opening", href: "#opening" },
-  { number: "02", label: "Introduction", href: "#hero" },
-  { number: "03", label: "Work", href: "#work" },
-  { number: "04", label: "Open source", href: "#open-source" },
-  { number: "05", label: "Journey", href: "#about" },
-  { number: "06", label: "Toolkit", href: "#toolkit" },
-  { number: "07", label: "Contact", href: "#contact" },
-  { number: "08", label: "Resume", href: "#resume" },
 ] as const;
 
 /**
