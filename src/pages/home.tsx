@@ -4,6 +4,7 @@ import { AboutJourney } from "@/components/sections/about-journey";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
 import { TechnicalToolkit } from "@/components/sections/technical-toolkit";
+import ContactWithGlobeDemo from "@/components/contact-with-globe-demo";
 import BlueprintInkReveal from "@/components/ui/blueprint-ink-reveal";
 import InkReveal from "@/components/ui/ink-reveal";
 import { usePageTitle } from "@/lib/router";
@@ -24,8 +25,10 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * Scene 4 — the contribution skyline, in `open-source-activity.tsx`.
  * Scene 5 — about and the journey timeline, in `about-journey.tsx`.
  * Scene 6 — the technical toolkit, in `technical-toolkit.tsx`.
+ * Scene 7 — contact, with the wireframe globe and the message form, in
+ *           `src/components/ui/contact-with-globe.tsx`.
  *
- * Both scenes share the same blueprint-paper field (#F2F0E9) so the hand-off
+ * Every scene shares the same blueprint-paper field (#F2F0E9) so the hand-off
  * is a scroll, not a colour cut.
  *
  * The work itself now lives on its own page — one per project, at
@@ -191,6 +194,13 @@ export function HomePage() {
       {/* Scene 06 — the technical toolkit                                     */}
       {/* ------------------------------------------------------------------ */}
       <TechnicalToolkit />
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Scene 07 — contact, with the wireframe globe and the message form    */}
+      {/* ------------------------------------------------------------------ */}
+      <div id="contact">
+        <ContactWithGlobeDemo />
+      </div>
     </main>
   );
 }
