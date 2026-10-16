@@ -207,19 +207,6 @@ export const projects: Project[] = [
     repoUrl: "https://github.com/shritej-koneru/awssahe",
     featured: false,
   },
-  {
-    slug: "portfolio",
-    title: "Portfolio",
-    description:
-      "This site — a Digital Blueprint portfolio built with Vite, React and Tailwind.",
-    image: cover("portfolio"),
-    tech: ["TypeScript", "React", "Vite", "Tailwind CSS"],
-    liveUrl: "https://portfolio-seven-psi-l2qf199nrn.vercel.app",
-    liveKind: "site",
-    repoUrl: "https://github.com/shritej-koneru/portfolio",
-    featured: false,
-    status: "In Progress",
-  },
 ];
 
 /**

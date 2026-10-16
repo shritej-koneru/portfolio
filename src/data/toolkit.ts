@@ -82,7 +82,6 @@ export const technologies: Technology[] = [
       "multi-file-conversion",
       "lgc-official-website",
       "awssahe",
-      "portfolio",
     ],
   },
   {
@@ -125,7 +124,6 @@ export const technologies: Technology[] = [
       "projectnova",
       "multi-file-conversion",
       "lgc-official-website",
-      "portfolio",
     ],
   },
   {
@@ -144,13 +142,13 @@ export const technologies: Technology[] = [
     id: "tailwind",
     name: "Tailwind CSS",
     category: "web",
-    projectIds: ["projectnova", "lgc-official-website", "portfolio"],
+    projectIds: ["projectnova", "lgc-official-website"],
   },
   {
     id: "vite",
     name: "Vite",
     category: "web",
-    projectIds: ["lgc-official-website", "portfolio"],
+    projectIds: ["lgc-official-website"],
   },
   { id: "nextjs", name: "Next.js", category: "web", projectIds: ["projectnova"] },
   {

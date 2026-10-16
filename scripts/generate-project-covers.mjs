@@ -29,7 +29,6 @@ const projects = [
   { slug: "qr-display-hologram", title: "QR Display Hologram" },
   { slug: "uppalapati-farms-ghee", title: "Uppalapati Farms Ghee" },
   { slug: "awssahe", title: "AWS SAHE" },
-  { slug: "portfolio", title: "Portfolio" },
 ];
 
 const PAPER = "#F2F0E9";
