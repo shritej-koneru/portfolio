@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { AboutJourney } from "@/components/sections/about-journey";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
+import { IntroAbout } from "@/components/sections/intro-about";
 import { OpenSourceActivity } from "@/components/sections/open-source-activity";
 import { ResumeImpact } from "@/components/sections/resume-impact";
 import { TechnicalToolkit } from "@/components/sections/technical-toolkit";
@@ -23,7 +24,8 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  *
  * Scene 1 — interactive ink reveal over a photograph.
  * Scene 2 — blueprint ink reveal hero: the name is drafted as an outline plate
- *           and uncovered as solid type under the pointer.
+ *           and uncovered as solid type under the pointer, then the about block
+ *           (`intro-about.tsx`) closes the plate before the work begins.
  * Scene 3 — the Works Wheel, in `featured-projects.tsx`.
  * Scene 4 — the contribution skyline, in `open-source-activity.tsx`.
  * Scene 5 — about and the journey timeline, in `about-journey.tsx`.
@@ -36,8 +38,9 @@ const NAME_WORDMARK = "SHRITEJ\nKONERU";
  * hand-offs are scrolls rather than colour cuts. Scene 4 is the one dark plate,
  * inverting to ink (#111318) and back.
  *
- * The page's only landmark outside `<main>` is `@/components/site-footer`: a
- * short summary about Shritej, then an index of all eight scenes.
+ * The page's only landmark outside `<main>` is `@/components/site-footer`: an
+ * index of all eight scenes, and the way back to the top. The summary of who
+ * this is lives in scene 2's about block, not down here.
  *
  * The work itself now lives on its own page — one per project, at
  * `/work/<slug>` — so the wheel and the cards beneath it open a project rather
@@ -167,6 +170,11 @@ export function HomePage() {
                   </a>
                 </div>
               </div>
+
+              {/* The summary that used to close the page, under the name it
+                  belongs to and before the work it explains — the plate's last
+                  block, so the reader meets it on the way in. */}
+              <IntroAbout />
             </div>
           </div>
 
