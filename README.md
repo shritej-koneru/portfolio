@@ -43,6 +43,16 @@ paragraph printed twice. The hero's second button therefore opens its scene by
 name — **Journey**, not "About Me", which would now collide with the block
 directly below the buttons.
 
+The block's type is set to be read rather than to fill the column. Its labels are
+`text-[11px] font-medium` — the size the page already keeps as its floor for mono
+and the heaviest weight IBM Plex Mono is loaded in — the role line is
+`text-xl font-semibold`, the facts are `text-base font-medium` over a
+`text-sm font-normal` secondary line, the links are `font-medium`, and the prose
+is the page's own `text-base sm:text-lg`. Scene 05's matching column
+(`about-journey.tsx`) takes the same rules, because the two are one family.
+Nothing here is smaller than 11px or lighter than 400 except on purpose, and no
+line that is meant to be read sits under `ink/60`.
+
 ## Section eyebrows
 
 Scenes 02–08 open with the same line — `font-mono text-[11px] uppercase
