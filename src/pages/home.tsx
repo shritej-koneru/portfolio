@@ -148,7 +148,11 @@ export function HomePage() {
               />
 
               <div className="mx-auto mt-10 flex max-w-2xl flex-col items-center gap-5 text-center sm:mt-12">
-                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-ink/55 sm:text-[11px]">
+                {/* The plate's standfirst. It was 10px at `ink/55`, which is
+                    under the floor the page keeps for mono that is meant to be
+                    read, so it is 11px at `ink/60` and `font-medium` — small,
+                    but legible on the paper at any zoom. */}
+                <p className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-ink/60">
                   Computer Science Student · Developer · Builder
                 </p>
                 <p className="font-display text-xl leading-tight text-ink sm:text-2xl">

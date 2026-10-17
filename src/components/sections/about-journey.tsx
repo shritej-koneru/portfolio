@@ -106,12 +106,12 @@ export function AboutJourney() {
             <dl className="space-y-6">
               {FACTS.map((fact) => (
                 <div key={fact.term}>
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/65">
+                  <dt className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-ink/65">
                     {fact.term}
                   </dt>
-                  <dd className="mt-2 font-display text-base text-ink">
+                  <dd className="mt-2 font-display text-base font-medium text-ink">
                     {fact.detail}
-                    <span className="mt-1 block font-sans text-sm leading-relaxed text-ink/60">
+                    <span className="mt-1 block font-sans text-sm font-normal leading-relaxed text-ink/60">
                       {fact.sub}
                     </span>
                   </dd>
@@ -126,7 +126,7 @@ export function AboutJourney() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex min-h-[44px] items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   {link.label}
                   <span aria-hidden="true">↗</span>

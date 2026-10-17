@@ -25,6 +25,13 @@ import { GITHUB_PROFILE } from "@/data/projects";
  * read as one family. Small mono text stops at `ink/60`, which clears 4.5:1 on
  * the paper; the rules carry the structure, and nothing here is decoration.
  *
+ * The type is sized to be read rather than to fill the space: the labels are
+ * 11px and 500 (the floor the page already keeps for mono, and the heaviest
+ * weight IBM Plex Mono is loaded in), the role line is the block's statement at
+ * 600, the facts are 16px and 500 so the information carries, and the prose is
+ * the page's own `text-base sm:text-lg`. Nothing here is lighter than `400`
+ * except by intent, and nothing that is meant to be read is smaller than 11px.
+ *
  * The reveal is the page's usual one — a single IntersectionObserver, which
  * reduced motion skips, leaving the copy present and readable either way.
  */
@@ -72,7 +79,7 @@ const PROFILE_LINKS = [
 
 /** The profile links follow scene 05's, so the two blocks read as one family. */
 const LINK_CLASS =
-  "inline-flex min-h-[44px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "inline-flex min-h-[44px] items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors hover:text-blueprint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export function IntroAbout() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.08 });
@@ -86,15 +93,17 @@ export function IntroAbout() {
     >
       <h2
         id="intro-about-heading"
-        className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60"
+        className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-ink/60"
       >
         About Me
       </h2>
 
       <div className="mt-6 grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-14">
         <div className="space-y-4 text-pretty">
-          <p className="font-display text-lg leading-snug text-ink">{ROLE}</p>
-          <p className="text-base leading-relaxed text-ink/75">
+          <p className="font-display text-lg font-semibold leading-snug text-ink sm:text-xl">
+            {ROLE}
+          </p>
+          <p className="text-base leading-relaxed text-ink/75 sm:text-lg">
             I build for the web and for Android, and I care as much about how a
             thing looks as how it works. How I got here, and what I&apos;m
             learning next, is in the journey below.
@@ -105,12 +114,12 @@ export function IntroAbout() {
           <dl className="space-y-5">
             {DETAILS.map(({ term, detail, sub }) => (
               <div key={term}>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/60">
+                <dt className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-ink/60">
                   {term}
                 </dt>
-                <dd className="mt-1.5 font-display text-sm text-ink">
+                <dd className="mt-2 font-display text-base font-medium text-ink">
                   {detail}
-                  <span className="mt-0.5 block font-sans text-sm leading-relaxed text-ink/60">
+                  <span className="mt-0.5 block font-sans text-sm font-normal leading-relaxed text-ink/60">
                     {sub}
                   </span>
                 </dd>
