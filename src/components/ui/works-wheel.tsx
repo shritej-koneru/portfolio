@@ -389,6 +389,7 @@ export const WorksWheel = React.forwardRef<WorksWheelHandle, WorksWheelProps>(
                     ? { role: "option" as const, "aria-selected": i === active }
                     : { "aria-current": i === active ? true : undefined })}
                   {...(item.href ? { href: item.href } : {})}
+                  data-cursor={item.href ? "frame" : undefined}
                   ref={(node: HTMLElement | null) => {
                     cardRefs.current[i] = node;
                   }}

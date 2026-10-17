@@ -91,4 +91,21 @@
     @apply bg-background font-sans text-foreground antialiased;
     overflow-x: hidden;
   }
+
+  /*
+   * The orbital cursor (`src/components/blueprint-cursor.tsx`).
+   *
+   * Every control on the site asks for a cursor of its own — a hand on a link,
+   * a grab on the two canvases, a crosshair on the ink — and the custom cursor
+   * stands in for all of them at once, so the rule is total rather than a list.
+   *
+   * The attribute is set only once that cursor is on screen under a real
+   * pointer, and removed the moment the pointer leaves the window, the window
+   * loses focus, or the component goes away — so a device without a mouse, and
+   * the browser's own chrome, keep the cursor they came with.
+   */
+  html[data-orbital-cursor],
+  html[data-orbital-cursor] * {
+    cursor: none !important;
+  }
 }

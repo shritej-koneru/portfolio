@@ -77,6 +77,57 @@ becomes its containing block.
   0,0, so it is anchored to the focused element instead.
 - Project pages keep the browser's own menu; the index is the home page's.
 
+## Orbital cursor
+
+On a machine with a mouse the pointer is drawn by the site rather than by the OS
+(`src/components/blueprint-cursor.tsx`): a lime dot exactly under the pointer, a
+thin blueprint ring trailing it on a short leash, and four corner brackets that
+the ring *becomes* when the button goes down.
+
+The shape is the reason this is not two SVG icons. `src/lib/cursor-geometry.ts`
+draws the cursor as four quarter-strokes — one per corner of the pointer — and
+every state is a point on the way from the arc those quarters describe at rest to
+the bracket they describe when locked. Both are the same number of points in the
+same order, so the ring turns into the brackets continuously, over a tenth of a
+second, instead of one being swapped for the other.
+
+| What the pointer is over | What it looks like |
+| --- | --- |
+| the page | a 26px ring, dot at 5px |
+| a link, button, field or focusable thing | the ring opens to 38px, the dot grows |
+| a draggable surface | the ring opens wider still |
+| a project card | the brackets, held — squared up to the page |
+| the button, anywhere | the brackets, after a contract, a push back out and a dot pulse |
+
+- **The materials** are the site's: the ring and the brackets are
+  `--blueprint` at `currentColor`, the dot is `signal`, and the only extra mark is
+  a single ink hairline around the dot, which is invisible on ink and is what
+  keeps the lime legible on blueprint paper.
+- **The ring turns** one full turn every sixteen seconds. A four-fold shape is
+  identical every quarter turn, which is what lets a state change take the ring
+  over and put it wherever it likes without a visible jump — including squaring
+  the brackets up with the page as they arrive.
+- **Cards opt in** with `data-cursor="frame"` (the works wheel's cards and the
+  cards in the list beneath it). A drag needs no opt-in: the site already calls
+  those surfaces `cursor-grab`, and the two canvases — the skyline and the globe
+  — write their own `cursor` inline as they change mode. Both of those are read
+  directly rather than painted over.
+- **The native cursor is hidden late and restored early.** The attribute that
+  hides it goes on `<html>` only once the ring is on screen under a real pointer,
+  and comes off when the pointer leaves the window, the window loses focus, the
+  component unmounts, or the pointer stops being fine. `src/index.css` holds the
+  one rule; a stylesheet rule with `!important` is used so it also covers the
+  cursors the canvases set inline.
+- **Nothing reaches React.** One `pointermove` listener writes one transform; the
+  ring's leash is a `requestAnimationFrame` that stops the moment the ring has
+  caught up; the rest is GSAP writing paths straight to the DOM. The component
+  renders once and never again.
+- **Reduced motion** stops the turn and the dot pulse, changes state in a frame
+  rather than a quarter second, and puts the ring on the pointer with no leash.
+- The cursor is `pointer-events: none` and `aria-hidden`, so it can never
+  intercept a click, a drag or a fragment jump — and it is never the only
+  indication of anything, since every focus style on the site is untouched.
+
 ## Pages and routing
 
 The site is a single-page app with two kinds of address, both handled by

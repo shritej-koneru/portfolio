@@ -96,6 +96,7 @@ function ProjectList({
       {items.map((project) => (
         <li
           key={project.slug}
+          data-cursor="frame"
           className="flex flex-col overflow-hidden rounded-xl border border-ink/12 bg-card"
         >
           {!compact && project.image ? (
