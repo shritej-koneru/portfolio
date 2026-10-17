@@ -162,11 +162,14 @@ export function HomePage() {
                   >
                     Explore Projects
                   </a>
+                  {/* Named for the scene it opens, like the index names it:
+                      scene 05 is the journey. "About Me" would now collide
+                      with the about block directly below this row. */}
                   <a
                     href="#about"
                     className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-ink/25 px-7 py-3 font-mono text-[11px] uppercase tracking-[0.25em] text-ink/80 transition-colors hover:border-ink hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blueprint focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    About Me
+                    Journey
                   </a>
                 </div>
               </div>

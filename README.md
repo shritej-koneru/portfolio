@@ -6,10 +6,13 @@ typography.
 
 - **Stack:** Vite + React 18 + TypeScript + Tailwind CSS
 - **Deploy:** Vercel (static `dist/`), project `portfolio` on the Custom Craft Team account
-- **Branches:** all work happens on `redesign`, and that branch is the Vercel
+- **Branches:** all work happens on `main`, and that branch is the Vercel
   project's **production branch** — pushing to it publishes straight to the live
-  site (`portfolio-seven-psi-l2qf199nrn.vercel.app`). `main` holds the previous
-  design and never receives redesign work.
+  site. Both public hostnames are the project's own domains and serve the newest
+  production deployment: `portfolio-custom-craft-team.vercel.app` (the project
+  domain) and `portfolio-seven-psi-l2qf199nrn.vercel.app` (the custom production
+  domain). Deployment Protection is off, so a visitor needs no Vercel account.
+  `redesign` is left where it stopped (`230b8ad`) and no longer deploys anything.
 
 ## Opening scenes
 
@@ -25,6 +28,20 @@ typography.
 Scene 2 honours `prefers-reduced-motion` by removing the *motion*, not the piece
 (it snaps instead of springing). Scene 1 runs the source component's own brush
 motion unchanged.
+
+Scene 2 also carries the page's about block
+(`src/components/sections/intro-about.tsx`): the role line, one paragraph, the
+resume facts and the three ways to reach me — GitHub, LinkedIn and the address.
+It opened the footer at the very bottom of the page until it moved up here, so a
+reader meets it under the name it belongs to and before the work it explains
+rather than after all eight scenes. The footer is now the site index and the way
+back to the top, and nothing else.
+
+The paragraph is the block's own wording, not a copy of scene 05's: the journey
+tells the same story at length, and the two are not allowed to read as one
+paragraph printed twice. The hero's second button therefore opens its scene by
+name — **Journey**, not "About Me", which would now collide with the block
+directly below the buttons.
 
 ## Section eyebrows
 

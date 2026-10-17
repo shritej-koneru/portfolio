@@ -14,6 +14,12 @@ import { GITHUB_PROFILE } from "@/data/projects";
  * location are scene 05's resume facts, and the current role is the milestone
  * `@/data/timeline` already carries.
  *
+ * The paragraph is the one exception. Scene 05 opens on the long version of the
+ * same story, and this block's copy was a condensation of it sentence for
+ * sentence, so the page was saying the same thing twice in near enough the same
+ * words. The paragraph below is now the block's own: what the work is and what
+ * matters in it, with the history handed to the journey it sits above.
+ *
  * The two-column editorial split is scene 05's (`about-journey.tsx`): prose on
  * the left, the facts and the ways to reach me on the right, so the two blocks
  * read as one family. Small mono text stops at `ink/60`, which clears 4.5:1 on
@@ -89,10 +95,9 @@ export function IntroAbout() {
         <div className="space-y-4 text-pretty">
           <p className="font-display text-lg leading-snug text-ink">{ROLE}</p>
           <p className="text-base leading-relaxed text-ink/75">
-            I build software end to end — the interface, the code and the
-            deploy. Most of it starts as something I wanted to exist, and
-            I&apos;m going deeper on the other side of that work: REST APIs,
-            data pipelines and cloud tooling.
+            I build for the web and for Android, and I care as much about how a
+            thing looks as how it works. How I got here, and what I&apos;m
+            learning next, is in the journey below.
           </p>
         </div>
 
