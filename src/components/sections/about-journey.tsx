@@ -140,7 +140,7 @@ export function AboutJourney() {
       <Timeline
         items={items}
         label="Fig. 05.1 — The Journey"
-        periodLabel="2012 → Present"
+        periodLabel="Present → Past"
         imageSrc="/images/campus-park-intro.jpg"
         imageAlt="Shritej Koneru standing in a campus park"
         imageCaption="Vijayawada, Andhra Pradesh"

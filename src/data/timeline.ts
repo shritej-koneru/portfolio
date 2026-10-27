@@ -57,8 +57,9 @@ export interface Milestone {
 }
 
 /**
- * Chronological. Two entries that share a month keep the order they are written
- * in here, which is why `sort` is stable rather than a tie-broken comparison.
+ * Reverse chronological. Two entries that share a month keep the order they are
+ * written in here, which is why `sort` is stable rather than a tie-broken
+ * comparison. This puts the current/present status at the head of the timeline.
  */
 const milestoneList: Milestone[] = [
   {
@@ -199,9 +200,9 @@ const milestoneList: Milestone[] = [
   },
 ];
 
-/** Chronological, with the written order kept for entries sharing a month. */
+/** Reverse chronological, with the written order kept for entries sharing a month. */
 export function getMilestones(): Milestone[] {
   return [...milestoneList].sort((a, b) =>
-    a.start < b.start ? -1 : a.start > b.start ? 1 : 0,
+    a.start < b.start ? 1 : a.start > b.start ? -1 : 0,
   );
 }

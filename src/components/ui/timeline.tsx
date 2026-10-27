@@ -655,7 +655,7 @@ function PinnedTimeline({
             chronological order.
           */}
           <ol
-            aria-label="Timeline of education, roles and learning milestones"
+            aria-label="Timeline of education, roles and learning milestones (present to past)"
             className="absolute inset-0 list-none p-0"
           >
             {items.map((item, index) => {
